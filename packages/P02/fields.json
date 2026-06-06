@@ -1,0 +1,220 @@
+{
+  "package_code": "P02",
+  "config_version": "P02-fields-v0.3-ai-connected",
+  "description": "P02 OCR结构化JSON到HTML模板data-field的初步映射配置。AI诊断类字段已接入DeepSeek，可由AI生成后进入人工审查。",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "patient.hospital",
+    "report.report_id",
+    "report.assessment_date",
+    "sample.type",
+    "sample.condition",
+    "p02.calprotectin.result_display",
+    "p02.calprotectin.reference_range",
+    "p02.allergen.overall_result",
+    "p02.allergen.reference_range",
+    "p02.total_ige.result_display",
+    "p02.total_ige.reference_range",
+    "p02.overall_summary",
+    "p02.followup_advice"
+  ],
+  "optional_fields": [
+    "patient.phone",
+    "patient.symptoms",
+    "report.sample_date",
+    "report.receive_date",
+    "report.report_date",
+    "p02.calprotectin.method",
+    "p02.total_ige.method",
+    "p02.allergen.positive_items",
+    "p02.allergen.items"
+  ],
+  "field_mapping": [
+    {
+      "key": "patient.name",
+      "label": "姓名",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.name",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.gender",
+      "label": "性别",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.gender",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.age",
+      "label": "年龄",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.age",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.hospital",
+      "label": "送检单位",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.hospital",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.report_id",
+      "label": "报告编号",
+      "pages": ["page-01.html"],
+      "source": "structured_report.report_id",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.type",
+      "label": "样本信息",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.specimen_types",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.condition",
+      "label": "标本情况",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.specimen_condition",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_date",
+      "label": "评估日期",
+      "pages": ["page-01.html"],
+      "source": "structured_report.additional_info.sample_date",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_type",
+      "label": "评估类型",
+      "pages": ["page-01.html"],
+      "source": "static:肠道功能评估健康管理报告",
+      "fill_type": "static",
+      "status": "mapped"
+    },
+    {
+      "key": "report.method",
+      "label": "评估方法",
+      "pages": ["page-01.html"],
+      "source": "structured_report.tests[].method",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.calprotectin.result_display",
+      "label": "粪便钙卫蛋白检测结果",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 钙卫蛋白].result + indicator",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.calprotectin.reference_range",
+      "label": "粪便钙卫蛋白参考范围",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 钙卫蛋白].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.calprotectin.interpretation",
+      "label": "粪便钙卫蛋白结果解读",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "DeepSeek.indicator_interpretations.fecal_calprotectin",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.allergen.overall_result",
+      "label": "过敏原整体检测结果",
+      "pages": ["page-02.html"],
+      "source": "structured_report.tests[allergen positive items]",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.allergen.reference_range",
+      "label": "过敏原参考范围",
+      "pages": ["page-02.html"],
+      "source": "structured_report.tests[allergen].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.allergen.interpretation",
+      "label": "过敏原结果解读",
+      "pages": ["page-02.html"],
+      "source": "DeepSeek.indicator_interpretations.allergen_panel",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.total_ige.result_display",
+      "label": "特异性总IgE检测结果",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 总IgE].result + indicator",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.total_ige.reference_range",
+      "label": "特异性总IgE参考范围",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 总IgE].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p02.total_ige.interpretation",
+      "label": "特异性总IgE结果解读",
+      "pages": ["page-02.html", "page-05.html"],
+      "source": "DeepSeek.indicator_interpretations.total_ige",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.overall_summary",
+      "label": "综合评估摘要",
+      "pages": ["page-02.html"],
+      "source": "DeepSeek.overall_summary",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.followup_advice",
+      "label": "后续建议",
+      "pages": ["page-02.html"],
+      "source": "DeepSeek.recommendations.followup_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.immune_system_summary",
+      "label": "肠道免疫系统摘要",
+      "pages": ["page-05.html"],
+      "source": "DeepSeek.recommendations.immune_system_summary",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.inflammation_immune_advice",
+      "label": "炎症与免疫管理建议",
+      "pages": ["page-05.html"],
+      "source": "DeepSeek.recommendations.inflammation_immune_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    }
+  ]
+}

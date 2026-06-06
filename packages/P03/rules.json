@@ -1,0 +1,68 @@
+{
+  "package_code": "P03",
+  "version": "P03-rules-v0.1-draft",
+  "status": "draft",
+  "source": "ai_generated_pending_human_review",
+  "rules": [
+    {
+      "rule_id": "p03_tg_high",
+      "item_code": "tg",
+      "item_name": "甘油三酯 TG",
+      "condition": { "operator": ">", "value": 1.7, "unit": "mmol/L" },
+      "classification": { "risk_level": "attention", "result_display": "升高（↑）" },
+      "report_text": {
+        "short_interpretation": "提示血脂代谢异常，需要关注甘油三酯相关代谢风险。",
+        "advice": "建议结合饮食结构、体重、运动和饮酒情况进行健康管理。"
+      },
+      "review": { "required": true, "reviewer_role": "inspector" }
+    },
+    {
+      "rule_id": "p03_hdl_low",
+      "item_code": "hdl_c",
+      "item_name": "高密度脂蛋白 HDL-C",
+      "condition": { "operator": "<", "value": 1.04, "unit": "mmol/L" },
+      "classification": { "risk_level": "attention", "result_display": "偏低（↓）" },
+      "report_text": {
+        "short_interpretation": "提示血脂保护性指标偏低，需要关注心血管代谢风险。",
+        "advice": "建议结合运动、体重管理和膳食脂肪结构进行综合干预。"
+      },
+      "review": { "required": true, "reviewer_role": "inspector" }
+    },
+    {
+      "rule_id": "p03_glucose_high",
+      "item_code": "glucose",
+      "item_name": "空腹血糖 GLU",
+      "condition": { "operator": ">", "value": 6.1, "unit": "mmol/L" },
+      "classification": { "risk_level": "attention", "result_display": "偏高（↑）" },
+      "report_text": {
+        "short_interpretation": "提示血糖代谢需要关注。",
+        "advice": "建议结合糖化血红蛋白、胰岛素和生活方式信息进一步评估。"
+      },
+      "review": { "required": true, "reviewer_role": "inspector" }
+    },
+    {
+      "rule_id": "p03_homa_ir_attention",
+      "item_code": "homa_ir",
+      "item_name": "HOMA-IR 胰岛素抵抗指数",
+      "condition": { "operator": ">=", "value": 2.5 },
+      "classification": { "risk_level": "attention", "result_display": "胰岛素抵抗风险" },
+      "report_text": {
+        "short_interpretation": "提示存在胰岛素抵抗相关风险线索。",
+        "advice": "建议结合腰围、体重、运动和饮食结构进行健康管理。"
+      },
+      "review": { "required": true, "reviewer_role": "inspector" }
+    },
+    {
+      "rule_id": "p03_tg_hdl_ratio_high",
+      "item_code": "tg_hdl_ratio",
+      "item_name": "TG/HDL-C 比值",
+      "condition": { "operator": ">", "value": 2.0 },
+      "classification": { "risk_level": "attention", "result_display": "升高" },
+      "report_text": {
+        "short_interpretation": "提示致动脉粥样硬化血脂谱相关风险需要关注。",
+        "advice": "建议结合血脂全谱和生活方式因素进行分层管理。"
+      },
+      "review": { "required": true, "reviewer_role": "inspector" }
+    }
+  ]
+}

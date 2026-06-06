@@ -1,0 +1,29 @@
+{
+  "package_code": "P01",
+  "strategy_version": "P01-ocr-strategy-v0.2-summary-structured",
+  "status": "draft",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P01",
+  "goals": [
+    "将P01深度肠道健康管理评估相关PDF统一归一化为标准JSON",
+    "优先抽取患者基础信息、报告编号、采样/报告日期、GMHI、肠龄、菌群多样性、肠型、菌群组成和风险提示",
+    "当前已基于王承业（肠道）样例将目录页误识别修正为章节页与总结页联合解析策略"
+  ],
+  "target_indicators": [
+    "GMHI肠道菌群健康指数",
+    "肠龄",
+    "时序年龄",
+    "肠型",
+    "菌群多样性",
+    "菌群平衡指数",
+    "有益菌",
+    "条件致病菌",
+    "中性菌",
+    "短链脂肪酸能力",
+    "免疫炎症风险",
+    "肠道屏障功能"
+  ],
+  "notes": [
+    "已优先解析基础信息、GMHI、肠龄、肠型、菌群多样性、F/B、B/E、菌群分层、疾病总结、质控等结构；后续继续扩展图像页字段。",
+    "AI解读输出必须进入人工审查后才可导出PDF。"
+  ]
+}

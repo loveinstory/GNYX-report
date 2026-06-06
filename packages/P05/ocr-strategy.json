@@ -1,0 +1,15 @@
+{
+  "package_code": "P05",
+  "strategy_version": "P05-ocr-strategy-v0.2-multipage-rapidocr",
+  "status": "draft",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P05",
+  "goals": [
+    "将 P05 压力激素与睡眠状态评估相关 PDF 统一结构化为标准 JSON",
+    "优先抽取基础信息、压力轴、儿茶酚胺、神经递质、甲状腺功能、睡眠质量与干预建议",
+    "对文本层空白页启用 RapidOCR 图片补偿，提升多页合并版 P05 PDF 的识别完整度"
+  ],
+  "notes": [
+    "已基于 P05孙楠楠.pdf 与标准 JSON 增强多页合并版识别能力。",
+    "后续继续补充 P05 指标规则、参考范围、AI 输出契约和页面字段映射。"
+  ]
+}

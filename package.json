@@ -1,0 +1,20 @@
+{
+  "name": "awk-report-gnyx",
+  "version": "0.1.0",
+  "private": true,
+  "description": "安为康功能医学报告生成平台",
+  "workspaces": [
+    "apps/desktop"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/desktop run dev",
+    "build:web": "npm --workspace apps/desktop run build",
+    "dev:api": ".\\.venv\\Scripts\\python -m uvicorn app.main:app --host 0.0.0.0 --port 8111 --app-dir services/api",
+    "check:api": ".\\.venv\\Scripts\\python -m compileall services/api/app",
+    "check": "npm run build:web && npm run check:api"
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  }
+}

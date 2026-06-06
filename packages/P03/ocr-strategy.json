@@ -1,0 +1,82 @@
+{
+  "package_code": "P03",
+  "strategy_version": "P03-ocr-strategy-v0.3-c-peptide-prefix",
+  "status": "draft",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "goals": [
+    "将P03糖脂代谢PDF报告统一归一化为标准JSON",
+    "以DeepSeek人工校准JSON为基准，提升条码、患者信息、标本类型、检测明细、方法学和签名日期的识别稳定性",
+    "识别17项糖脂代谢相关检测结果，并支持后续计算TG/HDL-C、HOMA-IR、非HDL-C等衍生指标",
+    "保留OCR解析日志用于比较不同OCR策略和云端OCR结果"
+  ],
+  "current_provider": "pdf-text-extractor",
+  "fallback_provider": "cloud-ocr",
+  "target_fields": [
+    "report_info.laboratory",
+    "report_info.report_name",
+    "report_info.barcode",
+    "report_info.barcode_alt",
+    "patient_info.name",
+    "patient_info.gender",
+    "patient_info.age",
+    "patient_info.submitting_unit",
+    "patient_info.specimen_status",
+    "patient_info.specimen_type",
+    "patient_info.specimen_type_alt",
+    "test_results[].test_name",
+    "test_results[].result",
+    "test_results[].indicator",
+    "test_results[].reference_range",
+    "test_results[].unit",
+    "test_results[].method",
+    "dates.sampling_date",
+    "dates.receiving_date",
+    "dates.report_date",
+    "signatures.detected_by",
+    "signatures.reviewed_by",
+    "signatures.approved_by"
+  ],
+  "target_indicators": [
+    "白蛋白（ALB）",
+    "葡萄糖（GLU）",
+    "糖化血清蛋白（GSP）",
+    "总胆固醇（TCH）",
+    "甘油三酯（TG）",
+    "高密度脂蛋白胆固醇（HDL-C）",
+    "低密度脂蛋白胆固醇（LDL-C）",
+    "载脂蛋白A1 (APO-A1)",
+    "载脂蛋白B (APO-B)",
+    "载脂蛋白A1／载脂蛋白B",
+    "脂蛋白a (LP(a))",
+    "C 肽（C-P）",
+    "胰岛素（Ins）",
+    "糖化血红蛋白A1C",
+    "平均血糖",
+    "糖化血红蛋白A1",
+    "糖化血红蛋白A1ab"
+  ],
+  "method_candidates": [
+    "比色法",
+    "葡萄糖氧化酶法",
+    "NBT 法",
+    "酶比色法",
+    "免疫比浊法",
+    "计算法",
+    "化学发光法",
+    "高效液相色谱法"
+  ],
+  "comparison_keys": [
+    "source_file",
+    "strategy_version",
+    "provider",
+    "structured_report.report_id",
+    "p03_extracted_report.report_info.barcode",
+    "p03_extracted_report.report_info.barcode_alt",
+    "p03_extracted_report.test_results[].test_name"
+  ],
+  "quality_gate": {
+    "expected_test_count": 17,
+    "minimum_without_warning": 12,
+    "required_codes": ["glucose", "hba1c", "insulin", "tg", "tch", "hdl_c", "ldl_c"]
+  }
+}

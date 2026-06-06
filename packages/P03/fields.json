@@ -1,0 +1,454 @@
+{
+  "package_code": "P03",
+  "config_version": "P03-fields-v0.2-deepseek-benchmark",
+  "description": "P03 糖脂代谢综合评估健康管理报告字段配置研发版。先接入核心糖脂代谢指标、计算指标和AI解读字段，后续根据P03真实/脱敏PDF样例继续细化OCR规则。",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "report.report_id",
+    "report.assessment_type",
+    "report.assessment_date",
+    "sample.type",
+    "p03.glucose.result_display",
+    "p03.hba1c.result_display",
+    "p03.insulin.result_display",
+    "p03.tg.result_display",
+    "p03.tch.result_display",
+    "p03.hdl_c.result_display",
+    "p03.ldl_c.result_display",
+    "p03.overall_summary",
+    "p03.followup_advice"
+  ],
+  "optional_fields": [
+    "patient.phone",
+    "patient.symptoms",
+    "patient.hospital",
+    "report.sample_date",
+    "report.receive_date",
+    "report.report_date",
+    "p03.alb.result_display",
+    "p03.gsp.result_display",
+    "p03.avg_glucose.result_display",
+    "p03.c_peptide.result_display",
+    "p03.apo_a1.result_display",
+    "p03.apo_b.result_display",
+    "p03.apo_a1_b_ratio.result_display",
+    "p03.lp_a.result_display",
+    "p03.hba1.result_display",
+    "p03.hba1ab.result_display",
+    "p03.tg_hdl_ratio.result_display",
+    "p03.homa_ir.result_display",
+    "p03.non_hdl_c.result_display"
+  ],
+  "field_mapping": [
+    {
+      "key": "patient.name",
+      "label": "姓名",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.name",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.gender",
+      "label": "性别",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.gender",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.age",
+      "label": "年龄",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.age",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.phone",
+      "label": "联系电话",
+      "pages": ["page-01.html"],
+      "source": "default:/",
+      "fill_type": "default",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.symptoms",
+      "label": "相关症状",
+      "pages": ["page-01.html"],
+      "source": "default:/",
+      "fill_type": "default",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_type",
+      "label": "评估类型",
+      "pages": ["page-01.html"],
+      "source": "static:糖脂代谢综合评估",
+      "fill_type": "static",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.type",
+      "label": "样本信息",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.specimen_types",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.method",
+      "label": "评估方法",
+      "pages": ["page-01.html"],
+      "source": "static:化学发光/酶比色法",
+      "fill_type": "static",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_date",
+      "label": "评估日期",
+      "pages": ["page-01.html"],
+      "source": "structured_report.additional_info.sample_date",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.overall_status",
+      "label": "糖脂代谢总体评估",
+      "pages": ["page-02.html", "page-06.html"],
+      "source": "rules.p03.overall_status",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.overall_summary",
+      "label": "智能解读",
+      "pages": ["page-02.html"],
+      "source": "DeepSeek.overall_summary",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.glucose.result_display",
+      "label": "空腹血糖结果",
+      "pages": ["page-02.html", "page-03.html"],
+      "source": "structured_report.tests[test_name contains 空腹血糖|GLU].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.hba1c.result_display",
+      "label": "糖化血红蛋白A1C结果",
+      "pages": ["page-03.html"],
+      "source": "structured_report.tests[test_name contains 糖化|A1C|HbA1c].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.avg_glucose.result_display",
+      "label": "平均血糖结果",
+      "pages": ["page-03.html"],
+      "source": "structured_report.tests[test_name contains 平均血糖].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.alb.result_display",
+      "label": "白蛋白ALB结果",
+      "pages": ["ocr-json"],
+      "source": "structured_report.tests[item_code=alb].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.gsp.result_display",
+      "label": "糖化血清蛋白GSP结果",
+      "pages": ["ocr-json"],
+      "source": "structured_report.tests[item_code=gsp].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.hba1.result_display",
+      "label": "糖化血红蛋白A1结果",
+      "pages": ["ocr-json"],
+      "source": "structured_report.tests[item_code=hba1].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.hba1ab.result_display",
+      "label": "糖化血红蛋白A1ab结果",
+      "pages": ["ocr-json"],
+      "source": "structured_report.tests[item_code=hba1ab].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.insulin.result_display",
+      "label": "胰岛素结果",
+      "pages": ["page-03.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 胰岛素|Ins].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.c_peptide.result_display",
+      "label": "C肽结果",
+      "pages": ["page-03.html"],
+      "source": "structured_report.tests[item_code=c_peptide].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.c_peptide.reference_range",
+      "label": "C肽参考范围",
+      "pages": ["page-03.html"],
+      "source": "structured_report.tests[item_code=c_peptide].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.c_peptide.unit",
+      "label": "C肽单位",
+      "pages": ["page-03.html"],
+      "source": "structured_report.tests[item_code=c_peptide].unit",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.c_peptide.status",
+      "label": "C肽评估状态",
+      "pages": ["page-03.html"],
+      "source": "rules.p03.c_peptide.status",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.tg.result_display",
+      "label": "甘油三酯TG结果",
+      "pages": ["page-02.html", "page-04.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 甘油三酯|TG].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.tch.result_display",
+      "label": "总胆固醇TCH结果",
+      "pages": ["page-04.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 总胆固醇|TCH|TC].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.hdl_c.result_display",
+      "label": "高密度脂蛋白HDL-C结果",
+      "pages": ["page-02.html", "page-04.html", "page-05.html"],
+      "source": "structured_report.tests[test_name contains 高密度|HDL].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.ldl_c.result_display",
+      "label": "低密度脂蛋白LDL-C结果",
+      "pages": ["page-02.html", "page-04.html"],
+      "source": "structured_report.tests[test_name contains 低密度|LDL].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1.result_display",
+      "label": "载脂蛋白A1结果",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1.reference_range",
+      "label": "载脂蛋白A1参考范围",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1.unit",
+      "label": "载脂蛋白A1单位",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1].unit",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1.status",
+      "label": "载脂蛋白A1评估状态",
+      "pages": ["page-04.html"],
+      "source": "rules.p03.apo_a1.status",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_b.result_display",
+      "label": "载脂蛋白B结果",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_b].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_b.reference_range",
+      "label": "载脂蛋白B参考范围",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_b].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_b.unit",
+      "label": "载脂蛋白B单位",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_b].unit",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_b.status",
+      "label": "载脂蛋白B评估状态",
+      "pages": ["page-04.html"],
+      "source": "rules.p03.apo_b.status",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1_b_ratio.result_display",
+      "label": "APO-A1/APO-B比值",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1_b_ratio].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1_b_ratio.reference_range",
+      "label": "APO-A1/APO-B参考范围",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1_b_ratio].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1_b_ratio.unit",
+      "label": "APO-A1/APO-B单位",
+      "pages": ["page-04.html"],
+      "source": "structured_report.tests[item_code=apo_a1_b_ratio].unit",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.apo_a1_b_ratio.status",
+      "label": "APO-A1/APO-B评估状态",
+      "pages": ["page-04.html"],
+      "source": "rules.p03.apo_a1_b_ratio.status",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.lp_a.result_display",
+      "label": "脂蛋白a结果",
+      "pages": ["ocr-json"],
+      "source": "structured_report.tests[item_code=lp_a].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.tg_hdl_ratio.result_display",
+      "label": "TG/HDL-C比值",
+      "pages": ["page-05.html"],
+      "source": "derived:p03.tg / p03.hdl_c",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.homa_ir.result_display",
+      "label": "HOMA-IR胰岛素抵抗指数",
+      "pages": ["page-05.html"],
+      "source": "derived:p03.glucose * p03.insulin / 22.5",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.non_hdl_c.result_display",
+      "label": "非HDL-C",
+      "pages": ["page-05.html"],
+      "source": "derived:p03.tch - p03.hdl_c",
+      "fill_type": "derived",
+      "status": "mapped"
+    },
+    {
+      "key": "p03.glucose.interpretation",
+      "label": "血糖代谢解读",
+      "pages": ["page-03.html"],
+      "source": "DeepSeek.indicator_interpretations.glucose_metabolism",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.lipid.interpretation",
+      "label": "血脂全谱解读",
+      "pages": ["page-04.html"],
+      "source": "DeepSeek.indicator_interpretations.lipid_panel",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.balance_index.interpretation",
+      "label": "关键代谢平衡指数解读",
+      "pages": ["page-05.html"],
+      "source": "DeepSeek.indicator_interpretations.balance_indexes",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.risk_assessment",
+      "label": "疾病风险综合评估",
+      "pages": ["page-06.html"],
+      "source": "DeepSeek.risk_assessment",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.diet_advice",
+      "label": "饮食管理建议",
+      "pages": ["page-07.html"],
+      "source": "DeepSeek.recommendations.diet_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.exercise_advice",
+      "label": "运动与生活方式建议",
+      "pages": ["page-08.html"],
+      "source": "DeepSeek.recommendations.exercise_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.nutrition_advice",
+      "label": "营养干预建议",
+      "pages": ["page-08.html"],
+      "source": "DeepSeek.recommendations.nutrition_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p03.followup_advice",
+      "label": "长期健康管理建议",
+      "pages": ["page-09.html", "page-10.html"],
+      "source": "DeepSeek.recommendations.followup_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    }
+  ]
+}

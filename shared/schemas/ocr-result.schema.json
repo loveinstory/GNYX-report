@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awk.local/schemas/ocr-result.schema.json",
+  "title": "AWK Standard OCR Result",
+  "type": "object",
+  "required": ["schema_version", "package_code", "source_file", "strategy_version", "provider", "pages", "fields", "created_at"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "package_code": { "type": "string" },
+    "source_file": { "type": "string" },
+    "strategy_version": { "type": "string" },
+    "provider": { "type": "string" },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page_number", "text_blocks"],
+        "properties": {
+          "page_number": { "type": "integer" },
+          "width": { "type": ["number", "null"] },
+          "height": { "type": ["number", "null"] },
+          "text_blocks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text", "confidence"],
+              "properties": {
+                "text": { "type": "string" },
+                "confidence": { "type": "number" },
+                "bbox": {
+                  "type": ["array", "null"],
+                  "items": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field_key", "label", "value", "confidence", "source"],
+        "properties": {
+          "field_key": { "type": "string" },
+          "label": { "type": "string" },
+          "value": { "type": ["string", "number", "null"] },
+          "confidence": { "type": "number" },
+          "source": { "type": "object" }
+        }
+      }
+    },
+    "indicators": {
+      "type": "object",
+      "description": "按套餐指标键聚合后的结构化指标，供规则引擎和模板填充使用。"
+    },
+    "structured_report": {
+      "type": "object",
+      "required": ["report_id", "patient_info", "tests", "notes", "additional_info"],
+      "properties": {
+        "report_id": { "type": "string" },
+        "patient_info": {
+          "type": "object",
+          "required": ["name", "gender", "age", "specimen_condition", "specimen_types", "hospital"],
+          "properties": {
+            "name": { "type": "string" },
+            "gender": { "type": "string" },
+            "age": { "type": ["integer", "string", "null"] },
+            "specimen_condition": { "type": "string" },
+            "specimen_types": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "hospital": { "type": "string" },
+            "patient_number": { "type": "string" },
+            "bed_number": { "type": "string" },
+            "department": { "type": "string" },
+            "doctor": { "type": "string" },
+            "clinical_diagnosis": { "type": "string" }
+          }
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["page", "specimen_type", "test_name", "result", "indicator", "reference_range", "unit", "method"],
+            "properties": {
+              "page": { "type": "integer" },
+              "specimen_type": { "type": "string" },
+              "test_name": { "type": "string" },
+              "result": { "type": "string" },
+              "indicator": { "type": "string" },
+              "reference_range": { "type": "string" },
+              "unit": { "type": "string" },
+              "method": { "type": "string" }
+            }
+          }
+        },
+        "notes": { "type": "string" },
+        "additional_info": {
+          "type": "object",
+          "required": ["sample_date", "receive_date", "report_date", "technician", "reviewer", "approver"],
+          "properties": {
+            "sample_date": { "type": "string" },
+            "receive_date": { "type": "string" },
+            "report_date": { "type": "string" },
+            "technician": { "type": "string" },
+            "reviewer": { "type": "string" },
+            "approver": { "type": "string" }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "created_at": { "type": "string" },
+    "debug": { "type": "object" }
+  }
+}

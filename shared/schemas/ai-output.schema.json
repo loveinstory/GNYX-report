@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awk.local/schemas/ai-output.schema.json",
+  "title": "AWK AI Interpretation Output",
+  "type": "object",
+  "required": ["overall_summary", "indicator_interpretations", "recommendations", "safety"],
+  "properties": {
+    "overall_summary": { "type": "string" },
+    "risk_tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "indicator_interpretations": { "type": "object" },
+    "recommendations": { "type": "object" },
+    "safety": {
+      "type": "object",
+      "required": ["disclaimer", "requires_human_review"],
+      "properties": {
+        "disclaimer": { "type": "string" },
+        "requires_human_review": { "type": "boolean" }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,30 @@
+{
+  "package_code": "P05",
+  "package_name": "压力激素与睡眠状态评估管理报告",
+  "status": "development",
+  "version": "0.1.0",
+  "template_version": "P05-html-v0.1",
+  "rule_version": "P05-rules-v0.1-draft",
+  "prompt_version": "P05-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "评估结果概览与核心指标", "enabled": true },
+    { "page": "page-03.html", "title": "压力轴（HPA）深度评估", "enabled": true },
+    { "page": "page-04.html", "title": "儿茶酚胺与交感神经系统", "enabled": true },
+    { "page": "page-05.html", "title": "代谢产物与神经递质平衡", "enabled": true },
+    { "page": "page-06.html", "title": "甲状腺功能与代谢基础", "enabled": true },
+    { "page": "page-07.html", "title": "睡眠质量与昼夜节律分析", "enabled": true },
+    { "page": "page-08.html", "title": "精准干预方案：营养补充", "enabled": true },
+    { "page": "page-09.html", "title": "精准干预方案：生活方式", "enabled": true },
+    { "page": "page-10.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

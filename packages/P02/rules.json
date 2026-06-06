@@ -1,0 +1,45 @@
+{
+  "package_code": "P02",
+  "version": "P02-rules-v0.1-draft",
+  "status": "draft",
+  "source": "ai_generated_pending_human_review",
+  "rules": [
+    {
+      "rule_id": "p02_fecal_calprotectin_weak_positive",
+      "item_code": "fecal_calprotectin",
+      "item_name": "粪便钙卫蛋白",
+      "condition": { "result_level": "weak_positive" },
+      "classification": { "risk_level": "attention", "result_display": "弱阳性（↑）" },
+      "report_text": {
+        "short_interpretation": "提示肠道炎症相关指标需要关注。",
+        "advice": "建议结合症状、既往史和其他检查结果进行综合评估。"
+      },
+      "review": { "required": true, "reviewer_role": "medical_reviewer" }
+    },
+    {
+      "rule_id": "p02_total_ige_positive",
+      "item_code": "total_ige",
+      "item_name": "总 IgE",
+      "condition": { "result_level": "positive" },
+      "classification": { "risk_level": "attention", "result_display": "阳性（↑）" },
+      "report_text": {
+        "short_interpretation": "提示过敏相关免疫反应需要关注。",
+        "advice": "建议结合过敏原检测结果和实际症状进行健康管理。"
+      },
+      "review": { "required": true, "reviewer_role": "medical_reviewer" }
+    },
+    {
+      "rule_id": "p02_allergen_panel_negative",
+      "item_code": "allergen_panel",
+      "item_name": "过敏原检测",
+      "condition": { "result_level": "negative" },
+      "classification": { "risk_level": "normal", "result_display": "所有检测项目均为阴性" },
+      "report_text": {
+        "short_interpretation": "当前未见已检测过敏原的阳性反应。",
+        "advice": "如仍有相关症状，可结合饮食、环境和迟发反应继续观察。"
+      },
+      "review": { "required": false, "reviewer_role": "health_manager" }
+    }
+  ]
+}
+

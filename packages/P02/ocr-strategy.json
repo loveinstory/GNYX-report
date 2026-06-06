@@ -1,0 +1,37 @@
+{
+  "package_code": "P02",
+  "strategy_version": "P02-ocr-strategy-v0.3-structured-json",
+  "status": "draft",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "goals": [
+    "将PDF OCR结果统一归一化为标准JSON",
+    "生成可直接进入AI解读和模板填充的structured_report",
+    "保留每次解析日志以便比较不同OCR策略",
+    "记录字段置信度、来源页码和策略版本"
+  ],
+  "current_provider": "pdf-text-extractor",
+  "fallback_provider": "cloud-ocr",
+  "target_fields": [
+    "report_id",
+    "patient_info.name",
+    "patient_info.gender",
+    "patient_info.age",
+    "patient_info.specimen_condition",
+    "patient_info.specimen_types",
+    "tests[].test_name",
+    "tests[].result",
+    "tests[].indicator",
+    "tests[].reference_range",
+    "tests[].method",
+    "additional_info.sample_date",
+    "additional_info.receive_date",
+    "additional_info.report_date"
+  ],
+  "comparison_keys": [
+    "source_file",
+    "strategy_version",
+    "provider",
+    "structured_report.report_id",
+    "structured_report.tests[].test_name"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "package_code": "P03",
+  "package_name": "P03-糖脂代谢综合评估健康管理报告",
+  "status": "development",
+  "version": "0.1.0",
+  "template_version": "P03-html-v0.1",
+  "rule_version": "P03-rules-v0.1-draft",
+  "prompt_version": "P03-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "评估结果概述与核心指标", "enabled": true },
+    { "page": "page-03.html", "title": "血糖代谢与胰岛功能深度评估", "enabled": true },
+    { "page": "page-04.html", "title": "血脂全谱深度评估分析", "enabled": true },
+    { "page": "page-05.html", "title": "关键代谢平衡指数分析", "enabled": true },
+    { "page": "page-06.html", "title": "疾病风险综合评估", "enabled": true },
+    { "page": "page-07.html", "title": "精准干预方案：饮食管理", "enabled": true },
+    { "page": "page-08.html", "title": "精准干预方案：运动、生活方式与营养干预", "enabled": true },
+    { "page": "page-09.html", "title": "知识科普与长期健康管理", "enabled": true },
+    { "page": "page-10.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

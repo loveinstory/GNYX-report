@@ -1,0 +1,25 @@
+{
+  "package_code": "P05",
+  "version": "P05-rules-v0.1-draft",
+  "status": "draft",
+  "description": "P05 压力激素与睡眠状态评估管理报告规则草案。当前先保留统一结构，待 P05 真实或脱敏 PDF 样例与标准 JSON 确认后完善阈值与分级。",
+  "p05": {
+    "method": "压力与睡眠状态综合评估",
+    "dimensions": [
+      "压力轴（HPA）",
+      "儿茶酚胺与交感神经系统",
+      "神经递质平衡",
+      "甲状腺功能",
+      "睡眠质量与昼夜节律"
+    ]
+  },
+  "safety": {
+    "requires_human_review": true,
+    "forbidden_claims": [
+      "临床确诊",
+      "治疗方案",
+      "药物剂量",
+      "替代医生诊断"
+    ]
+  }
+}

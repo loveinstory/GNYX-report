@@ -1,0 +1,278 @@
+:root {
+  --viewer-bg: #e9eef5;
+  --page-blue: #0b77bf;
+  --title-blue: #147bb9;
+  --blue: #0b73b7;
+  --green: #45a23d;
+  --text: #161b24;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--viewer-bg);
+  font-family:
+    "Microsoft YaHei",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    Arial,
+    sans-serif;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 32px;
+  overflow: auto;
+}
+
+.report-page {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(14, 40, 75, 0.16);
+}
+
+.editable {
+  outline: 0;
+  border-radius: 5px;
+}
+
+.editable:focus {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 3px rgba(0, 120, 223, 0.18);
+}
+
+.page-09 {
+  width: 1024px;
+  height: 1536px;
+  padding: 0 31px;
+  background:
+    radial-gradient(circle at 50% 39%, rgba(235, 249, 255, 0.5), transparent 31%),
+    linear-gradient(180deg, #ffffff 0%, #ffffff 62%, #fbfdff 100%);
+}
+
+.report-header {
+  position: absolute;
+  top: 51px;
+  left: 31px;
+  right: 31px;
+  height: 72px;
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  align-items: start;
+  border-bottom: 2px solid var(--page-blue);
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: flex-start;
+}
+
+.brand-lockup img {
+  width: 136px;
+  height: auto;
+  margin-top: -5px;
+}
+
+.page-label {
+  justify-self: end;
+  margin: 23px 4px 0 0;
+  color: #4c5968;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.title-block {
+  position: absolute;
+  top: 178px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.title-block h1 {
+  margin: 0;
+  color: var(--title-blue);
+  font-size: 60px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.title-block p {
+  margin: 26px 0 0;
+  color: #4a4a4f;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.support-stack {
+  position: absolute;
+  top: 354px;
+  left: 45px;
+  right: 45px;
+  display: grid;
+  gap: 18px;
+}
+
+.support-card {
+  display: grid;
+  grid-template-columns: 228px 1px 1fr;
+  min-height: 258px;
+  align-items: center;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 54% 92%, rgba(226, 245, 255, 0.58), transparent 55%),
+    linear-gradient(180deg, #f8fcff 0%, #edf7ff 100%);
+  overflow: hidden;
+}
+
+.compact-card {
+  min-height: 220px;
+}
+
+.icon-zone {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+.round-mark {
+  display: grid;
+  width: 178px;
+  height: 178px;
+  place-items: center;
+  border-radius: 50%;
+  color: currentColor;
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.round-mark svg {
+  width: 132px;
+  height: 132px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.blue-mark {
+  color: var(--blue);
+}
+
+.green-mark {
+  color: var(--green);
+}
+
+.card-divider {
+  width: 1px;
+  height: calc(100% - 72px);
+  min-height: 132px;
+  align-self: center;
+}
+
+.blue-line {
+  background: rgba(23, 123, 185, 0.75);
+}
+
+.green-line {
+  background: rgba(72, 155, 64, 0.75);
+}
+
+.card-copy {
+  padding: 0 42px 0 24px;
+}
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.step-badge {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.blue-badge {
+  background: linear-gradient(180deg, #3f95d3 0%, #0b73b7 100%);
+}
+
+.green-badge {
+  background: linear-gradient(180deg, #68bd4e 0%, #45a23d 100%);
+}
+
+.card-copy h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.12;
+  font-weight: 900;
+}
+
+.card-copy p {
+  margin: 0;
+  color: #222;
+  font-size: 25px;
+  line-height: 1.72;
+  font-weight: 500;
+}
+
+.blue-text {
+  color: var(--blue);
+}
+
+.green-text {
+  color: var(--green);
+}
+
+@media (max-width: 1100px) {
+  .page-shell {
+    padding: 16px;
+  }
+
+  .page-09 {
+    width: min(100%, 1024px);
+    height: auto;
+    aspect-ratio: 1024 / 1536;
+  }
+}
+
+@media print {
+  body,
+  .page-shell,
+  .report-page {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .page-09 {
+    width: 1024px;
+    height: 1536px;
+  }
+}

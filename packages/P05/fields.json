@@ -1,0 +1,49 @@
+{
+  "package_code": "P05",
+  "config_version": "P05-fields-v0.2-score-linked",
+  "description": "P05 初版模板字段映射。当前先接入封面、结果概览和封底联系信息，待拿到 P05 真实或脱敏 PDF 及标准 JSON 后扩展指标页字段。",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "patient.phone",
+    "report.assessment_type",
+    "report.method",
+    "report.assessment_date"
+  ],
+  "optional_fields": [
+    "sample.type",
+    "patient.symptoms",
+    "report.report_id",
+    "organization.phone",
+    "organization.website",
+    "organization.address",
+    "p05.health_score",
+    "p05.health_score_status",
+    "p05.overall_summary",
+    "p05.followup_advice",
+    "p05.disclaimer"
+  ],
+  "field_mapping": [
+    { "key": "patient.name", "label": "姓名", "pages": ["page-01.html"], "source": "structured_report.patient_info.name", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.gender", "label": "性别", "pages": ["page-01.html"], "source": "structured_report.patient_info.gender", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.age", "label": "年龄", "pages": ["page-01.html"], "source": "structured_report.patient_info.age", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.phone", "label": "联系电话", "pages": ["page-01.html"], "source": "manual.patient.phone", "fill_type": "manual", "status": "mapped" },
+    { "key": "patient.symptoms", "label": "主要症状", "pages": ["page-01.html"], "source": "manual.patient.symptoms", "fill_type": "manual", "status": "mapped" },
+    { "key": "sample.type", "label": "样本信息", "pages": ["page-01.html"], "source": "structured_report.patient_info.specimen_types", "fill_type": "ocr", "status": "mapped" },
+    { "key": "report.assessment_type", "label": "评估类型", "pages": ["page-01.html"], "source": "package.manifest.package_name", "fill_type": "system", "status": "mapped" },
+    { "key": "report.method", "label": "评估方法", "pages": ["page-01.html"], "source": "rules.p05.method", "fill_type": "rules", "status": "mapped" },
+    { "key": "report.assessment_date", "label": "评估日期", "pages": ["page-01.html"], "source": "structured_report.additional_info.report_date", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p05.overall_summary", "label": "综合结果摘要", "pages": ["page-02.html"], "source": "ai.overall_summary", "fill_type": "ai", "status": "ai_ready" },
+    { "key": "p05.followup_advice", "label": "长期管理建议", "pages": ["page-10.html"], "source": "ai.recommendations.followup_advice", "fill_type": "ai", "status": "ai_ready" },
+    { "key": "p05.disclaimer", "label": "免责声明", "pages": ["page-10.html"], "source": "ai.safety.disclaimer", "fill_type": "ai", "status": "ai_ready" },
+    { "key": "organization.phone", "label": "联系电话", "pages": ["page-10.html"], "source": "system.organization.phone", "fill_type": "system", "status": "mapped" },
+    { "key": "organization.email", "label": "电子邮箱", "pages": ["page-10.html"], "source": "system.organization.email", "fill_type": "system", "status": "mapped" },
+    { "key": "organization.website", "label": "官方网站", "pages": ["page-10.html"], "source": "system.organization.website", "fill_type": "system", "status": "mapped" },
+    { "key": "organization.address", "label": "公司地址", "pages": ["page-10.html"], "source": "system.organization.address", "fill_type": "system", "status": "mapped" }
+  ],
+  "notes": [
+    "P05 目前重点先完成模板工程化和 page-10 封底页修复。",
+    "后续需要根据 P05 的真实 PDF 样例和 DeepSeek 对照 JSON 扩展核心指标、压力轴、睡眠与干预页字段。"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "package_code": "P01",
+  "version": "P01-rules-v0.1-draft",
+  "status": "draft",
+  "description": "P01 深度肠道健康管理评估报告规则草案。当前先保留AI辅助与人工可调整规则框架，待P01真实/脱敏PDF样例确认后完善阈值。",
+  "indicators": {
+    "gmhi": {
+      "item_name": "GMHI肠道菌群健康指数",
+      "rule_type": "draft_threshold",
+      "classification": [
+        { "condition": "待确认", "risk_level": "normal", "result_display": "健康" },
+        { "condition": "待确认", "risk_level": "warning", "result_display": "预警" },
+        { "condition": "待确认", "risk_level": "attention", "result_display": "高风险" }
+      ],
+      "review_required": true
+    },
+    "gut_age": {
+      "item_name": "肠龄",
+      "rule_type": "compare_with_chronological_age",
+      "review_required": true
+    },
+    "diversity": {
+      "item_name": "菌群多样性",
+      "rule_type": "source_report_status",
+      "review_required": true
+    },
+    "enterotype": {
+      "item_name": "肠型",
+      "rule_type": "source_report_category",
+      "review_required": true
+    }
+  },
+  "safety": {
+    "requires_human_review": true,
+    "forbidden_claims": ["临床确诊", "治疗方案", "药物剂量", "替代医生诊断"]
+  }
+}

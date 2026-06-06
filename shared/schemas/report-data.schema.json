@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awk.local/schemas/report-data.schema.json",
+  "title": "AWK Report Data",
+  "type": "object",
+  "required": ["case_id", "package_code", "patient", "report", "sample", "lab_results", "ai_outputs"],
+  "properties": {
+    "case_id": { "type": "string" },
+    "package_code": { "type": "string" },
+    "patient": { "type": "object" },
+    "report": {
+      "type": "object",
+      "properties": {
+        "report_id": { "type": "string" },
+        "assessment_type": { "type": "string" },
+        "method": { "type": "string" },
+        "assessment_date": { "type": "string" },
+        "sample_date": { "type": "string" },
+        "receive_date": { "type": "string" },
+        "report_date": { "type": "string" }
+      }
+    },
+    "sample": { "type": "object" },
+    "lab_results": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "p02": {
+      "type": "object",
+      "description": "P02模板data-field对应的数据节点，AI接入前允许包含规则化占位解读。"
+    },
+    "ai_outputs": { "type": "object" },
+    "ocr_snapshot": {
+      "type": "object",
+      "properties": {
+        "source_file": { "type": "string" },
+        "strategy_version": { "type": "string" },
+        "provider": { "type": "string" },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "version_lock": {
+      "type": "object",
+      "properties": {
+        "template_version": { "type": "string" },
+        "rule_version": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "ai_model": { "type": "string" },
+        "ocr_strategy_version": { "type": "string" },
+        "ocr_provider": { "type": "string" }
+      }
+    }
+  }
+}

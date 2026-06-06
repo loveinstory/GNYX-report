@@ -1,0 +1,30 @@
+{
+  "package_code": "P02",
+  "package_name": "肠道功能综合评估健康管理报告",
+  "status": "pilot",
+  "version": "0.1.0",
+  "template_version": "P02-html-v0.1",
+  "rule_version": "P02-rules-v0.1-draft",
+  "prompt_version": "P02-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "肠道功能综合评估健康管理", "enabled": true },
+    { "page": "page-02.html", "title": "评估结果概览与核心指标", "enabled": true },
+    { "page": "page-03.html", "title": "肠道微生态深度评估", "enabled": true },
+    { "page": "page-04.html", "title": "肠道屏障功能分析", "enabled": true },
+    { "page": "page-05.html", "title": "肠道炎症与免疫功能评估", "enabled": true },
+    { "page": "page-06.html", "title": "消化吸收功能综合评估", "enabled": true },
+    { "page": "page-07.html", "title": "精准干预方案·饮食管理", "enabled": true },
+    { "page": "page-08.html", "title": "精准干预方案·运动与生活方式", "enabled": true },
+    { "page": "page-09.html", "title": "营养素补充与功能医学干预", "enabled": true },
+    { "page": "page-10.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "medical_reviewer"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

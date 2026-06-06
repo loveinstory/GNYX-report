@@ -1,0 +1,364 @@
+:root {
+  --viewer-bg: #e9eef5;
+  --page-blue: #0b77bf;
+  --title-blue: #147bb9;
+  --blue: #0b73b7;
+  --green: #3f9b36;
+  --red: #e33c3d;
+  --orange: #e76d10;
+  --text: #161b24;
+  --line: rgba(138, 189, 222, 0.58);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body { min-height: 100%; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--viewer-bg);
+  font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 32px;
+  overflow: auto;
+}
+
+.report-page {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(14, 40, 75, 0.16);
+}
+
+.editable {
+  outline: 0;
+  border-radius: 5px;
+}
+
+.editable:focus {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 3px rgba(0, 120, 223, 0.18);
+}
+
+.page-05 {
+  width: 1024px;
+  height: 1536px;
+  padding: 0 38px;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(235, 249, 255, 0.46), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #ffffff 64%, #fbfdff 100%);
+}
+
+.report-header {
+  position: absolute;
+  top: 51px;
+  left: 36px;
+  right: 36px;
+  height: 72px;
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  align-items: start;
+  border-bottom: 2px solid var(--page-blue);
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: flex-start;
+}
+
+.brand-lockup img {
+  width: 136px;
+  height: auto;
+  margin-top: -5px;
+}
+
+.page-label {
+  justify-self: end;
+  margin: 23px 4px 0 0;
+  color: #4c5968;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.title-block {
+  position: absolute;
+  top: 169px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.title-block h1 {
+  margin: 0;
+  color: var(--title-blue);
+  font-size: 52px;
+  line-height: 1.12;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.title-block p {
+  margin: 22px 0 0;
+  color: #4a4a4f;
+  font-size: 31px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.report-stack {
+  position: absolute;
+  top: 313px;
+  left: 38px;
+  right: 38px;
+  display: grid;
+  gap: 20px;
+}
+
+.result-panel,
+.summary-card {
+  border: 1px solid rgba(111, 181, 225, 0.58);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 54% 92%, rgba(226, 245, 255, 0.58), transparent 55%),
+    linear-gradient(180deg, #f8fcff 0%, #eef8ff 100%);
+  overflow: hidden;
+}
+
+.result-panel {
+  min-height: 356px;
+  padding: 24px 33px 21px;
+}
+
+.panel-heading {
+  display: grid;
+  grid-template-columns: 94px 1fr;
+  align-items: center;
+  gap: 30px;
+  height: 104px;
+  border-bottom: 1px solid rgba(110, 143, 163, 0.34);
+}
+
+.panel-heading h2 {
+  margin: 0;
+  color: #20242c;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.round-mark {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.22),
+    inset 0 -8px 18px rgba(7, 70, 120, 0.12),
+    0 10px 22px rgba(20, 102, 166, 0.12);
+}
+
+.round-mark svg {
+  width: 58px;
+  height: 58px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.blue-mark {
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.28), transparent 34%),
+    linear-gradient(145deg, #42a2dd 0%, #0a75b9 58%, #0865a8 100%);
+}
+
+.green-mark {
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.28), transparent 34%),
+    linear-gradient(145deg, #6fbe4d 0%, #45a339 58%, #2f8d2c 100%);
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 233px 205px 1fr;
+  min-height: 205px;
+}
+
+.result-cell,
+.explain-cell {
+  padding-top: 29px;
+}
+
+.result-cell {
+  text-align: center;
+  border-right: 1px solid rgba(130, 160, 180, 0.36);
+}
+
+.explain-cell {
+  padding-left: 34px;
+}
+
+.result-grid h3 {
+  margin: 0 0 17px;
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.result-cell strong {
+  display: block;
+  font-size: 39px;
+  line-height: 1.12;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.explain-cell p {
+  margin: 0;
+  color: #141414;
+  font-size: 21px;
+  line-height: 1.36;
+  font-weight: 500;
+}
+
+.summary-card {
+  min-height: 194px;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 28px;
+  padding: 0 38px 0 31px;
+}
+
+.summary-card .round-mark {
+  width: 88px;
+  height: 88px;
+}
+
+.summary-card h2 {
+  margin: 0 0 14px;
+  color: #20242c;
+  font-size: 34px;
+  line-height: 1.14;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.summary-card p {
+  margin: 0;
+  color: #141414;
+  font-size: 24px;
+  line-height: 1.56;
+  font-weight: 500;
+}
+
+.advice-card {
+  min-height: 213px;
+}
+
+.blue-text { color: var(--blue); }
+.green-text { color: var(--green); }
+.red-text { color: var(--red); }
+.orange-text { color: var(--orange); }
+.normal-text { color: #181818; }
+
+.page-05.has-dense-content .report-stack {
+  gap: 14px;
+  top: 306px;
+}
+
+.result-panel.has-long-text {
+  min-height: 330px;
+  padding-top: 20px;
+  padding-bottom: 18px;
+}
+
+.result-panel.has-long-text .panel-heading {
+  height: 94px;
+}
+
+.result-panel.has-long-text .result-grid {
+  min-height: 188px;
+}
+
+.explain-cell p.fit-long {
+  font-size: 18px;
+  line-height: 1.32;
+}
+
+.explain-cell p.fit-very-long {
+  font-size: 16px;
+  line-height: 1.28;
+}
+
+.explain-cell p.fit-ultra-long {
+  font-size: 14px;
+  line-height: 1.24;
+}
+
+.summary-card.has-long-text {
+  min-height: 178px;
+  gap: 20px;
+  padding-right: 30px;
+}
+
+.summary-card.has-very-long-text,
+.advice-card.has-very-long-text {
+  min-height: 205px;
+}
+
+.summary-card p.fit-long {
+  font-size: 20px;
+  line-height: 1.38;
+}
+
+.summary-card p.fit-very-long {
+  font-size: 17px;
+  line-height: 1.32;
+}
+
+.summary-card p.fit-ultra-long {
+  font-size: 14px;
+  line-height: 1.26;
+}
+
+@media (max-width: 1100px) {
+  .page-shell { padding: 16px; }
+
+  .page-05 {
+    width: min(100%, 1024px);
+    height: auto;
+    aspect-ratio: 1024 / 1536;
+  }
+}
+
+@media print {
+  body,
+  .page-shell,
+  .report-page {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .page-05 {
+    width: 1024px;
+    height: 1536px;
+  }
+}

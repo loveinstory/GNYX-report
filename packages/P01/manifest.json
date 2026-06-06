@@ -1,0 +1,35 @@
+{
+  "package_code": "P01",
+  "package_name": "深度肠道健康管理评估报告",
+  "status": "development",
+  "version": "0.1.0",
+  "template_version": "P01-html-v0.1",
+  "rule_version": "P01-rules-v0.1-draft",
+  "prompt_version": "P01-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "综合评估结论", "enabled": true },
+    { "page": "page-03.html", "title": "核心指标仪表盘", "enabled": true },
+    { "page": "page-04.html", "title": "GMHI深度解读", "enabled": true },
+    { "page": "page-05.html", "title": "肠型、多样性与肠龄", "enabled": true },
+    { "page": "page-06.html", "title": "肠道微生物组成分析", "enabled": true },
+    { "page": "page-07.html", "title": "有益菌、条件致病菌与中性菌重点解读", "enabled": true },
+    { "page": "page-08.html", "title": "疾病与功能风险评估", "enabled": true },
+    { "page": "page-09.html", "title": "营养代谢与短链脂肪酸能力", "enabled": true },
+    { "page": "page-10.html", "title": "免疫炎症与症状关联", "enabled": true },
+    { "page": "page-11.html", "title": "多维综合评估总结", "enabled": true },
+    { "page": "page-12.html", "title": "精准干预方案：饮食与营养", "enabled": true },
+    { "page": "page-13.html", "title": "益生菌、生活方式与复评计划", "enabled": true },
+    { "page": "page-14.html", "title": "机制科普：肠道菌群如何影响全身健康", "enabled": true },
+    { "page": "page-15.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

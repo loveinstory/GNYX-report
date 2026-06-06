@@ -1,0 +1,349 @@
+:root {
+  --viewer-bg: #e9eef5;
+  --page-blue: #0b77bf;
+  --title-blue: #0f2f63;
+  --blue: #1f6fd1;
+  --green: #2ea83a;
+  --text: #1b2430;
+  --line: rgba(182, 204, 232, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--viewer-bg);
+  font-family:
+    "Microsoft YaHei",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    Arial,
+    sans-serif;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 32px;
+  overflow: auto;
+}
+
+.report-page {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(14, 40, 75, 0.16);
+}
+
+.editable {
+  outline: 0;
+  border-radius: 5px;
+}
+
+.editable:focus {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 3px rgba(0, 120, 223, 0.18);
+}
+
+.page-10 {
+  width: 1056px;
+  height: 1408px;
+  padding: 0 58px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(236, 247, 255, 0.56), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #ffffff 70%, #fbfdff 100%);
+}
+
+.report-header {
+  position: absolute;
+  top: 31px;
+  left: 58px;
+  right: 58px;
+  height: 72px;
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  align-items: center;
+  border-bottom: 2px solid rgba(164, 171, 182, 0.38);
+}
+
+.brand-lockup img {
+  width: 112px;
+  height: auto;
+}
+
+.page-label {
+  justify-self: end;
+  color: #5f6670;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.title-block {
+  position: absolute;
+  top: 150px;
+  left: 58px;
+  right: 58px;
+}
+
+.title-block h1 {
+  margin: 0;
+  color: var(--title-blue);
+  font-size: 58px;
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.title-accent {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.title-accent span:first-child {
+  width: 64px;
+  height: 5px;
+  border-radius: 5px;
+  background: #2174d1;
+}
+
+.title-accent span:last-child {
+  width: 54px;
+  height: 5px;
+  border-radius: 5px;
+  background: #41b14a;
+}
+
+.notice-stack {
+  position: absolute;
+  top: 246px;
+  left: 58px;
+  right: 58px;
+  display: grid;
+  gap: 24px;
+}
+
+.notice-card,
+.contact-card,
+.brand-card {
+  position: relative;
+  border: 1px solid rgba(182, 204, 232, 0.88);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 90% 100%, rgba(230, 240, 255, 0.82), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #fcfeff 100%);
+  box-shadow: 0 14px 34px rgba(27, 87, 150, 0.08);
+  overflow: hidden;
+}
+
+.notice-card {
+  display: grid;
+  grid-template-columns: 166px 1fr;
+  gap: 18px;
+  align-items: center;
+  min-height: 170px;
+  padding: 0 34px 0 26px;
+}
+
+.notice-icon {
+  display: grid;
+  width: 126px;
+  height: 126px;
+  place-items: center;
+  border-radius: 50%;
+  color: currentColor;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(195, 213, 240, 0.86),
+    0 12px 26px rgba(28, 86, 155, 0.08);
+}
+
+.notice-icon svg {
+  width: 82px;
+  height: 82px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.blue-card {
+  color: var(--blue);
+}
+
+.green-card {
+  color: var(--green);
+}
+
+.notice-copy h2 {
+  margin: 0 0 10px;
+  font-size: 35px;
+  line-height: 1.12;
+  font-weight: 900;
+}
+
+.notice-copy p {
+  margin: 0;
+  color: #2a2f37;
+  font-size: 26px;
+  line-height: 1.58;
+  font-weight: 500;
+}
+
+.blue-text {
+  color: var(--blue);
+}
+
+.green-text {
+  color: var(--green);
+}
+
+.contact-card {
+  position: absolute;
+  top: 838px;
+  left: 58px;
+  right: 58px;
+  padding: 18px 48px 12px 52px;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 72px 132px 1fr;
+  align-items: center;
+  min-height: 74px;
+  border-bottom: 1px dashed rgba(176, 198, 225, 0.8);
+}
+
+.contact-row-last {
+  border-bottom: 0;
+}
+
+.contact-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(180deg, #3482df 0%, #1f6fd1 100%);
+}
+
+.contact-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.contact-row strong {
+  color: #2c3139;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.contact-value {
+  margin: 0;
+  color: #39424c;
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.contact-value-large {
+  font-size: 30px;
+}
+
+.brand-card {
+  position: absolute;
+  left: 58px;
+  right: 58px;
+  bottom: 38px;
+  display: grid;
+  grid-template-columns: 330px 1px 1fr;
+  align-items: center;
+  min-height: 170px;
+  padding: 0 42px 0 36px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 255, 0.98)),
+    radial-gradient(circle at 100% 100%, rgba(200, 238, 211, 0.45), transparent 36%);
+}
+
+.brand-card-left img {
+  width: 236px;
+  height: auto;
+}
+
+.brand-divider {
+  width: 1px;
+  height: 110px;
+  background: rgba(135, 149, 171, 0.75);
+  justify-self: center;
+}
+
+.brand-card-right {
+  padding-left: 34px;
+}
+
+.brand-card-right h2 {
+  margin: 0 0 14px;
+  color: #1657c5;
+  font-size: 40px;
+  line-height: 1.12;
+  font-weight: 900;
+}
+
+.brand-green {
+  color: #2daa3f;
+  margin-left: 6px;
+}
+
+.brand-card-right p {
+  margin: 0;
+  color: #323841;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 8px;
+}
+
+@media (max-width: 1120px) {
+  .page-shell {
+    padding: 16px;
+  }
+
+  .page-10 {
+    width: min(100%, 1056px);
+    height: auto;
+    aspect-ratio: 1056 / 1408;
+  }
+}
+
+@media print {
+  body,
+  .page-shell,
+  .report-page {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .page-10 {
+    width: 1056px;
+    height: 1408px;
+  }
+}
