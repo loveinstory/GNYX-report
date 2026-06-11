@@ -1,0 +1,1632 @@
+{
+  "package_code": "P17",
+  "config_version": "P17-fields-v0.8-submitting-unit-homepage",
+  "description": "P17 field mapping: homepage patient card uses OCR-recognized submitting unit instead of phone, page 03 keeps full conditional pathogen list, and visible AI-generated fields are marked as ai_connected.",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "patient.submitting_unit",
+    "patient.symptoms",
+    "report.assessment_type",
+    "report.method",
+    "report.assessment_date",
+    "report.report_id",
+    "sample.type"
+  ],
+  "optional_fields": [
+    "organization.address",
+    "organization.email",
+    "organization.phone",
+    "organization.website",
+    "p17.b族链球菌.result_display",
+    "p17.b族链球菌.trend_display",
+    "p17.caution_note",
+    "p17.conditional_pathogen_status",
+    "p17.conditional_pathogen_summary",
+    "p17.diet_limit_advice",
+    "p17.disclaimer",
+    "p17.exercise_detail_advice",
+    "p17.followup_advice",
+    "p17.good_bacteria_status",
+    "p17.good_bacteria_summary",
+    "p17.hpv_11.result_display",
+    "p17.hpv_16.result_display",
+    "p17.hpv_18.result_display",
+    "p17.hpv_26.result_display",
+    "p17.hpv_31.result_display",
+    "p17.hpv_33.result_display",
+    "p17.hpv_35.result_display",
+    "p17.hpv_39.result_display",
+    "p17.hpv_40.result_display",
+    "p17.hpv_42.result_display",
+    "p17.hpv_43.result_display",
+    "p17.hpv_44.result_display",
+    "p17.hpv_45.result_display",
+    "p17.hpv_51.result_display",
+    "p17.hpv_52.result_display",
+    "p17.hpv_53.result_display",
+    "p17.hpv_56.result_display",
+    "p17.hpv_58.result_display",
+    "p17.hpv_59.result_display",
+    "p17.hpv_6.result_display",
+    "p17.hpv_61.result_display",
+    "p17.hpv_66.result_display",
+    "p17.hpv_68.result_display",
+    "p17.hpv_73.result_display",
+    "p17.hpv_81.result_display",
+    "p17.hpv_82.result_display",
+    "p17.hpv_83.result_display",
+    "p17.hpv_detail_summary",
+    "p17.hpv_followup_tip",
+    "p17.hpv_overall_status",
+    "p17.hpv_risk_tip",
+    "p17.hpv_viral_load",
+    "p17.infection_followup_advice",
+    "p17.lifestyle_advice_diet",
+    "p17.lifestyle_advice_exercise",
+    "p17.lifestyle_advice_routine",
+    "p17.local_care_advice",
+    "p17.local_care_followup",
+    "p17.microecology_management_advice_1",
+    "p17.microecology_management_advice_2",
+    "p17.microecology_management_advice_3",
+    "p17.microecology_management_advice_4",
+    "p17.nutrition_advice",
+    "p17.overall_summary",
+    "p17.pathogen_status",
+    "p17.pathogen_summary",
+    "p17.protein_advice",
+    "p17.review_note",
+    "p17.亨氏巴尔通体.result_display",
+    "p17.亨氏巴尔通体.trend_display",
+    "p17.人型支原体.result_display",
+    "p17.人型支原体.trend_display",
+    "p17.光滑假丝酵母菌.result_display",
+    "p17.光滑假丝酵母菌.trend_display",
+    "p17.克柔假丝酵母菌.result_display",
+    "p17.克柔假丝酵母菌.trend_display",
+    "p17.加氏乳杆菌.result_display",
+    "p17.加氏乳杆菌.trend_display",
+    "p17.单纯疱疹病毒1型.result_display",
+    "p17.单纯疱疹病毒1型.trend_display",
+    "p17.单纯疱疹病毒2型.result_display",
+    "p17.单纯疱疹病毒2型.trend_display",
+    "p17.卷曲乳杆菌.result_display",
+    "p17.卷曲乳杆菌.trend_display",
+    "p17.双歧杆菌.result_display",
+    "p17.双歧杆菌.trend_display",
+    "p17.微小脲原体.result_display",
+    "p17.微小脲原体.trend_display",
+    "p17.惰性乳杆菌.result_display",
+    "p17.惰性乳杆菌.trend_display",
+    "p17.杜克雷嗜血杆菌.result_display",
+    "p17.杜克雷嗜血杆菌.trend_display",
+    "p17.梅毒螺旋体.result_display",
+    "p17.梅毒螺旋体.trend_display",
+    "p17.沙眼衣原体.result_display",
+    "p17.沙眼衣原体.trend_display",
+    "p17.淋球菌.result_display",
+    "p17.淋球菌.trend_display",
+    "p17.热带假丝酵母菌.result_display",
+    "p17.热带假丝酵母菌.trend_display",
+    "p17.生殖支原体.result_display",
+    "p17.生殖支原体.trend_display",
+    "p17.白假丝酵母菌.result_display",
+    "p17.白假丝酵母菌.trend_display",
+    "p17.纤毛菌.result_display",
+    "p17.纤毛菌.trend_display",
+    "p17.细小棒状杆菌.result_display",
+    "p17.细小棒状杆菌.trend_display",
+    "p17.耳道假丝酵母菌.result_display",
+    "p17.耳道假丝酵母菌.trend_display",
+    "p17.衣氏放线菌.result_display",
+    "p17.衣氏放线菌.trend_display",
+    "p17.解脲脲原体.result_display",
+    "p17.解脲脲原体.trend_display",
+    "p17.詹氏乳杆菌.result_display",
+    "p17.詹氏乳杆菌.trend_display",
+    "p17.近平滑假丝酵母菌.result_display",
+    "p17.近平滑假丝酵母菌.trend_display",
+    "p17.都柏林假丝酵母菌.result_display",
+    "p17.都柏林假丝酵母菌.trend_display",
+    "p17.阴道加德纳菌.result_display",
+    "p17.阴道加德纳菌.trend_display",
+    "p17.阴道毛滴虫.result_display",
+    "p17.阴道毛滴虫.trend_display",
+    "p17.阴道阿托波氏菌.result_display",
+    "p17.阴道阿托波氏菌.trend_display",
+    "p17.阿米巴原虫.result_display",
+    "p17.阿米巴原虫.trend_display"
+  ],
+  "field_mapping": [
+    {
+      "key": "organization.address",
+      "label": "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "strong",
+      "source": "system.organization",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.email",
+      "label": "service@anweikang.com",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "strong",
+      "source": "system.organization",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.phone",
+      "label": "400-158-1959",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "strong",
+      "source": "system.organization",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.website",
+      "label": "www.anweikang.com",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "strong",
+      "source": "system.organization",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.b族链球菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.b族链球菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.caution_note",
+      "label": "温馨提示： 本报告仅对本次检测结果负责，不作为临床诊断依据，请结合临床症状及医生建议综合判断。",
+      "pages": [
+        "page-04.html",
+        "page-06.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.safety.caution_note + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.conditional_pathogen_status",
+      "label": "阳性",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "strong",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.conditional_pathogen_summary",
+      "label": "检测到白假丝酵母菌、阴道加德纳菌、微小脲原体、解脲脲原体等定植 / 条件致病菌阳性，提示微生态失衡风险需关注。",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.conditional_pathogen_summary / indicator_interpretations.conditional_pathogen + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.diet_limit_advice",
+      "label": "减少高糖、高脂、辛辣刺激性食物摄入",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.disclaimer",
+      "label": "本报告仅供健康管理参考，不作为临床诊断依据。",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.safety.disclaimer + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.exercise_detail_advice",
+      "label": "如快走、瑜伽、游泳等，促进血液循环与免疫调节",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.followup_advice",
+      "label": "建议按 12 周计划执行饮食、作息、运动与阶段复评，并记录症状和生活方式变化。",
+      "pages": [
+        "page-08.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.recommendations.followup_advice + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.good_bacteria_status",
+      "label": "阳性",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "strong",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.good_bacteria_summary",
+      "label": "检测到卷曲乳杆菌和惰性乳杆菌阳性，提示阴道有益菌基础存在，需结合条件致病菌情况综合判断。",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.good_bacteria_summary / indicator_interpretations.good_bacteria + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.hpv_11.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_16.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_18.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_26.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_31.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_33.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_35.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_39.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_40.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_42.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_43.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_44.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_45.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_51.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_52.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_53.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_56.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_58.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_59.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_6.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_61.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_66.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_68.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_73.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_81.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_82.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_83.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_detail_summary",
+      "label": "本次检测的27种HPV亚型（18种高危型 + 9种低危型）均为阴性。",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.hpv_detail_summary / indicator_interpretations.hpv + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.hpv_followup_tip",
+      "label": "建议：保持良好生活习惯，增强免疫力，定期进行妇科检查和HPV检测，守护健康。",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "p",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_overall_status",
+      "label": "阴性",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "strong",
+      "source": "ai_output.hpv_overall_status + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.hpv_risk_tip",
+      "label": "提示：目前未检出HPV感染，暂无HPV相关健康风险。",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "p",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.hpv_viral_load",
+      "label": "阴性",
+      "pages": [
+        "page-05.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.infection_followup_advice",
+      "label": "严重感染需在医生指导下规范治疗",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.lifestyle_advice_diet",
+      "label": "增加富含益生元食物（如燕麦、香蕉、洋葱等）",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output.recommendations.lifestyle.diet + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.lifestyle_advice_exercise",
+      "label": "每周进行 3-5 次中等强度有氧运动",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output.recommendations.lifestyle.exercise + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.lifestyle_advice_routine",
+      "label": "保持规律作息，避免熬夜和过度劳累",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output.recommendations.lifestyle.routine + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.local_care_advice",
+      "label": "选择棉质透气内衣，避免紧身衣物",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.local_care_followup",
+      "label": "建议定期进行私密部位清洁与护理",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.microecology_management_advice_1",
+      "label": "建议及时就医，明确诊断。",
+      "pages": [
+        "page-03.html",
+        "page-06.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.recommendations.microecology[0] + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.microecology_management_advice_2",
+      "label": "遵医嘱规范治疗，避免自行用药。",
+      "pages": [
+        "page-03.html",
+        "page-06.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.recommendations.microecology[1] + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.microecology_management_advice_3",
+      "label": "治疗期间避免性生活，定期复查。",
+      "pages": [
+        "page-03.html",
+        "page-06.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.recommendations.microecology[2] + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.microecology_management_advice_4",
+      "label": "使用温和的护理产品，避免过度清洁",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output.recommendations.microecology[3] + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.nutrition_advice",
+      "label": "补充维生素（如 VC、VD、VE）和矿物质（如锌、硒）",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.overall_summary",
+      "label": "本次检测显示，您的阴道微生态存在一定程度的失衡，条件致病菌与致病菌阳性提示局部环境易受炎症或感染影响，但未检出高危型HPV，整体风险可控。建议以“微生态平衡重建”为核心，结合炎症风险管理与免疫力提升，辅以健康生活方式干预，可有效降低复发风险，促进阴道微生态长期稳定与健康。",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.overall_summary + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.pathogen_status",
+      "label": "阳性",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "strong",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.pathogen_summary",
+      "label": "本页覆盖的致病菌项目未见阳性，建议结合定植 / 条件致病菌阳性项目和原始报告进行人工复核。",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "p",
+      "source": "ai_output.pathogen_summary / indicator_interpretations.pathogen + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.protein_advice",
+      "label": "适量补充优质蛋白质，增强身体抵抗力",
+      "pages": [
+        "page-06.html"
+      ],
+      "tag": "li",
+      "source": "ai_output / P17 rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.review_note",
+      "label": "AI提示：个体差异存在，建议定期复查，动态评估干预效果，持续优化健康管理方案。",
+      "pages": [
+        "page-02.html",
+        "page-08.html"
+      ],
+      "tag": "div",
+      "source": "ai_output.review_note + P17 rules fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p17.亨氏巴尔通体.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.亨氏巴尔通体.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.人型支原体.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.人型支原体.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.光滑假丝酵母菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.光滑假丝酵母菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.克柔假丝酵母菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.克柔假丝酵母菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.加氏乳杆菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.加氏乳杆菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.单纯疱疹病毒1型.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.单纯疱疹病毒1型.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.单纯疱疹病毒2型.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.单纯疱疹病毒2型.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.卷曲乳杆菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.卷曲乳杆菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.双歧杆菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.双歧杆菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.微小脲原体.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.微小脲原体.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.惰性乳杆菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.惰性乳杆菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.杜克雷嗜血杆菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.杜克雷嗜血杆菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.梅毒螺旋体.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.梅毒螺旋体.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.沙眼衣原体.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.沙眼衣原体.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.淋球菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.淋球菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.热带假丝酵母菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.热带假丝酵母菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.生殖支原体.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.生殖支原体.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.白假丝酵母菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.白假丝酵母菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.纤毛菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.纤毛菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.细小棒状杆菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.细小棒状杆菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.耳道假丝酵母菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.耳道假丝酵母菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.衣氏放线菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.衣氏放线菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.解脲脲原体.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.解脲脲原体.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.詹氏乳杆菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.詹氏乳杆菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.近平滑假丝酵母菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.近平滑假丝酵母菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.都柏林假丝酵母菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.都柏林假丝酵母菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道加德纳菌.result_display",
+      "label": "阳性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道加德纳菌.trend_display",
+      "label": "↑",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道毛滴虫.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html",
+        "page-04.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道毛滴虫.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道阿托波氏菌.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阴道阿托波氏菌.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阿米巴原虫.result_display",
+      "label": "阴性",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.阿米巴原虫.trend_display",
+      "label": "—",
+      "pages": [
+        "page-03.html"
+      ],
+      "tag": "span",
+      "source": "structured_report.tests / p17_extracted_report.results",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.age",
+      "label": "示例年龄",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.patient_info",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.gender",
+      "label": "女",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.patient_info",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.name",
+      "label": "示例姓名",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.patient_info",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.submitting_unit",
+      "label": "送检单位",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.patient_info.submitting_unit / hospital",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.symptoms",
+      "label": "—",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.patient_info",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_date",
+      "label": "示例月份",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.metadata",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_type",
+      "label": "阴道微生态健康评估管理报告",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.metadata",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "report.method",
+      "label": "HPV分型与阴道微生态综合评估",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.metadata",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "report.report_id",
+      "label": "P17 专项评估",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.metadata",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.type",
+      "label": "阴道分泌物",
+      "pages": [
+        "page-01.html"
+      ],
+      "tag": "strong",
+      "source": "structured_report.metadata",
+      "fill_type": "ocr_or_rules",
+      "status": "mapped"
+    }
+  ]
+}

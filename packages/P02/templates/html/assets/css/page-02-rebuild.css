@@ -433,23 +433,27 @@ body {
   letter-spacing: 0;
 }
 
+.result-status[data-field="p02.allergen.overall_result"] {
+  font-size: 30px !important;
+}
+
 .result-status.fit-allergen-result.fit-medium {
-  font-size: 22px !important;
+  font-size: 20px !important;
   line-height: 1.18 !important;
 }
 
 .result-status.fit-allergen-result.fit-long {
-  font-size: 19px !important;
+  font-size: 17px !important;
   line-height: 1.2 !important;
 }
 
 .result-status.fit-allergen-result.fit-very-long {
-  font-size: 16px !important;
+  font-size: 14px !important;
   line-height: 1.24 !important;
 }
 
 .result-status.fit-allergen-result.fit-ultra-long {
-  font-size: 14px !important;
+  font-size: 12px !important;
   line-height: 1.26 !important;
 }
 

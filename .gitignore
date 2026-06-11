@@ -14,7 +14,10 @@ storage/imports/*
 storage/backups/*
 storage/logs/*
 storage/layout-checks/*
+storage/*.json
 storage/*.png
+packages/**/templates/html/assets/images/source-page-*.png
+packages/**/templates/html/assets/images/report-pages/*.png
 !storage/cases/.gitkeep
 !storage/exports/.gitkeep
 !storage/backups/.gitkeep

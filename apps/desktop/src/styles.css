@@ -871,6 +871,23 @@ button {
   white-space: pre-wrap;
 }
 
+.log-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.log-pagination .icon-button {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+}
+
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

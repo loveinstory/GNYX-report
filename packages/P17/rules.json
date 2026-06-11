@@ -1,0 +1,26 @@
+{
+  "package_code": "P17",
+  "version": "P17-rules-v0.1-draft",
+  "status": "draft",
+  "description": "P17 阴道微生态健康评估管理报告规则草案。当前先保留统一结构，待 P17 真实或脱敏 PDF 样例与标准 JSON 确认后完善阈值、分层和专项推导逻辑。",
+  "p17": {
+    "method": "HPV分型与阴道微生态综合评估",
+    "dimensions": [
+      "HPV型别风险",
+      "泌尿生殖道微生物组成",
+      "局部免疫状态",
+      "黏膜屏障功能",
+      "长期随访与干预管理"
+    ]
+  },
+  "report_usage": "健康管理参考",
+  "safety": {
+    "requires_human_review": true,
+    "forbidden_claims": [
+      "临床确诊",
+      "治疗方案",
+      "药物剂量",
+      "替代医生诊断"
+    ]
+  }
+}

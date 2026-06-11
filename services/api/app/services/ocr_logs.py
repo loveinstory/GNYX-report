@@ -168,22 +168,39 @@ def get_ocr_parse_log(log_id: str) -> dict[str, Any]:
     return log
 
 
-def list_ocr_parse_logs(package_code: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
-    sql = "SELECT * FROM ocr_parse_logs"
+def list_ocr_parse_logs(
+    package_code: str | None = None,
+    page: int = 1,
+    page_size: int = 10,
+) -> dict[str, Any]:
+    page_size = min(max(int(page_size), 1), 10)
+    page = max(int(page), 1)
+    where_sql = ""
     params: list[Any] = []
     if package_code:
-        sql += " WHERE package_code = ?"
+        where_sql = " WHERE package_code = ?"
         params.append(package_code)
-    sql += " ORDER BY created_at DESC LIMIT ?"
-    params.append(limit)
     with connect() as conn:
-        rows = conn.execute(sql, params).fetchall()
+        total = int(conn.execute(f"SELECT COUNT(*) FROM ocr_parse_logs{where_sql}", params).fetchone()[0])
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        page = min(page, total_pages)
+        offset = (page - 1) * page_size
+        rows = conn.execute(
+            f"SELECT * FROM ocr_parse_logs{where_sql} ORDER BY created_at DESC LIMIT ? OFFSET ?",
+            (*params, page_size, offset),
+        ).fetchall()
     logs: list[dict[str, Any]] = []
     for row in rows:
         log = dict_from_row(row) or {}
         log["result_json"] = json.loads(log["result_json"])
         logs.append(log)
-    return logs
+    return {
+        "items": logs,
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "total_pages": total_pages,
+    }
 
 
 def list_pending_ocr_parse_logs(package_code: str | None = None, limit: int = 50) -> list[dict[str, Any]]:

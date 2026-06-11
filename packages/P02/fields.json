@@ -1,6 +1,6 @@
 {
   "package_code": "P02",
-  "config_version": "P02-fields-v0.3-ai-connected",
+  "config_version": "P02-fields-v0.4-ai-page-advice",
   "description": "P02 OCR结构化JSON到HTML模板data-field的初步映射配置。AI诊断类字段已接入DeepSeek，可由AI生成后进入人工审查。",
   "required_fields": [
     "patient.name",
@@ -29,7 +29,14 @@
     "p02.calprotectin.method",
     "p02.total_ige.method",
     "p02.allergen.positive_items",
-    "p02.allergen.items"
+    "p02.allergen.items",
+    "p02.microbiome_advice",
+    "p02.barrier.leaky_gut_impact",
+    "p02.barrier.improvement_advice",
+    "p02.diet.gut_advice",
+    "p02.diet.personalized_advice",
+    "p02.lifestyle.stress_management_advice",
+    "p02.nutrition.functional_medicine_advice"
   ],
   "field_mapping": [
     {
@@ -164,7 +171,7 @@
       "key": "p02.total_ige.result_display",
       "label": "特异性总IgE检测结果",
       "pages": ["page-02.html", "page-05.html"],
-      "source": "structured_report.tests[test_name contains 总IgE].result + indicator",
+      "source": "structured_report.tests[test_name matches 总IgE/总 IgE/总IGE].result + indicator",
       "fill_type": "ocr",
       "status": "mapped"
     },
@@ -172,7 +179,7 @@
       "key": "p02.total_ige.reference_range",
       "label": "特异性总IgE参考范围",
       "pages": ["page-02.html", "page-05.html"],
-      "source": "structured_report.tests[test_name contains 总IgE].reference_range",
+      "source": "structured_report.tests[test_name matches 总IgE/总 IgE/总IGE].reference_range",
       "fill_type": "ocr",
       "status": "mapped"
     },
@@ -213,6 +220,62 @@
       "label": "炎症与免疫管理建议",
       "pages": ["page-05.html"],
       "source": "DeepSeek.recommendations.inflammation_immune_advice",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.microbiome_advice",
+      "label": "肠道微生态个性化建议",
+      "pages": ["page-03.html"],
+      "source": "DeepSeek.recommendations.microbiome_advice or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.barrier.leaky_gut_impact",
+      "label": "肠漏症影响说明",
+      "pages": ["page-04.html"],
+      "source": "DeepSeek.recommendations.barrier_leaky_gut_impact or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.barrier.improvement_advice",
+      "label": "肠道屏障改善建议",
+      "pages": ["page-04.html"],
+      "source": "DeepSeek.recommendations.barrier_improvement_advice or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.diet.gut_advice",
+      "label": "饮食基础建议",
+      "pages": ["page-07.html"],
+      "source": "DeepSeek.recommendations.diet_gut_advice or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.diet.personalized_advice",
+      "label": "个性化饮食建议",
+      "pages": ["page-07.html"],
+      "source": "DeepSeek.recommendations.diet_personalized_advice or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.lifestyle.stress_management_advice",
+      "label": "压力管理建议",
+      "pages": ["page-08.html"],
+      "source": "DeepSeek.recommendations.stress_management_advice or derived OCR fallback",
+      "fill_type": "ai",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p02.nutrition.functional_medicine_advice",
+      "label": "功能医学干预建议",
+      "pages": ["page-09.html"],
+      "source": "DeepSeek.recommendations.functional_medicine_advice or derived OCR fallback",
       "fill_type": "ai",
       "status": "ai_connected"
     }

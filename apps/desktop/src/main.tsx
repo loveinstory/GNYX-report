@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import {
   Activity,
   Bell,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Clock3,
   Download,
@@ -71,6 +73,17 @@ type OcrParseLog = {
   result_json: Record<string, unknown>;
   notes: string;
   created_at: string;
+};
+
+type OcrLogPagination = {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+};
+
+type PaginatedOcrLogs = OcrLogPagination & {
+  items: OcrParseLog[];
 };
 
 type FieldMapping = {
@@ -255,6 +268,13 @@ const browserHost = typeof window !== "undefined" ? window.location.hostname : "
 const defaultApiBase = `http://${browserHost}:8111`;
 const apiBase = import.meta.env.VITE_API_BASE_URL || defaultApiBase;
 const tokenStorageKey = "awk-auth-token";
+const ocrLogPageSize = 10;
+const defaultOcrLogPagination: OcrLogPagination = {
+  page: 1,
+  page_size: ocrLogPageSize,
+  total: 0,
+  total_pages: 1
+};
 
 const roleOptions: Array<{ key: RoleKey; label: string }> = [
   { key: "customer_service", label: "客服" },
@@ -469,7 +489,7 @@ function JobProgressPanel({ jobs }: { jobs: Job[] }) {
     <section className="panel wide-panel">
       <div className="panel-heading">
         <h3>任务进度</h3>
-        <span className="muted">{jobs.length} 条任务</span>
+        <span className="muted">最近 {jobs.length} 条任务</span>
       </div>
       <div className="job-table">
         <div className="job-header">
@@ -496,12 +516,22 @@ function JobProgressPanel({ jobs }: { jobs: Job[] }) {
   );
 }
 
-function OcrLogPanel({ logs }: { logs: OcrParseLog[] }) {
+function OcrLogPanel({
+  logs,
+  pagination,
+  onPageChange
+}: {
+  logs: OcrParseLog[];
+  pagination: OcrLogPagination;
+  onPageChange: (page: number) => void;
+}) {
+  const currentPage = Math.max(pagination.page, 1);
+  const totalPages = Math.max(pagination.total_pages, 1);
   return (
     <section className="panel wide-panel">
       <div className="panel-heading">
         <h3>OCR解析日志</h3>
-        <span className="muted">统一JSON格式，用于比较和更新OCR策略</span>
+        <span className="muted">共 {pagination.total} 条，每页最多 {pagination.page_size} 条</span>
       </div>
       <div className="ocr-log-table">
         <div className="ocr-log-header">
@@ -532,6 +562,29 @@ function OcrLogPanel({ logs }: { logs: OcrParseLog[] }) {
             </div>
           </details>
         ))}
+      </div>
+      <div className="log-pagination">
+        <button
+          className="icon-button"
+          type="button"
+          title="上一页"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(currentPage - 1)}
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <span>
+          第 {currentPage} / {totalPages} 页
+        </span>
+        <button
+          className="icon-button"
+          type="button"
+          title="下一页"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          <ChevronRight size={16} />
+        </button>
       </div>
     </section>
   );
@@ -1790,6 +1843,8 @@ function App() {
   const [selectedPackageCode, setSelectedPackageCode] = React.useState("P02");
   const [jobs, setJobs] = React.useState<Job[]>([]);
   const [ocrLogs, setOcrLogs] = React.useState<OcrParseLog[]>([]);
+  const [ocrLogPage, setOcrLogPage] = React.useState(1);
+  const [ocrLogPagination, setOcrLogPagination] = React.useState<OcrLogPagination>(defaultOcrLogPagination);
   const [packageConfig, setPackageConfig] = React.useState<PackageConfig | null>(null);
   const [renderPreview, setRenderPreview] = React.useState<RenderFromOcrResponse | null>(null);
   const [aiConfig, setAiConfig] = React.useState<AiConfig | null>(null);
@@ -1832,6 +1887,8 @@ function App() {
     setPackages([]);
     setJobs([]);
     setOcrLogs([]);
+    setOcrLogPage(1);
+    setOcrLogPagination(defaultOcrLogPagination);
     setCredentials([]);
     setAccountUsers([]);
     setReviewReports([]);
@@ -1869,6 +1926,10 @@ function App() {
     };
   }, [authToken, clearAuth]);
 
+  React.useEffect(() => {
+    setOcrLogPage(1);
+  }, [selectedPackageCode]);
+
   const refresh = React.useCallback(async () => {
     if (!isAuthenticated) return;
     try {
@@ -1888,7 +1949,9 @@ function App() {
         getJson<Health>("/health"),
         getJson<PackageInfo[]>("/packages"),
         getJson<Job[]>("/jobs"),
-        getJson<OcrParseLog[]>(`/ocr/logs?package_code=${encodeURIComponent(selectedPackageCode)}&limit=12`),
+        getJson<PaginatedOcrLogs>(
+          `/ocr/logs?package_code=${encodeURIComponent(selectedPackageCode)}&page=${ocrLogPage}&page_size=${ocrLogPageSize}`
+        ),
         getJson<PackageConfig>(`/packages/${encodeURIComponent(selectedPackageCode)}/config`),
         getJson<AiConfig>("/ai/config"),
         canAdminRole ? getJson<CredentialSummary[]>("/admin/credentials") : Promise.resolve([]),
@@ -1906,7 +1969,16 @@ function App() {
         setSelectedPackageCode(packagesData[0]?.package_code || "P02");
       }
       setJobs(jobsData);
-      setOcrLogs(ocrLogData);
+      setOcrLogs(ocrLogData.items);
+      setOcrLogPagination({
+        page: ocrLogData.page,
+        page_size: ocrLogData.page_size,
+        total: ocrLogData.total,
+        total_pages: ocrLogData.total_pages
+      });
+      if (ocrLogData.page !== ocrLogPage) {
+        setOcrLogPage(ocrLogData.page);
+      }
       setPackageConfig(packageConfigData);
       setAiConfig(aiConfigData);
       setCredentials(canAdminRole ? credentialData : []);
@@ -1936,6 +2008,7 @@ function App() {
   }, [
     isAuthenticated,
     selectedPackageCode,
+    ocrLogPage,
     selectedReviewReportId,
     aiBaseUrl,
     aiModel,
@@ -2070,7 +2143,7 @@ function App() {
       throw await buildApiError(response);
     }
     const result = (await response.json()) as ImportDocumentsResponse;
-    setJobs((current) => [result.job, ...current.filter((item) => item.job_id !== result.job.job_id)]);
+    setJobs((current) => [result.job, ...current.filter((item) => item.job_id !== result.job.job_id)].slice(0, 15));
     setImportedDocuments(result.documents);
     setImportMessage(`已导入 ${result.documents.length} 个PDF，可继续执行OCR解析任务。`);
     await refresh();
@@ -2090,7 +2163,10 @@ function App() {
       return;
     }
     const job = await postJson<Job>(`/batch/${type}`, { package_code: selectedPackageCode });
-    setJobs((current) => [job, ...current.filter((item) => item.job_id !== job.job_id)]);
+    setJobs((current) => [job, ...current.filter((item) => item.job_id !== job.job_id)].slice(0, 15));
+    if (type === "ocr") {
+      setOcrLogPage(1);
+    }
   };
 
   const renderFromLatestOcr = async () => {
@@ -2359,7 +2435,11 @@ function App() {
               onCreateJob={createBatchJob}
             />
             <JobProgressPanel jobs={jobs} />
-            <OcrLogPanel logs={ocrLogs} />
+            <OcrLogPanel
+              logs={ocrLogs}
+              pagination={ocrLogPagination}
+              onPageChange={(page) => setOcrLogPage(page)}
+            />
           </>
         )}
 

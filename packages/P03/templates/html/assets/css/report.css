@@ -488,10 +488,10 @@ body {
   position: absolute;
   left: 38px;
   right: 38px;
-  top: 718px;
+  top: 684px;
   z-index: 5;
-  height: 252px;
-  padding: 17px 16px 15px;
+  min-height: 308px;
+  padding: 18px 18px 16px;
   border: 1px solid rgba(192, 210, 222, 0.48);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.9);
@@ -515,16 +515,16 @@ body {
 }
 
 .info-table {
-  margin-top: 11px;
+  margin-top: 13px;
   border: 1px solid rgba(17, 72, 126, 0.12);
   border-radius: 9px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .info-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 37px;
+  min-height: 46px;
   border-bottom: 1px solid rgba(17, 72, 126, 0.12);
 }
 
@@ -537,7 +537,7 @@ body {
   grid-template-columns: 26px 110px 1fr;
   align-items: center;
   min-width: 0;
-  padding: 0 13px;
+  padding: 8px 14px;
   border-right: 1px solid rgba(17, 72, 126, 0.12);
 }
 
@@ -556,6 +556,7 @@ body {
 
 .value {
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .title-icon,

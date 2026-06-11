@@ -1,0 +1,67 @@
+{
+  "package_code": "P17",
+  "package_name": "阴道微生态健康评估管理报告",
+  "status": "development",
+  "version": "0.2.0",
+  "template_version": "P17-html-v0.2-new-template",
+  "rule_version": "P17-rules-v0.1-draft",
+  "prompt_version": "P17-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    {
+      "page": "page-01.html",
+      "title": "阴道微生态健康评估管理报告",
+      "enabled": true
+    },
+    {
+      "page": "page-02.html",
+      "title": "综合评估结论",
+      "enabled": true
+    },
+    {
+      "page": "page-03.html",
+      "title": "阴道微生态核酸检测结果概览",
+      "enabled": true
+    },
+    {
+      "page": "page-04.html",
+      "title": "核心菌群深度解读",
+      "enabled": true
+    },
+    {
+      "page": "page-05.html",
+      "title": "HPV基因分型定量检测结果",
+      "enabled": true
+    },
+    {
+      "page": "page-06.html",
+      "title": "个性化健康管理方案",
+      "enabled": true
+    },
+    {
+      "page": "page-07.html",
+      "title": "知识科普与长期健康维护",
+      "enabled": true
+    },
+    {
+      "page": "page-08.html",
+      "title": "长期健康管理建议与免责声明",
+      "enabled": true
+    }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": [
+      "admin",
+      "inspector"
+    ]
+  },
+  "export": {
+    "formats": [
+      "pdf",
+      "html",
+      "json"
+    ],
+    "variable_page_count": true
+  }
+}

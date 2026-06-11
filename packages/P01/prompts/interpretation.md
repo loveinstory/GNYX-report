@@ -20,3 +20,16 @@
 - `recommendations.management_priorities`：用于输出当前阶段的管理优先级。
 - `recommendations.lifestyle_advice`：用于运动、作息与生活方式建议。
 - `recommendations.followup_advice`：用于复评计划和长期健康管理建议。
+
+页面展示篇幅策略：
+以下篇幅为目标展示范围，不是让内容变成一句空泛结论；系统不会在合并报告数据时截断过长文案。
+
+- `overall_summary`：目标不超过 180 个中文字符，需概括菌群生态状态、关键异常和管理重点。
+- `risk_assessment`：目标不超过 190 个中文字符，需说明主要风险依据、功能状态和人工复核要点。
+- `indicator_interpretations.microbiome`：目标不超过 180 个中文字符，需结合菌群结构、多样性、肠型或异常菌说明。
+- `indicator_interpretations.gmhi`：目标不超过 180 个中文字符，需解释GMHI结果、生态稳定性和管理方向。
+- `indicator_interpretations.gut_age`、`indicator_interpretations.diversity`、`indicator_interpretations.enterotype`：各目标不超过 95 个中文字符，保留指标含义和行动提示。
+- `recommendations.management_priorities`：目标不超过 140 个中文字符。
+- `recommendations.diet_advice`：目标不超过 180 个中文字符。
+- `recommendations.lifestyle_advice`：目标不超过 160 个中文字符。
+- `recommendations.followup_advice`：目标不超过 140 个中文字符。

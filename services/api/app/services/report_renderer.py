@@ -13,7 +13,44 @@ from app.core.config import settings
 from app.services.report_review import find_active_report_id_for_case, register_rendered_report
 
 RESULT_COLOR_CLASSES = ("green-text", "red-text", "orange-text")
+P17_STATUS_CLASSES = ("status-positive", "status-negative", "status-orange", "status-red", "status-purple")
+P07_STATUS_CLASSES = ("ok-text", "green-text", "red-text", "orange-text", "status-high", "status-low")
+P17_GOOD_KEYS = ("卷曲乳杆菌", "詹氏乳杆菌", "加氏乳杆菌", "惰性乳杆菌", "双歧杆菌", "good_bacteria")
+P17_CONDITIONAL_KEYS = (
+    "白假丝酵母菌",
+    "光滑假丝酵母菌",
+    "热带假丝酵母菌",
+    "耳道假丝酵母菌",
+    "克柔假丝酵母菌",
+    "都柏林假丝酵母菌",
+    "近平滑假丝酵母菌",
+    "b族链球菌",
+    "亨氏巴尔通体",
+    "细小棒状杆菌",
+    "衣氏放线菌",
+    "阴道加德纳菌",
+    "阴道阿托波氏菌",
+    "纤毛菌",
+    "微小脲原体",
+    "解脲脲原体",
+    "人型支原体",
+    "conditional_pathogen",
+)
+P17_PATHOGEN_KEYS = (
+    "阴道毛滴虫",
+    "淋球菌",
+    "杜克雷嗜血杆菌",
+    "生殖支原体",
+    "沙眼衣原体",
+    "梅毒螺旋体",
+    "阿米巴原虫",
+    "单纯疱疹病毒",
+    "人乳头瘤病毒",
+    "pathogen",
+)
 P03_STATE_CLASSES = ("result-normal", "result-warning", "result-abnormal")
+P04_STATUS_CLASSES = ("status-normal", "status-high", "status-low", "green-title", "orange-text", "red-text", "blue-title")
+P06_STATUS_CLASSES = ("status-normal", "status-high", "status-low", "green-title", "orange-text", "red-text")
 P03_INDICATOR_CODES = (
     "alb",
     "glucose",
@@ -86,6 +123,14 @@ def render_report(package_code: str, report_data: dict[str, Any]) -> dict[str, s
             _apply_p05_dynamic_styles(soup, report_data)
         if package_code.upper() == "P03":
             _apply_p03_dynamic_styles(soup, report_data)
+        if package_code.upper() == "P04":
+            _apply_p04_dynamic_styles(soup)
+        if package_code.upper() == "P06":
+            _apply_p06_dynamic_styles(soup)
+        if package_code.upper() == "P07":
+            _apply_p07_dynamic_styles(soup)
+        if package_code.upper() == "P17":
+            _apply_p17_dynamic_styles(soup)
         html_path.write_text(str(soup), encoding="utf-8")
 
     relative_index = (target_dir / "index.html").relative_to(settings.storage_dir).as_posix()
@@ -220,6 +265,173 @@ def _apply_p05_dynamic_styles(soup: BeautifulSoup, report_data: dict[str, Any]) 
     for panel in soup.select(".score-panel"):
         _remove_classes(panel, ("score-excellent", "score-good", "score-attention", "score-high-risk"))
         _add_class(panel, f"score-{state}")
+
+
+def _apply_p17_dynamic_styles(soup: BeautifulSoup) -> None:
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p17."):
+            continue
+        value = node.get_text(" ", strip=True)
+        if field_key.endswith(".trend_display"):
+            _remove_classes(node, ("trend-up",))
+            if "↑" in value:
+                _add_class(node, "trend-up")
+            continue
+        if not _p17_is_status_field(field_key):
+            continue
+        _remove_classes(node, P17_STATUS_CLASSES)
+        status_class = _p17_status_class(field_key, value)
+        if status_class:
+            _add_class(node, status_class)
+
+
+def _p17_is_status_field(field_key: str) -> bool:
+    return (
+        field_key.endswith(".result_display")
+        or field_key.endswith("_status")
+        or field_key.endswith("_risk_level")
+        or field_key in {"p17.hpv_overall_status", "p17.microecology_overall_status"}
+    )
+
+
+def _p17_status_class(field_key: str, value: str) -> str:
+    text = "".join(str(value or "").split())
+    if not text:
+        return ""
+    if any(word in text for word in ("高风险", "需重视")):
+        return "status-red"
+    if any(word in text for word in ("需关注", "待复核", "未识别")):
+        return "status-orange"
+    if any(word in text for word in ("低风险", "良好", "稳定")):
+        return "status-positive"
+    if "阳性" in text or "弱阳" in text or "↑" in text:
+        if "hpv_" in field_key or field_key == "p17.hpv_overall_status":
+            return "status-red"
+        if any(term in field_key for term in P17_GOOD_KEYS):
+            return "status-positive"
+        if any(term in field_key for term in P17_CONDITIONAL_KEYS):
+            return "status-orange"
+        if any(term in field_key for term in P17_PATHOGEN_KEYS):
+            return "status-red"
+        return "status-orange"
+    if "阴性" in text or "全阴" in text or "未见" in text:
+        if field_key == "p17.hpv_overall_status":
+            return "status-purple"
+        return "status-negative"
+    return ""
+
+
+def _apply_p04_dynamic_styles(soup: BeautifulSoup) -> None:
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p04."):
+            continue
+        if not (field_key.endswith(".status") or field_key.endswith("_status") or field_key.endswith(".result_display")):
+            continue
+        _remove_classes(node, P04_STATUS_CLASSES)
+        status_class = _p04_status_class(node.get_text(" ", strip=True))
+        if not status_class:
+            continue
+        _add_class(node, status_class)
+        if status_class == "status-normal":
+            _add_class(node, "green-title")
+        elif status_class == "status-high":
+            _add_class(node, "red-text")
+        elif status_class == "status-low":
+            _add_class(node, "orange-text")
+
+
+def _apply_p06_dynamic_styles(soup: BeautifulSoup) -> None:
+    _remove_duplicate_p06_ai_paragraphs(soup)
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p06."):
+            continue
+        if not (field_key.endswith(".status") or field_key.endswith(".result") or field_key.endswith(".result_display")):
+            continue
+        _remove_classes(node, P06_STATUS_CLASSES)
+        status_class = _p06_status_class(node.get_text(" ", strip=True))
+        if not status_class:
+            continue
+        _add_class(node, status_class)
+        if status_class == "status-normal":
+            _add_class(node, "green-title")
+        elif status_class == "status-high":
+            _add_class(node, "red-text")
+        elif status_class == "status-low":
+            _add_class(node, "orange-text")
+
+
+def _p06_status_class(value: str) -> str:
+    text = "".join(str(value or "").split())
+    if not text:
+        return ""
+    if any(word in text for word in ("正常", "稳定", "未见明显异常")):
+        return "status-normal"
+    if any(word in text for word in ("升高", "偏高", "异常", "↑")):
+        return "status-high"
+    if any(word in text for word in ("偏低", "降低", "↓")):
+        return "status-low"
+    return ""
+
+
+def _apply_p07_dynamic_styles(soup: BeautifulSoup) -> None:
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p07."):
+            continue
+        if not field_key.endswith((".status", ".status_display", ".result_display")):
+            continue
+        _remove_classes(node, P07_STATUS_CLASSES)
+        status_class = _p07_status_class(node.get_text(" ", strip=True))
+        if status_class == "status-normal":
+            _add_class(node, "ok-text")
+        elif status_class == "status-high":
+            _add_class(node, "red-text")
+        elif status_class == "status-low":
+            _add_class(node, "orange-text")
+
+
+def _p07_status_class(value: str) -> str:
+    text = "".join(str(value or "").split())
+    if not text:
+        return ""
+    if any(word in text for word in ("偏高", "升高", "异常", "高风险", "↑")):
+        return "status-high"
+    if any(word in text for word in ("偏低", "降低", "需关注", "待复核", "未识别", "需复核", "↓")):
+        return "status-low"
+    if "正常" in text or text in {"GG"}:
+        return "status-normal"
+    return ""
+
+
+def _remove_duplicate_p06_ai_paragraphs(soup: BeautifulSoup) -> None:
+    for insight in soup.select(".page-04 .ai-insight"):
+        seen: set[str] = set()
+        for paragraph in list(insight.select("p")):
+            text = "".join(paragraph.get_text(" ", strip=True).split())
+            if not text:
+                continue
+            if text in seen:
+                paragraph.decompose()
+                continue
+            seen.add(text)
+
+
+def _p04_status_class(value: str) -> str:
+    text = "".join(str(value or "").split())
+    if not text:
+        return ""
+    if any(word in text for word in ("未见", "正常", "良好", "平稳")):
+        return "status-normal"
+    if any(word in text for word in ("偏高", "升高", "过高", "↑")):
+        return "status-high"
+    if any(word in text for word in ("不足", "缺乏", "偏低", "降低", "↓")):
+        return "status-low"
+    if any(word in text for word in ("未识别", "待补充", "需复核", "待评估")):
+        return "status-low"
+    return ""
 
 
 def _p05_score_state(score: float | None) -> str:

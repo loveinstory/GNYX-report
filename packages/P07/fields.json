@@ -1,0 +1,276 @@
+{
+  "package_code": "P07",
+  "config_version": "P07-fields-v0.5-symptom-address-cleanup",
+  "description": "P07 肝脏解毒功能评估健康管理报告字段配置，覆盖1-5页真实OCR字段、规则字段和AI辅助解读字段。当前版本以 P07 样例原始报告为准：肝功能/生化15项、肝纤维化4项、ALDH2 1项。",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "report.assessment_type",
+    "report.method",
+    "report.assessment_date",
+    "report.report_id",
+    "sample.type",
+    "patient.submitting_unit",
+    "p07.liver_function.alt.result_display",
+    "p07.liver_function.pab.result_display",
+    "p07.liver_function.ast.result_display",
+    "p07.liver_function.ast_alt_ratio.result_display",
+    "p07.liver_function.tp.result_display",
+    "p07.liver_function.alb.result_display",
+    "p07.liver_function.glo.result_display",
+    "p07.liver_function.ag_ratio.result_display",
+    "p07.liver_function.tbil.result_display",
+    "p07.liver_function.dbil.result_display",
+    "p07.liver_function.ibil.result_display",
+    "p07.liver_function.alp.result_display",
+    "p07.liver_function.ggt.result_display",
+    "p07.liver_function.che.result_display",
+    "p07.liver_function.tba.result_display",
+    "p07.fibrosis.pc_iii.result_display",
+    "p07.fibrosis.civ.result_display",
+    "p07.fibrosis.ln.result_display",
+    "p07.fibrosis.ha.result_display",
+    "p07.gene.aldh2.result_display",
+    "p07.overall_summary",
+    "p07.followup_advice"
+  ],
+  "optional_fields": [
+    "patient.symptoms",
+    "sample.condition",
+    "p07.liver_function.summary",
+    "p07.fibrosis.summary",
+    "p07.gene.aldh2.interpretation",
+    "p07.gene.aldh2.caution",
+    "p07.gene.aldh2.short_interpretation",
+    "p07.gene.aldh2.summary",
+    "p07.gene.aldh2.comprehensive_interpretation",
+    "p07.gene.aldh2.advice_1",
+    "p07.gene.aldh2.advice_2",
+    "p07.gene.aldh2.advice_3",
+    "p07.disclaimer",
+    "p07.review_note",
+    "organization.phone",
+    "organization.email",
+    "organization.website",
+    "organization.address"
+  ],
+  "field_mapping": [
+    { "key": "patient.name", "label": "姓名", "pages": ["page-01.html"], "source": "structured_report.patient_info.name", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.gender", "label": "性别", "pages": ["page-01.html"], "source": "structured_report.patient_info.gender", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.age", "label": "年龄", "pages": ["page-01.html"], "source": "structured_report.patient_info.age", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.submitting_unit", "label": "送检单位", "pages": ["page-01.html"], "source": "structured_report.patient_info.submitting_unit", "fill_type": "ocr", "status": "mapped" },
+    { "key": "patient.symptoms", "label": "相关症状", "pages": ["page-01.html"], "source": "structured_report.patient_info.clinical_diagnosis; empty/brand false positives display as '-'", "fill_type": "ocr", "status": "mapped" },
+    { "key": "report.report_id", "label": "报告编号", "pages": ["page-01.html"], "source": "structured_report.report_id / report_info.barcode", "fill_type": "ocr", "status": "mapped" },
+    { "key": "report.assessment_type", "label": "评估类型", "pages": ["page-01.html"], "source": "package.manifest.package_name", "fill_type": "system", "status": "mapped" },
+    { "key": "sample.type", "label": "样本信息", "pages": ["page-01.html"], "source": "structured_report.patient_info.specimen_types", "fill_type": "ocr", "status": "mapped" },
+    { "key": "report.method", "label": "评估方法", "pages": ["page-01.html"], "source": "P07_METHOD fixed value", "fill_type": "fixed", "status": "mapped" },
+    { "key": "report.assessment_date", "label": "评估日期", "pages": ["page-01.html"], "source": "structured_report.additional_info.report_date or sample_date", "fill_type": "ocr", "status": "mapped" },
+
+    { "key": "p07.liver_function.overall_status", "label": "肝功能总体状态", "pages": ["page-02.html"], "source": "rules from p07.liver_function indicators", "fill_type": "rules", "status": "mapped" },
+    { "key": "p07.fibrosis.overall_status", "label": "肝纤维化总体状态", "pages": ["page-02.html"], "source": "rules from p07.fibrosis indicators", "fill_type": "rules", "status": "mapped" },
+    { "key": "p07.gene.aldh2.status_display", "label": "ALDH2基因型状态", "pages": ["page-02.html", "page-05.html"], "source": "structured_report.tests[item_code=aldh2] + rules", "fill_type": "ocr_rules", "status": "mapped" },
+    { "key": "p07.priorities.priority_1.title", "label": "管理优先级1", "pages": ["page-02.html"], "source": "DeepSeek.recommendations.management_priorities[0] with rules fallback", "fill_type": "ai_or_rules", "status": "ai_connected" },
+    { "key": "p07.priorities.priority_2.title", "label": "管理优先级2", "pages": ["page-02.html"], "source": "DeepSeek.recommendations.management_priorities[1] with rules fallback", "fill_type": "ai_or_rules", "status": "ai_connected" },
+    { "key": "p07.priorities.priority_3.title", "label": "管理优先级3", "pages": ["page-02.html"], "source": "DeepSeek.recommendations.management_priorities[2] with rules fallback", "fill_type": "ai_or_rules", "status": "ai_connected" },
+    { "key": "p07.overall_summary", "label": "AI健康管理洞察", "pages": ["page-02.html"], "source": "DeepSeek.overall_summary", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.disclaimer", "label": "免责声明", "pages": ["page-02.html"], "source": "DeepSeek.safety.disclaimer with rules fallback", "fill_type": "ai_or_rules", "status": "ai_connected" },
+
+    { "key": "p07.liver_function.alt", "label": "ALT", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=alt]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.pab", "label": "PAB", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=pab]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.ast", "label": "AST", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=ast]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.ast_alt_ratio", "label": "AST/ALT", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=ast_alt_ratio]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.tp", "label": "TP", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=tp]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.alb", "label": "ALB", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=alb]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.glo", "label": "GLB/GLO", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=glo]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.ag_ratio", "label": "A/G", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=ag_ratio]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.tbil", "label": "TBIL", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=tbil]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.dbil", "label": "DBIL", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=dbil]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.ibil", "label": "IBIL", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=ibil]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.alp", "label": "ALP", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=alp]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.ggt", "label": "GGT", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=ggt]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.che", "label": "CHE", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=che]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.tba", "label": "TBA", "pages": ["page-03.html"], "source": "structured_report.tests[item_code=tba]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.liver_function.summary", "label": "肝功能AI解读", "pages": ["page-03.html", "page-05.html"], "source": "DeepSeek.indicator_interpretations.liver_function", "fill_type": "ai", "status": "ai_connected" },
+
+    { "key": "p07.fibrosis.pc_iii", "label": "PC-III", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=pc_iii]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.fibrosis.civ", "label": "CIV", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=civ]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.fibrosis.ln", "label": "LN", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=ln]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.fibrosis.ha", "label": "HA", "pages": ["page-03.html", "page-05.html"], "source": "structured_report.tests[item_code=ha]", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.fibrosis.summary", "label": "肝纤维化AI解读", "pages": ["page-03.html", "page-05.html"], "source": "DeepSeek.indicator_interpretations.fibrosis", "fill_type": "ai", "status": "ai_connected" },
+
+    { "key": "p07.lifestyle_advice", "label": "综合生活方式建议", "pages": ["page-03.html"], "source": "DeepSeek.recommendations.lifestyle_advice with rules fallback", "fill_type": "ai_or_rules", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.gene_name", "label": "ALDH2检测基因", "pages": ["page-04.html"], "source": "rules fixed gene metadata", "fill_type": "rules", "status": "mapped" },
+    { "key": "p07.gene.aldh2.locus", "label": "ALDH2检测位点", "pages": ["page-04.html"], "source": "structured_report.tests[item_code=aldh2].locus", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.gene.aldh2.result_display", "label": "ALDH2检测结果", "pages": ["page-04.html"], "source": "structured_report.tests[item_code=aldh2].result", "fill_type": "ocr", "status": "mapped" },
+    { "key": "p07.gene.aldh2.status", "label": "ALDH2基因型解读", "pages": ["page-04.html"], "source": "structured_report.tests[item_code=aldh2].indicator + rules", "fill_type": "ocr_rules", "status": "mapped" },
+    { "key": "p07.gene.aldh2.card_summary", "label": "ALDH2结果卡片摘要", "pages": ["page-04.html"], "source": "rules from ALDH2 genotype", "fill_type": "rules", "status": "mapped" },
+    { "key": "p07.gene.aldh2.personalized_title", "label": "ALDH2个性化标题", "pages": ["page-04.html"], "source": "rules from patient name and genotype", "fill_type": "rules", "status": "mapped" },
+    { "key": "p07.gene.aldh2.interpretation", "label": "ALDH2专业解读", "pages": ["page-04.html"], "source": "DeepSeek.indicator_interpretations.aldh2.interpretation", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.caution", "label": "ALDH2注意事项", "pages": ["page-04.html"], "source": "DeepSeek.indicator_interpretations.aldh2.caution", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.advice_1", "label": "ALDH2建议1", "pages": ["page-04.html"], "source": "DeepSeek.recommendations.aldh2_advice[0]", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.advice_2", "label": "ALDH2建议2", "pages": ["page-04.html"], "source": "DeepSeek.recommendations.aldh2_advice[1]", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.advice_3", "label": "ALDH2建议3", "pages": ["page-04.html"], "source": "DeepSeek.recommendations.aldh2_advice[2]", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.short_interpretation", "label": "ALDH2短解读", "pages": ["page-05.html"], "source": "DeepSeek.indicator_interpretations.aldh2.short_interpretation", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.summary", "label": "ALDH2机制摘要", "pages": ["page-05.html"], "source": "DeepSeek.indicator_interpretations.aldh2.summary", "fill_type": "ai", "status": "ai_connected" },
+    { "key": "p07.gene.aldh2.comprehensive_interpretation", "label": "ALDH2综合解读", "pages": ["page-05.html"], "source": "DeepSeek.indicator_interpretations.aldh2.comprehensive_interpretation", "fill_type": "ai", "status": "ai_connected" }
+  ],
+  "page_field_audit": {
+    "page-01.html": {
+      "real_data_fields": [
+        "patient.name",
+        "patient.gender",
+        "patient.age",
+        "report.assessment_type",
+        "sample.type",
+        "report.method",
+        "report.assessment_date",
+        "report.report_id",
+        "patient.submitting_unit",
+        "patient.symptoms"
+      ],
+      "ocr_or_manual_fields": [
+        "patient.symptoms"
+      ],
+      "placeholder_removed": []
+    },
+    "page-02.html": {
+      "real_data_fields": [
+        "p07.liver_function.overall_status",
+        "p07.fibrosis.overall_status",
+        "p07.gene.aldh2.status_display",
+        "p07.priorities.priority_1.title",
+        "p07.priorities.priority_2.title",
+        "p07.priorities.priority_3.title"
+      ],
+      "ai_bound_fields": [
+        "p07.overall_summary",
+        "p07.disclaimer"
+      ],
+      "placeholder_removed": []
+    },
+    "page-03.html": {
+      "real_data_fields": [
+        "p07.liver_function.alt",
+        "p07.liver_function.pab",
+        "p07.liver_function.ast",
+        "p07.liver_function.ast_alt_ratio",
+        "p07.liver_function.tp",
+        "p07.liver_function.alb",
+        "p07.liver_function.glo",
+        "p07.liver_function.ag_ratio",
+        "p07.liver_function.tbil",
+        "p07.liver_function.dbil",
+        "p07.liver_function.ibil",
+        "p07.liver_function.alp",
+        "p07.liver_function.ggt",
+        "p07.liver_function.che",
+        "p07.liver_function.tba",
+        "p07.fibrosis.pc_iii",
+        "p07.fibrosis.civ",
+        "p07.fibrosis.ln",
+        "p07.fibrosis.ha"
+      ],
+      "ai_bound_fields": [
+        "p07.liver_function.summary",
+        "p07.fibrosis.summary",
+        "p07.lifestyle_advice"
+      ],
+      "placeholder_removed": [
+        "p07.fibrosis.mmp_2",
+        "p07.fibrosis.timp_1"
+      ]
+    },
+    "page-04.html": {
+      "real_data_fields": [
+        "p07.gene.aldh2.gene_name",
+        "p07.gene.aldh2.locus",
+        "p07.gene.aldh2.result_display",
+        "p07.gene.aldh2.status",
+        "p07.gene.aldh2.card_summary"
+      ],
+      "ai_bound_fields": [
+        "p07.gene.aldh2.personalized_title",
+        "p07.gene.aldh2.interpretation",
+        "p07.gene.aldh2.caution",
+        "p07.gene.aldh2.advice_1",
+        "p07.gene.aldh2.advice_2",
+        "p07.gene.aldh2.advice_3"
+      ],
+      "static_reference_content": [
+        "基因型与酒精代谢能力对比表"
+      ],
+      "placeholder_removed": []
+    },
+    "page-05.html": {
+      "real_data_fields": [
+        "p07.liver_function.detail_status",
+        "p07.liver_function.alt",
+        "p07.liver_function.ast",
+        "p07.liver_function.ggt",
+        "p07.liver_function.tbil",
+        "p07.liver_function.alb",
+        "p07.fibrosis.detail_status",
+        "p07.fibrosis.pc_iii",
+        "p07.fibrosis.civ",
+        "p07.fibrosis.ln",
+        "p07.fibrosis.ha",
+        "p07.gene.aldh2.detail_status",
+        "p07.gene.aldh2.status_display"
+      ],
+      "ai_bound_fields": [
+        "p07.liver_function.summary",
+        "p07.fibrosis.summary",
+        "p07.gene.aldh2.short_interpretation",
+        "p07.gene.aldh2.summary",
+        "p07.gene.aldh2.comprehensive_interpretation"
+      ],
+      "placeholder_removed": [
+        "p07.fibrosis.fib_4",
+        "p07.page_note"
+      ]
+    }
+  },
+  "ai_field_mapping": [
+    { "ai_path": "overall_summary", "target_field": "p07.overall_summary", "pages": ["page-02.html"], "max_chars": 170 },
+    { "ai_path": "indicator_interpretations.liver_function", "target_field": "p07.liver_function.summary", "pages": ["page-03.html", "page-05.html"], "max_chars": 120 },
+    { "ai_path": "indicator_interpretations.fibrosis", "target_field": "p07.fibrosis.summary", "pages": ["page-03.html", "page-05.html"], "max_chars": 105 },
+    { "ai_path": "indicator_interpretations.aldh2.interpretation", "target_field": "p07.gene.aldh2.interpretation", "pages": ["page-04.html"], "max_chars": 150 },
+    { "ai_path": "indicator_interpretations.aldh2.caution", "target_field": "p07.gene.aldh2.caution", "pages": ["page-04.html"], "max_chars": 90 },
+    { "ai_path": "indicator_interpretations.aldh2.short_interpretation", "target_field": "p07.gene.aldh2.short_interpretation", "pages": ["page-05.html"], "max_chars": 48 },
+    { "ai_path": "indicator_interpretations.aldh2.summary", "target_field": "p07.gene.aldh2.summary", "pages": ["page-05.html"], "max_chars": 90 },
+    { "ai_path": "indicator_interpretations.aldh2.comprehensive_interpretation", "target_field": "p07.gene.aldh2.comprehensive_interpretation", "pages": ["page-05.html"], "max_chars": 80 },
+    { "ai_path": "recommendations.management_priorities", "target_field": "p07.priorities.priority_1.title 到 p07.priorities.priority_3.title", "pages": ["page-02.html"], "max_chars": 18 },
+    { "ai_path": "recommendations.lifestyle_advice", "target_field": "p07.lifestyle_advice", "pages": ["page-03.html"], "max_chars": 90 },
+    { "ai_path": "recommendations.aldh2_advice", "target_field": "p07.gene.aldh2.advice_1 到 p07.gene.aldh2.advice_3", "pages": ["page-04.html"], "max_chars": 36 },
+    { "ai_path": "safety.disclaimer", "target_field": "p07.disclaimer", "pages": ["page-02.html"], "max_chars": 60 }
+  ],
+  "indicator_fields": [
+    "p07.liver_function.alt",
+    "p07.liver_function.pab",
+    "p07.liver_function.ast",
+    "p07.liver_function.ast_alt_ratio",
+    "p07.liver_function.tp",
+    "p07.liver_function.alb",
+    "p07.liver_function.glo",
+    "p07.liver_function.ag_ratio",
+    "p07.liver_function.tbil",
+    "p07.liver_function.dbil",
+    "p07.liver_function.ibil",
+    "p07.liver_function.alp",
+    "p07.liver_function.ggt",
+    "p07.liver_function.che",
+    "p07.liver_function.tba",
+    "p07.fibrosis.pc_iii",
+    "p07.fibrosis.civ",
+    "p07.fibrosis.ln",
+    "p07.fibrosis.ha",
+    "p07.gene.aldh2"
+  ],
+  "notes": [
+    "第03页已从12个肝功能项调整为原始报告15项。",
+    "第03页肝纤维化已从6个模板项调整为原始报告4项。",
+    "第05页已移除FIB-4占位，改为原始报告4项肝纤维化指标。",
+    "P07 模板来源路径：C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P07。"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "package_code": "P07",
+  "version": "P07-rules-v0.2-original-report-aligned",
+  "status": "draft",
+  "description": "P07 肝脏解毒功能评估健康管理报告规则。当前版本以 P07 样例原始报告项目为准，肝功能/生化固定15项，肝纤维化固定4项；AI仅可基于真实识别数据生成健康管理解读。",
+  "method": "肝功能、肝纤维化与ALDH2基因综合评估",
+  "principles": [
+    "优先读取原始检验报告中的结果、单位、参考范围和异常标记。",
+    "当原始报告给出升高、降低、异常或阴阳性提示时，优先采用原始报告结论。",
+    "ALDH2 GG 视为酶活性正常；GA 视为酶活性下降、需限制酒精摄入；AA 视为乙醛代谢能力显著受限、建议严格避免饮酒并由专业人员评估风险。",
+    "肝功能/生化展示项目必须与原始报告一致：ALT、PAB、AST、AST/ALT、TP、ALB、GLB、A/G、TBIL、DBIL、IBIL、ALP、GGT、CHE、TBA，共15项。",
+    "肝纤维化展示项目必须与原始报告一致：PC-III、CIV、LN、HA，共4项；不得输出MMP-2、TIMP-1、FIB-4或其他未出现在原始报告中的项目。",
+    "CIV等原始报告中存在项目名但结果为空的项目，应保留项目并标记待复核，不得由AI补造结果。",
+    "所有健康管理建议必须经过人工复核后才能导出正式报告。",
+    "本报告不输出临床诊断、治疗方案、药物剂量或替代医生诊疗意见。"
+  ],
+  "indicator_groups": {
+    "liver_function": ["ALT", "PAB", "AST", "AST/ALT", "TP", "ALB", "GLB", "A/G", "T-BIL", "D-BIL", "I-BIL", "ALP", "GGT", "CHE", "TBA"],
+    "fibrosis": ["PC-III", "CIV", "LN", "HA"],
+    "gene": ["ALDH2 rs671"]
+  },
+  "ai_field_mapping": {
+    "overall_summary": "p07.overall_summary",
+    "indicator_interpretations.liver_function": "p07.liver_function.summary",
+    "indicator_interpretations.fibrosis": "p07.fibrosis.summary",
+    "indicator_interpretations.aldh2.interpretation": "p07.gene.aldh2.interpretation",
+    "indicator_interpretations.aldh2.caution": "p07.gene.aldh2.caution",
+    "indicator_interpretations.aldh2.short_interpretation": "p07.gene.aldh2.short_interpretation",
+    "indicator_interpretations.aldh2.summary": "p07.gene.aldh2.summary",
+    "indicator_interpretations.aldh2.comprehensive_interpretation": "p07.gene.aldh2.comprehensive_interpretation",
+    "recommendations.management_priorities[0..2]": "p07.priorities.priority_1.title 至 p07.priorities.priority_3.title",
+    "recommendations.lifestyle_advice": "p07.lifestyle_advice",
+    "recommendations.alcohol_advice": "p07.alcohol_advice",
+    "recommendations.followup_advice": "p07.followup_advice",
+    "recommendations.aldh2_advice[0..2]": "p07.gene.aldh2.advice_1 至 p07.gene.aldh2.advice_3",
+    "safety.disclaimer": "p07.disclaimer"
+  },
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  }
+}

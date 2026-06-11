@@ -32,3 +32,17 @@
 - `recommendations.followup_advice`：长期随访和复查建议。
 - `safety.disclaimer`：免责声明。
 - `safety.requires_human_review`：必须为 true。
+
+## 页面展示篇幅策略
+
+以下篇幅为目标展示范围，不是让内容变成一句空泛结论；系统不会在合并报告数据时截断过长文案。请优先保证专业性和可复核性，再控制版式：
+
+- `overall_summary`：用于第02页智能解读，目标 180-230 个中文字符，2到3句。需要说明总体状态、主要异常指标、组合风险含义和下一步健康管理重点。
+- `indicator_interpretations.glucose_metabolism`：用于第03页智能解读，目标不超过 180 个中文字符。需要结合空腹血糖、糖化血红蛋白、平均血糖、胰岛素或C肽说明。
+- `indicator_interpretations.lipid_panel`：用于第04页血脂解读，目标不超过 180 个中文字符。需要结合TG、HDL-C、LDL-C、非HDL-C或载脂蛋白说明。
+- `indicator_interpretations.balance_indexes`：用于第05页三个关键指数文案，目标不超过 120 个中文字符。重点解释TG/HDL-C、HOMA-IR、非HDL-C的风险指向，避免长篇科普。
+- `risk_assessment`：用于第06页风险评估卡片，目标不超过 220 个中文字符。需要说明风险等级依据、缺失信息和人工复核要点。
+- `recommendations.diet_advice`：用于第07页饮食管理提示，目标不超过 170 个中文字符。需给出可执行饮食方向和需要避免的食物类型。
+- `recommendations.exercise_advice`：用于第08页运动建议，目标不超过 140 个中文字符。需结合有氧、抗阻、体重或腰围管理。
+- `recommendations.nutrition_advice`：用于第08页营养建议，目标不超过 140 个中文字符。需强调需经人工审查，不输出剂量或处方化内容。
+- `recommendations.followup_advice`：用于第09页和第10页长期管理建议，目标不超过 130 个中文字符。需说明复查周期、复查指标和生活方式记录。

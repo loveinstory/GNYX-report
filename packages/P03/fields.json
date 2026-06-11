@@ -21,7 +21,6 @@
     "p03.followup_advice"
   ],
   "optional_fields": [
-    "patient.phone",
     "patient.symptoms",
     "patient.hospital",
     "report.sample_date",
@@ -67,19 +66,19 @@
       "status": "mapped"
     },
     {
-      "key": "patient.phone",
-      "label": "联系电话",
-      "pages": ["page-01.html"],
-      "source": "default:/",
-      "fill_type": "default",
-      "status": "mapped"
-    },
-    {
       "key": "patient.symptoms",
       "label": "相关症状",
       "pages": ["page-01.html"],
-      "source": "default:/",
-      "fill_type": "default",
+      "source": "structured_report.p03_extracted_report.patient_info.clinical_diagnosis",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.hospital",
+      "label": "送检单位",
+      "pages": ["page-01.html"],
+      "source": "structured_report.patient_info.hospital",
+      "fill_type": "ocr",
       "status": "mapped"
     },
     {
@@ -111,6 +110,14 @@
       "label": "评估日期",
       "pages": ["page-01.html"],
       "source": "structured_report.additional_info.sample_date",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.report_id",
+      "label": "报告编号",
+      "pages": ["page-01.html"],
+      "source": "structured_report.report_id",
       "fill_type": "ocr",
       "status": "mapped"
     },

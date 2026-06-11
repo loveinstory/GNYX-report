@@ -4,7 +4,7 @@
   "status": "draft",
   "description": "P05 压力激素与睡眠状态评估管理报告规则草案。当前先保留统一结构，待 P05 真实或脱敏 PDF 样例与标准 JSON 确认后完善阈值与分级。",
   "p05": {
-    "method": "压力与睡眠状态综合评估",
+    "method": "化学发光&LC-MS/MS法",
     "dimensions": [
       "压力轴（HPA）",
       "儿茶酚胺与交感神经系统",

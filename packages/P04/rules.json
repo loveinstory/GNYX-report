@@ -1,0 +1,60 @@
+{
+  "package_code": "P04",
+  "version": "P04-rules-v0.1-draft",
+  "status": "draft",
+  "description": "P04 营养素状态评估健康管理报告规则草案。当前优先使用原始检验报告参考范围和升降提示，不自动发布医学规则。",
+  "p04": {
+    "method": "原子光谱法、LC-MS/MS法",
+    "nutrient_groups": {
+      "microelements": ["iron", "zinc", "calcium", "magnesium", "copper"],
+      "vitamins": [
+        "vitamin_a",
+        "vitamin_d2",
+        "vitamin_d3",
+        "vitamin_d",
+        "vitamin_e",
+        "vitamin_k1",
+        "vitamin_b1",
+        "vitamin_b2",
+        "vitamin_b3_niacin",
+        "vitamin_b3_nicotinamide",
+        "vitamin_b5",
+        "vitamin_b6",
+        "vitamin_b7",
+        "vitamin_b9_5_mthf",
+        "vitamin_b12_mma"
+      ]
+    },
+    "default_references": {
+      "iron": "7.52--11.82 mmol/L",
+      "zinc": "76.5--170 umol/L",
+      "calcium": "1.55--2.1 mmol/L",
+      "magnesium": "1.12--2.16 mmol/L",
+      "copper": "11.8--39.3 umol/L",
+      "vitamin_a": "0.3-0.7 μg/mL",
+      "vitamin_d2": "ng/mL",
+      "vitamin_d3": "ng/mL",
+      "vitamin_d": "<12.00 缺乏; [12.01-20.00] 不足; [20.01-50.00] 正常; >50.00 过量 ng/mL",
+      "vitamin_e": "5.0-20.0 μg/mL",
+      "vitamin_k1": "0.2-2.5 ng/mL",
+      "vitamin_b1": "1-16 ng/mL",
+      "vitamin_b2": "1-19 ng/mL",
+      "vitamin_b3_niacin": "0-5.0 ng/mL",
+      "vitamin_b3_nicotinamide": "15.2-72.10 ng/mL",
+      "vitamin_b5": "12.9-253.1 ng/mL",
+      "vitamin_b6": "1-30 ng/mL",
+      "vitamin_b7": "0.05-0.83 ng/mL",
+      "vitamin_b9_5_mthf": "4-35 ng/mL",
+      "vitamin_b12_mma": "≤47.24 ng/mL"
+    }
+  },
+  "safety": {
+    "requires_human_review": true,
+    "forbidden_claims": [
+      "临床确诊",
+      "治疗方案",
+      "药物剂量",
+      "替代医生诊断"
+    ]
+  }
+}

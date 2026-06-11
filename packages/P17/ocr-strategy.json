@@ -1,0 +1,15 @@
+{
+  "package_code": "P17",
+  "strategy_version": "P17-ocr-strategy-v0.2-standard-json-aligned",
+  "status": "development",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P17",
+  "goals": [
+    "将 P17 阴道微生态健康评估管理报告相关 PDF 统一结构化为标准 JSON",
+    "优先抽取基础信息、HPV 27 分型结果、泌尿生殖道微生物结果、局部免疫与屏障评估、干预建议与复评信息",
+    "当前先完成模板工程化与基础字段接入，待真实或脱敏样例到位后补齐专项 OCR 规则"
+  ],
+  "notes": [
+    "第一阶段以模板字段、基础报告信息和 AI 合并契约为主，避免在缺少真实样例时过度假设专项结构。",
+    "AI 输出必须进入人工审查后方可导出 PDF。"
+  ]
+}

@@ -294,9 +294,14 @@ async def documents_import(
 
 
 @app.get("/ocr/logs")
-def ocr_logs(request: Request, package_code: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
+def ocr_logs(
+    request: Request,
+    package_code: str | None = None,
+    page: int = 1,
+    page_size: int = 10,
+) -> dict[str, Any]:
     require_authenticated(request)
-    return list_ocr_parse_logs(package_code=package_code, limit=limit)
+    return list_ocr_parse_logs(package_code=package_code, page=page, page_size=page_size)
 
 
 @app.get("/ocr/logs/{log_id}")

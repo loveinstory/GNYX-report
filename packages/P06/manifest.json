@@ -1,0 +1,29 @@
+{
+  "package_code": "P06",
+  "package_name": "慢性炎症与氧化应激评估健康管理报告",
+  "status": "development",
+  "version": "0.1.0",
+  "template_version": "P06-html-v0.2-split-results-overview",
+  "rule_version": "P06-rules-v0.1-draft",
+  "prompt_version": "P06-prompts-v0.1",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "综合评估结论", "enabled": true },
+    { "page": "page-03.html", "title": "免疫细胞与功能指标检测结果", "enabled": true },
+    { "page": "page-04.html", "title": "细胞因子12项检测结果", "enabled": true },
+    { "page": "page-05.html", "title": "核心指标深度解读", "enabled": true },
+    { "page": "page-06.html", "title": "个性化健康管理方案", "enabled": true },
+    { "page": "page-07.html", "title": "知识科普与长期健康维护", "enabled": true },
+    { "page": "page-08.html", "title": "健康管理计划表", "enabled": true },
+    { "page": "page-09.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

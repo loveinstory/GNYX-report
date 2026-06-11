@@ -19,6 +19,8 @@
     "patient_info.name",
     "patient_info.gender",
     "patient_info.age",
+    "patient_info.phone",
+    "patient_info.clinical_diagnosis",
     "patient_info.submitting_unit",
     "patient_info.specimen_status",
     "patient_info.specimen_type",

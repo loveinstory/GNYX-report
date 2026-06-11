@@ -65,7 +65,7 @@ def get_job(job_id: str) -> dict[str, Any]:
 
 def list_jobs() -> list[dict[str, Any]]:
     with connect() as conn:
-        rows = conn.execute("SELECT * FROM jobs ORDER BY created_at DESC LIMIT 100").fetchall()
+        rows = conn.execute("SELECT * FROM jobs ORDER BY created_at DESC LIMIT 15").fetchall()
     jobs = []
     for row in rows:
         job = dict_from_row(row) or {}

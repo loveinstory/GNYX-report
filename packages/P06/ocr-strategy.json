@@ -1,0 +1,11 @@
+{
+  "package_code": "P06",
+  "strategy_version": "P06-ocr-strategy-v0.3-hscrp-three-page",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P06",
+  "notes": [
+    "将 P06 慢性炎症与氧化应激评估相关 PDF 统一结构化为标准 JSON。",
+    "当前版本基于 P06 样例报告、已粘贴JSON样本与人工校准内容，改为跨页扫描检测项目，兼容第1页超敏C反应蛋白（hs-CRP）、第2页免疫细胞17项、第3页细胞因子12项的三页结构。",
+    "优先保留报告编号、送检单位、姓名、性别、年龄、标本情况、标本类型、采样/接收/报告时间等关键页眉信息。",
+    "若 PDF 为图片页或表格文本层错乱，需结合云 OCR 或人工补录进一步校准。"
+  ]
+}

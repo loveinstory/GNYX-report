@@ -15,3 +15,13 @@
 - `recommendations.diet_advice`：用于营养补充或饮食方向建议。
 - `recommendations.lifestyle_advice`：用于作息、运动、放松训练和睡眠行为建议。
 - `recommendations.followup_advice`：用于阶段复评和长期健康管理建议。
+
+页面展示篇幅策略：
+以下篇幅为目标展示范围，不是让内容变成一句空泛结论；系统不会在合并报告数据时截断过长文案。
+
+- `overall_summary`：目标不超过 180 个中文字符，需概括压力轴、睡眠节律、甲状腺或神经递质相关状态。
+- `risk_assessment`：目标不超过 210 个中文字符，需说明风险依据、缺失信息和人工复核要点。
+- `indicator_interpretations.stress_axis`、`indicator_interpretations.catecholamine`、`indicator_interpretations.neurotransmitter_metabolism`、`indicator_interpretations.sleep_status`、`indicator_interpretations.thyroid_metabolism`：各目标不超过 160 个中文字符。
+- `recommendations.diet_advice`：目标不超过 150 个中文字符。
+- `recommendations.lifestyle_advice`：目标不超过 160 个中文字符。
+- `recommendations.followup_advice`：目标不超过 140 个中文字符。

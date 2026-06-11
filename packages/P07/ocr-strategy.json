@@ -1,0 +1,151 @@
+{
+  "package_code": "P07",
+  "strategy_version": "P07-ocr-strategy-v0.2-xie-three-page-json",
+  "status": "draft",
+  "provider": "pdf-text-extractor",
+  "fallback_provider": "cloud-ocr",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P07",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P07 肝脏解毒功能评估健康管理报告 OCR 策略。当前版本基于 P07 完整 OCR JSON 样例，覆盖肝纤维化、肝功能/生化和 ALDH2 基因报告三页结构。",
+  "goals": [
+    "仅针对 P07《肝脏解毒功能评估健康管理报告》生效，不影响其他套餐策略。",
+    "优先读取 PDF 文本层；当文本层为空、表格顺序错乱或基因页识别不完整时，切换云 OCR 或人工补录。",
+    "兼容完整 OCR JSON 文本输入，将 report_info、page_1、page_2、page_3 统一转换为标准 structured_report.tests。",
+    "保留 p07_extracted_report.page_1/page_2/page_3，方便在 OCR 日志中对照原始报告页和字段抽取结果。"
+  ],
+  "current_provider": "pdf-text-extractor",
+  "supported_input_shapes": [
+    "PDF 文本层",
+    "完整 OCR JSON 文本：report_info + page_1 + page_2 + page_3"
+  ],
+  "page_strategy": {
+    "page_1": {
+      "section": "肝纤维化指标",
+      "expected_items": ["pc_iii", "civ", "ln", "ha"],
+      "notes": "样例中 CIV 结果为空时保留待复核，不由 AI 补造数值。"
+    },
+    "page_2": {
+      "section": "肝功能/生化指标",
+      "expected_items": [
+        "alt",
+        "pab",
+        "ast",
+        "ast_alt_ratio",
+        "tp",
+        "alb",
+        "glo",
+        "ag_ratio",
+        "tbil",
+        "dbil",
+        "ibil",
+        "alp",
+        "ggt",
+        "che",
+        "tba"
+      ],
+      "notes": "PAB、AST/ALT 比值和 TBA 均进入 P07 肝功能字段和第03页检测结果概览；第05页仅挑选核心肝功能指标做深度解读。"
+    },
+    "page_3": {
+      "section": "ALDH2 基因检测",
+      "expected_items": ["aldh2"],
+      "notes": "抽取 gene_locus、result、indication、method、instrument；GG/GA/AA 由报告数据层继续生成健康管理分层。"
+    }
+  },
+  "target_fields": [
+    "report_info.report_title",
+    "report_info.barcode",
+    "report_info.submitting_unit",
+    "report_info.patient_name",
+    "report_info.gender",
+    "report_info.age",
+    "report_info.specimen_status",
+    "report_info.specimen_type",
+    "tests[].page",
+    "tests[].group",
+    "tests[].item_code",
+    "tests[].test_name",
+    "tests[].result",
+    "tests[].indicator",
+    "tests[].reference_range",
+    "tests[].unit",
+    "tests[].method",
+    "tests[].locus",
+    "additional_info.sample_date",
+    "additional_info.receive_date",
+    "additional_info.report_date"
+  ],
+  "target_indicators": [
+    { "code": "pc_iii", "name": "III型前胶原（PC-III）", "group": "fibrosis", "reference": "≤30", "unit": "ng/mL", "method": "化学发光法" },
+    { "code": "civ", "name": "IV型胶原（CIV）", "group": "fibrosis", "reference": "", "unit": "ng/mL", "method": "化学发光法", "allow_empty_result": true },
+    { "code": "ln", "name": "层粘连蛋白（LN）", "group": "fibrosis", "reference": "≤50", "unit": "ug/L", "method": "化学发光法" },
+    { "code": "ha", "name": "透明质酸（HA）", "group": "fibrosis", "reference": "≤100", "unit": "ng/mL", "method": "化学发光法" },
+    { "code": "alt", "name": "丙氨酸氨基转移酶（ALT）", "group": "liver_function", "reference": "9-50", "unit": "U/L" },
+    { "code": "pab", "name": "前白蛋白（PAB）", "group": "liver_function", "reference": "200-430", "unit": "mg/L" },
+    { "code": "ast", "name": "天门冬氨酸氨基转移酶（AST）", "group": "liver_function", "reference": "15-40", "unit": "U/L" },
+    { "code": "ast_alt_ratio", "name": "谷草谷丙比", "group": "liver_function", "reference": "", "unit": "" },
+    { "code": "tp", "name": "总蛋白（TP）", "group": "liver_function", "reference": "65-85", "unit": "g/L" },
+    { "code": "alb", "name": "白蛋白（ALB）", "group": "liver_function", "reference": "40-55", "unit": "g/L" },
+    { "code": "glo", "name": "球蛋白（GLB/GLO）", "group": "liver_function", "reference": "20-40", "unit": "g/L" },
+    { "code": "ag_ratio", "name": "白/球蛋白比", "group": "liver_function", "reference": "1.2-2.4", "unit": "" },
+    { "code": "tbil", "name": "总胆红素（T-BIL）", "group": "liver_function", "reference": "≤23.0", "unit": "umol/L" },
+    { "code": "dbil", "name": "直接胆红素（D-BIL）", "group": "liver_function", "reference": "≤6.0", "unit": "umol/L" },
+    { "code": "ibil", "name": "间接胆红素（I-BIL）", "group": "liver_function", "reference": "≤16.16", "unit": "umol/L" },
+    { "code": "alp", "name": "碱性磷酸酶（ALP）", "group": "liver_function", "reference": "45-125", "unit": "U/L" },
+    { "code": "ggt", "name": "γ-谷氨酰转肽酶（GGT）", "group": "liver_function", "reference": "10.00-60.00", "unit": "U/L" },
+    { "code": "che", "name": "胆碱酯酶（CHE/CIE）", "group": "liver_function", "reference": "5000-12000", "unit": "U/L" },
+    { "code": "tba", "name": "总胆汁酸（TBA）", "group": "liver_function", "reference": "≤10.0", "unit": "umol/L" },
+    { "code": "aldh2", "name": "ALDH2 c.1510G>A", "group": "gene", "reference": "", "unit": "", "method": "测序法" }
+  ],
+  "recognition_rules": {
+    "field_normalization": [
+      "GLB 统一映射到模板字段 p07.liver_function.glo。",
+      "CIE 作为胆碱酯酶的 OCR 别名，统一映射到 p07.liver_function.che。",
+      "ALDH2 的 AG 结果归一为 GA。",
+      "结果为 null 或空字符串时保留 item_code 与项目名，状态进入待复核，不允许 AI 生成检验数值。"
+    ],
+    "date_policy": [
+      "sample_date 取识别到的最早采样日期。",
+      "receive_date 和 report_date 取识别到的最晚时间。",
+      "每页日期仍保留在 p07_extracted_report.page_x 中用于对照。"
+    ]
+  },
+  "comparison_keys": [
+    "source_file",
+    "strategy_version",
+    "provider",
+    "structured_report.report_id",
+    "structured_report.patient_info.name",
+    "structured_report.tests[].item_code",
+    "p07_extracted_report.page_1.test_items[].item_code",
+    "p07_extracted_report.page_2.test_items[].item_code",
+    "p07_extracted_report.page_3.test_result.result"
+  ],
+  "quality_gate": {
+    "expected_test_count": 20,
+    "minimum_without_warning": 16,
+    "required_codes": [
+      "alt",
+      "ast",
+      "ggt",
+      "alp",
+      "tbil",
+      "dbil",
+      "ibil",
+      "tp",
+      "alb",
+      "glo",
+      "ag_ratio",
+      "che",
+      "pc_iii",
+      "ln",
+      "ha",
+      "aldh2"
+    ],
+    "manual_review_required_when_missing": ["aldh2", "alt", "ast", "pc_iii", "ln", "ha"]
+  },
+  "notes": [
+    "当前版本依据 P07 完整 OCR JSON 样例升级。",
+    "CIV 在样例 OCR 中无结果，策略层明确允许空值并提示人工复核。",
+    "后续拿到更多真实或脱敏 P07 样例后，继续增强 PDF 表格文本层乱序、图片页和签名区识别能力。"
+  ]
+}
