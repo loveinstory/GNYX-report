@@ -1,28 +1,34 @@
 {
   "package_code": "P07",
-  "strategy_version": "P07-ocr-strategy-v0.2-xie-three-page-json",
+  "strategy_version": "P07-ocr-strategy-v0.3-stacked-table",
   "status": "draft",
   "provider": "pdf-text-extractor",
   "fallback_provider": "cloud-ocr",
   "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P07",
   "output_schema": "shared/schemas/ocr-result.schema.json",
-  "description": "P07 肝脏解毒功能评估健康管理报告 OCR 策略。当前版本基于 P07 完整 OCR JSON 样例，覆盖肝纤维化、肝功能/生化和 ALDH2 基因报告三页结构。",
+  "description": "P07 肝脏解毒功能评估健康管理报告 OCR 策略。当前版本基于 P07 完整 OCR JSON 样例和 P07-1 样例 PDF 文本层乱序表格，覆盖 ALDH2、肝功能/生化和肝纤维化三页结构。",
   "goals": [
     "仅针对 P07《肝脏解毒功能评估健康管理报告》生效，不影响其他套餐策略。",
-    "优先读取 PDF 文本层；当文本层为空、表格顺序错乱或基因页识别不完整时，切换云 OCR 或人工补录。",
-    "兼容完整 OCR JSON 文本输入，将 report_info、page_1、page_2、page_3 统一转换为标准 structured_report.tests。",
+    "优先读取 PDF 文本层；针对肝功能页的 stacked table 乱序文本，按项目顺序重建结果、参考范围、单位和高低标记。",
+    "兼容完整 OCR JSON 文本输入，将 report_info + page_1/page_2/page_3 或 report_info + pages[] 统一转换为标准 structured_report.tests。",
     "保留 p07_extracted_report.page_1/page_2/page_3，方便在 OCR 日志中对照原始报告页和字段抽取结果。"
   ],
   "current_provider": "pdf-text-extractor",
   "supported_input_shapes": [
     "PDF 文本层",
-    "完整 OCR JSON 文本：report_info + page_1 + page_2 + page_3"
+    "完整 OCR JSON 文本：report_info + page_1 + page_2 + page_3",
+    "完整 OCR JSON 文本：report_info + pages[]"
   ],
+  "page_role_detection": {
+    "gene": "页面包含 test_result、ALDH2 或 乙醛脱氢酶时识别为 ALDH2 基因页；不再固定要求位于第3页。",
+    "liver_function": "页面 test_items 为肝功能项目，或 PDF 文本中包含 PAB、AST、白/球蛋白比时识别为肝功能页。",
+    "fibrosis": "页面 test_items 包含 PC-III/CIV/LN/HA，或 PDF 文本中包含前胶原、胶原、层粘连蛋白、透明质酸时识别为肝纤维化页。"
+  },
   "page_strategy": {
     "page_1": {
-      "section": "肝纤维化指标",
-      "expected_items": ["pc_iii", "civ", "ln", "ha"],
-      "notes": "样例中 CIV 结果为空时保留待复核，不由 AI 补造数值。"
+      "section": "ALDH2 或肝纤维化指标，按页面内容自动识别",
+      "expected_items": ["aldh2", "pc_iii", "civ", "ln", "ha"],
+      "notes": "P07-1 样例 PDF 第1页为 ALDH2；历史样例可为肝纤维化页，策略按内容而非页码判定。"
     },
     "page_2": {
       "section": "肝功能/生化指标",
@@ -46,8 +52,8 @@
       "notes": "PAB、AST/ALT 比值和 TBA 均进入 P07 肝功能字段和第03页检测结果概览；第05页仅挑选核心肝功能指标做深度解读。"
     },
     "page_3": {
-      "section": "ALDH2 基因检测",
-      "expected_items": ["aldh2"],
+      "section": "肝纤维化指标或 ALDH2 基因检测，按页面内容自动识别",
+      "expected_items": ["pc_iii", "civ", "ln", "ha", "aldh2"],
       "notes": "抽取 gene_locus、result、indication、method、instrument；GG/GA/AA 由报告数据层继续生成健康管理分层。"
     }
   },
@@ -76,7 +82,7 @@
   ],
   "target_indicators": [
     { "code": "pc_iii", "name": "III型前胶原（PC-III）", "group": "fibrosis", "reference": "≤30", "unit": "ng/mL", "method": "化学发光法" },
-    { "code": "civ", "name": "IV型胶原（CIV）", "group": "fibrosis", "reference": "", "unit": "ng/mL", "method": "化学发光法", "allow_empty_result": true },
+    { "code": "civ", "name": "IV型胶原（CIV）", "group": "fibrosis", "reference": "≤30", "unit": "ng/mL", "method": "化学发光法", "allow_empty_result": true },
     { "code": "ln", "name": "层粘连蛋白（LN）", "group": "fibrosis", "reference": "≤50", "unit": "ug/L", "method": "化学发光法" },
     { "code": "ha", "name": "透明质酸（HA）", "group": "fibrosis", "reference": "≤100", "unit": "ng/mL", "method": "化学发光法" },
     { "code": "alt", "name": "丙氨酸氨基转移酶（ALT）", "group": "liver_function", "reference": "9-50", "unit": "U/L" },
@@ -122,7 +128,7 @@
   ],
   "quality_gate": {
     "expected_test_count": 20,
-    "minimum_without_warning": 16,
+    "minimum_without_warning": 20,
     "required_codes": [
       "alt",
       "ast",
@@ -144,8 +150,9 @@
     "manual_review_required_when_missing": ["aldh2", "alt", "ast", "pc_iii", "ln", "ha"]
   },
   "notes": [
-    "当前版本依据 P07 完整 OCR JSON 样例升级。",
-    "CIV 在样例 OCR 中无结果，策略层明确允许空值并提示人工复核。",
-    "后续拿到更多真实或脱敏 P07 样例后，继续增强 PDF 表格文本层乱序、图片页和签名区识别能力。"
+    "当前版本依据 P07 完整 OCR JSON 样例和 P07-1 样例 PDF 升级。",
+    "CIV 在历史样例 OCR 中无结果时允许空值并提示人工复核；P07-1 样例 PDF 中 CIV 可识别为 46.00↑，参考范围≤30。",
+    "肝功能页若 PDF 文本层把结果、参考范围、项目名拆成三段，策略按固定 15 项顺序回填，避免把参考范围误当作结果。",
+    "后续拿到更多真实或脱敏 P07 样例后，继续增强图片页和签名区识别能力。"
   ]
 }

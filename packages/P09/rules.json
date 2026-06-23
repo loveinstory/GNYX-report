@@ -1,0 +1,65 @@
+{
+  "package_code": "P09",
+  "version": "P09-rules-v0.2-ai-binding-layout",
+  "status": "draft",
+  "description": "P09 女性激素平衡评估健康管理报告规则草案 v0.2。当前优先使用原始检验报告参考范围和升降提示，AI仅可基于真实识别数据生成健康管理解读，并需满足第02-06页的A4版面约束。",
+  "method": "女性激素、卵巢储备、压力节律与相关免疫指标综合评估",
+  "principles": [
+    "优先读取原始检验报告中的结果、单位、参考范围和异常标记。",
+    "当原始报告给出升高、降低、异常或正常提示时，优先采用原始报告结论。",
+    "雌二醇、促黄体生成素、促卵泡刺激素、孕酮、睾酮、皮质醇、SHBG、AMH、泌乳素和总IgE必须以实际识别结果为准，不得补造数值。",
+    "女性激素解读必须结合月经周期阶段、年龄、用药、妊娠/哺乳等背景进行人工复核；系统首版不自动给出临床诊断。",
+    "健康管理建议定位为生活方式优化、阶段复评和专业咨询提醒，不输出治疗方案、药物剂量或绝对化结论。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "indicator_groups": {
+    "core_hormones": ["E2", "LH", "FSH", "PROG", "T"],
+    "stress_metabolism": ["Cortisol"],
+    "ovarian_reserve_binding": ["AMH", "SHBG", "PRL"],
+    "immune_allergy": ["Total IgE"]
+  },
+  "reference_defaults": {
+    "e2": "卵泡期:19.5-144.2 pg/mL；排卵期:63.9-356.7 pg/mL；黄体期:55.8-214.2 pg/mL；绝经期:0-32.2 pg/mL",
+    "lh": "卵泡期:1.9-12.5 mIU/mL；排卵期:8.7-76.3 mIU/mL；黄体期:0.5-16.9 mIU/mL；绝经期:15.9-54 mIU/mL；妊娠期:0-1.5 mIU/mL",
+    "fsh": "卵泡期:2.5-10.2 mIU/mL；排卵期:3.4-33.40 mIU/mL；黄体期:1.5-9.1 mIU/mL；绝经期:23-116.3 mIU/mL；妊娠期:<0.3 mIU/mL",
+    "progesterone": "卵泡期:0-1.4 ng/mL；黄体期:3.34-25.56 ng/mL；绝经期:0-0.73 ng/mL；孕早期:11.2-90 ng/mL；孕中期:25.55-89.4 ng/mL；孕晚期:48.4-422.5 ng/mL",
+    "testosterone": "0.08--0.35 ng/mL",
+    "cortisol": "",
+    "shbg": "女:20岁-49岁:22.52-134.90 nmol/L",
+    "amh": "0--4.25 ng/mL",
+    "prolactin": "未妊娠:59-619 uIU/mL；妊娠期:206-4420 uIU/mL；绝经期:38-430 uIU/mL",
+    "total_ige": "0--100 IU/mL"
+  },
+  "ai_field_mapping": {
+    "overall_summary": "p09.overall_summary",
+    "risk_assessment": "p09.risk_assessment",
+    "indicator_interpretations.e2_brief": "p09.indicators.e2.interpretation",
+    "indicator_interpretations.e2_summary": "p09.deep_dive.e2.summary",
+    "indicator_interpretations.e2_highlights[0..2]": "p09.deep_dive.e2.highlight_1 至 highlight_3",
+    "indicator_interpretations.lh": "p09.indicators.lh.interpretation",
+    "indicator_interpretations.fsh": "p09.indicators.fsh.interpretation",
+    "indicator_interpretations.progesterone": "p09.indicators.progesterone.interpretation",
+    "indicator_interpretations.testosterone": "p09.indicators.testosterone.interpretation",
+    "indicator_interpretations.cortisol": "p09.indicators.cortisol.interpretation",
+    "indicator_interpretations.shbg": "p09.indicators.shbg.interpretation",
+    "indicator_interpretations.amh": "p09.indicators.amh.interpretation",
+    "indicator_interpretations.prolactin": "p09.indicators.prolactin.interpretation",
+    "indicator_interpretations.total_ige": "p09.indicators.total_ige.interpretation",
+    "recommendations.management_priorities[0..3]": "p09.priorities.priority_1 至 p09.priorities.priority_4",
+    "recommendations.hormone_balance_advice": "p09.deep_dive.e2.ai_insight",
+    "recommendations.e2_action_items[0..2]": "p09.deep_dive.e2.advice_1 至 advice_3",
+    "recommendations.diet_advice[0..4]": "p09.management.diet.item_1 至 item_5",
+    "recommendations.exercise_advice[0..3]": "p09.management.exercise.item_1 至 item_4",
+    "recommendations.stress_advice[0..3]": "p09.management.stress.item_1 至 item_4",
+    "recommendations.review_advice[0..3]": "p09.management.review.item_1 至 item_4",
+    "recommendations.management_tip": "p09.management.tip",
+    "recommendations.followup_advice": "p09.followup_advice",
+    "safety.disclaimer": "p09.disclaimer",
+    "review_note": "p09.review_note"
+  },
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true,
+    "cycle_phase_need_manual_review": true
+  }
+}

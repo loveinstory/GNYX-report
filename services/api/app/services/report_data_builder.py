@@ -4,9 +4,11 @@ from datetime import datetime
 import re
 from typing import Any
 
+from app.services.p11_support import build_p11_report_data
+
 
 P17_REPORT_NAME = "阴道微生态健康评估管理报告"
-P17_METHOD = "HPV分型与阴道微生态综合评估"
+P17_METHOD = "荧光PCR法"
 P17_HPV_HIGH_RISK_TYPES = ("16", "18", "26", "31", "33", "35", "39", "45", "51", "52", "53", "56", "58", "59", "66", "68", "73", "82")
 P17_HPV_LOW_RISK_TYPES = ("6", "11", "40", "42", "43", "44", "61", "81", "83")
 P17_MICROBE_TEMPLATE_ROWS = (
@@ -61,6 +63,196 @@ P07_TEMPLATE_VERSION = "P07-html-v0.4-symptom-address-cleanup"
 P07_RULE_VERSION = "P07-rules-v0.2-original-report-aligned"
 P07_PROMPT_VERSION = "P07-prompts-v0.2-field-bound-a4"
 P07_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P08_REPORT_NAME = "心血管代谢风险评估健康管理报告"
+P08_ASSESSMENT_TYPE = "心血管代谢风险评估"
+P08_METHOD = "化学发光&免疫比浊"
+P08_TEMPLATE_VERSION = "P08-html-v0.2-cover-ocr-info"
+P08_RULE_VERSION = "P08-rules-v0.1-draft"
+P08_PROMPT_VERSION = "P08-prompts-v0.1"
+P08_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P09_REPORT_NAME = "女性激素平衡评估健康管理报告"
+P09_ASSESSMENT_TYPE = "女性激素平衡评估"
+P09_METHOD = "化学发光法"
+P09_TEMPLATE_VERSION = "P09-html-v0.2-data-bound-layout"
+P09_RULE_VERSION = "P09-rules-v0.2-ai-binding-layout"
+P09_PROMPT_VERSION = "P09-prompts-v0.2-a4-bound"
+P09_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P10_REPORT_NAME = "男性激素与代谢状态评估健康管理报告"
+P10_ASSESSMENT_TYPE = "男性激素与代谢状态评估"
+P10_SAMPLE_TYPE = "血清/EDTA抗凝血"
+P10_METHOD = "基因测序&化学发光&ELISA法"
+P10_TEMPLATE_VERSION = "P10-html-v0.4-reportmeta-json-blueprint"
+P10_RULE_VERSION = "P10-rules-v0.1-ai-binding-layout"
+P10_PROMPT_VERSION = "P10-prompts-v0.1-a4-bound"
+P10_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1层"
+P11_REPORT_NAME = "食物敏感/免疫相关评估健康管理报告"
+P11_ASSESSMENT_TYPE = "食物敏感/免疫相关评估"
+P11_SAMPLE_TYPE = "免疫检测"
+P11_METHOD = "食物不耐受与免疫相关综合评估"
+P11_TEMPLATE_VERSION = "P11-html-v0.1-initial-binding"
+P11_RULE_VERSION = "P11-rules-v0.1-draft"
+P11_PROMPT_VERSION = "P11-prompts-v0.1-a4-bound"
+P11_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼5层"
+P08_CARDIOVASCULAR_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "nt_probnp": {
+        "name": "N端脑利钠肽前体",
+        "short_name": "NT-proBNP",
+        "reference": "0-125.00",
+        "unit": "pg/mL",
+        "method": "化学发光法",
+        "keywords": ["N端脑利钠肽前体", "N 端脑利钠肽前体", "NT-proBNP", "NT proBNP", "NT-pro BNP"],
+    },
+    "d_dimer": {
+        "name": "D-二聚体",
+        "short_name": "D-D",
+        "reference": "0-0.55",
+        "unit": "mg/L FEU",
+        "method": "免疫比浊法",
+        "keywords": ["D-二聚体", "D二聚体", "D-D", "D Dimer", "D-Dimer"],
+    },
+    "ffa": {
+        "name": "游离脂肪酸",
+        "short_name": "FFA",
+        "reference": "0.10-0.60",
+        "unit": "mmol/L",
+        "method": "酶法",
+        "keywords": ["游离脂肪酸", "FFA", "Free Fatty Acid"],
+    },
+}
+P08_RAAS_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "angiotensin_i": {
+        "name": "血管紧张素I",
+        "short_name": "Ang I",
+        "reference": "28.0-125.0",
+        "unit": "pg/mL",
+        "method": "化学发光法",
+        "keywords": ["血管紧张素I", "血管紧张素Ⅰ", "Ang I", "AngI", "Angiotensin I"],
+    },
+    "angiotensin_ii": {
+        "name": "血管紧张素II",
+        "short_name": "Ang II",
+        "reference": "21.0-75.0",
+        "unit": "pg/mL",
+        "method": "化学发光法",
+        "keywords": ["血管紧张素II", "血管紧张素Ⅱ", "Ang II", "AngII", "Angiotensin II"],
+    },
+    "angiotensin_ratio": {
+        "name": "血管紧张素II / I 比值",
+        "short_name": "Ang II/Ang I",
+        "reference": "0.20-1.20",
+        "unit": "",
+        "method": "计算法",
+        "keywords": ["血管紧张素II / I 比值", "血管紧张素II/I", "Ang II/Ang I", "AngII/AngI", "Ang II / Ang I"],
+    },
+    "renin": {
+        "name": "肾素活性",
+        "short_name": "Renin",
+        "reference": "0.30-5.70",
+        "unit": "ng/mL/h",
+        "method": "化学发光法",
+        "keywords": ["肾素活性", "Renin", "PRA"],
+    },
+    "aldosterone": {
+        "name": "醛固酮",
+        "short_name": "Aldo",
+        "reference": "79.0-277.0",
+        "unit": "pg/mL",
+        "method": "化学发光法",
+        "keywords": ["醛固酮", "Aldo", "Aldosterone"],
+    },
+}
+P09_INDICATOR_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "e2": {
+        "name": "雌二醇",
+        "short_name": "E2",
+        "reference": "卵泡期:19.5-144.2 排卵期:63.9-356.7 黄体期:55.8-214.2 绝经期:0-32.2",
+        "unit": "pg/mL",
+        "method": "化学发光法",
+        "group": "core_hormones",
+        "keywords": ["雌二醇", "E2", "Estradiol"],
+    },
+    "lh": {
+        "name": "促黄体生成素",
+        "short_name": "LH",
+        "reference": "卵泡期:1.9-12.5 排卵期:8.7-76.3 黄体期:0.5-16.9 绝经期:15.9-54 妊娠期:0-1.5",
+        "unit": "mIU/mL",
+        "method": "化学发光法",
+        "group": "core_hormones",
+        "keywords": ["促黄体生成素", "黄体生成素", "LH"],
+    },
+    "fsh": {
+        "name": "促卵泡刺激素",
+        "short_name": "FSH",
+        "reference": "卵泡期:2.5-10.2 排卵期:3.4-33.40 黄体期:1.5-9.1 绝经期:23-116.3 妊娠期:<0.3",
+        "unit": "mIU/mL",
+        "method": "化学发光法",
+        "group": "core_hormones",
+        "keywords": ["促卵泡刺激素", "卵泡刺激素", "FSH"],
+    },
+    "progesterone": {
+        "name": "孕酮",
+        "short_name": "PROG",
+        "reference": "卵泡期:0-1.4 黄体期:3.34-25.56 绝经期:0-0.73 孕早期:11.2-90 孕中期:25.55-89.4 孕晚期:48.4-422.5",
+        "unit": "ng/mL",
+        "method": "化学发光法",
+        "group": "core_hormones",
+        "keywords": ["孕酮", "孕激素", "Progesterone", "PROG"],
+    },
+    "testosterone": {
+        "name": "睾酮",
+        "short_name": "T",
+        "reference": "0.08--0.35",
+        "unit": "ng/mL",
+        "method": "化学发光法",
+        "group": "core_hormones",
+        "keywords": ["睾酮", "总睾酮", "Testosterone"],
+    },
+    "cortisol": {
+        "name": "皮质醇",
+        "short_name": "Cortisol",
+        "reference": "",
+        "unit": "nmol/L",
+        "method": "化学发光法",
+        "group": "stress_metabolism",
+        "keywords": ["皮质醇", "Cortisol", "CORT"],
+    },
+    "shbg": {
+        "name": "性激素结合球蛋白",
+        "short_name": "SHBG",
+        "reference": "女:20岁-49岁:22.52-134.90",
+        "unit": "nmol/L",
+        "method": "化学发光法",
+        "group": "ovarian_reserve_binding",
+        "keywords": ["性激素结合球蛋白", "SHBG"],
+    },
+    "amh": {
+        "name": "抗缪勒氏管激素",
+        "short_name": "AMH",
+        "reference": "0--4.25",
+        "unit": "ng/mL",
+        "method": "化学发光法",
+        "group": "ovarian_reserve_binding",
+        "keywords": ["抗缪勒氏管激素", "抗穆勒氏管激素", "AMH"],
+    },
+    "prolactin": {
+        "name": "泌乳素",
+        "short_name": "PRL",
+        "reference": "未妊娠:59-619 妊娠期:206-4420 绝经期:38-430",
+        "unit": "uIU/mL",
+        "method": "化学发光法",
+        "group": "ovarian_reserve_binding",
+        "keywords": ["泌乳素", "催乳素", "PRL", "Prolactin"],
+    },
+    "total_ige": {
+        "name": "总IgE",
+        "short_name": "IgE",
+        "reference": "0--100",
+        "unit": "IU/mL",
+        "method": "化学发光法",
+        "group": "immune_allergy",
+        "keywords": ["总IgE", "总 IgE", "Total IgE", "IgE"],
+    },
+}
 P07_LIVER_FUNCTION_DEFINITIONS: dict[str, dict[str, Any]] = {
     "alt": {
         "name": "丙氨酸氨基转移酶",
@@ -414,6 +606,19 @@ def build_report_data_from_ocr_result(package_code: str, ocr_result: dict[str, A
         return _build_p06_report_data(ocr_result)
     if package_code == "P07":
         return _build_p07_report_data(ocr_result)
+    if package_code == "P08":
+        return _build_p08_report_data(ocr_result)
+    if package_code == "P09":
+        return _build_p09_report_data(ocr_result)
+    if package_code == "P10":
+        return _build_p10_report_data(ocr_result)
+    if package_code == "P11":
+        return build_p11_report_data(
+            ocr_result=ocr_result,
+            age_display=_age_display,
+            date_display=_date_display,
+            lab_result_builder=_lab_result,
+        )
     if package_code == "P03":
         return _build_p03_report_data(ocr_result)
     if package_code != "P02":
@@ -1122,6 +1327,1215 @@ def _p07_status_is_low(status: str) -> bool:
     return any(word in str(status or "") for word in ("偏低", "降低", "减少", "↓"))
 
 
+def _build_p08_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {})
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "血清、血浆、全血"
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+
+    cardiovascular = {
+        code: _p08_indicator(tests, code, definition, group="cardiovascular")
+        for code, definition in P08_CARDIOVASCULAR_DEFINITIONS.items()
+    }
+    raas = {
+        code: _p08_indicator(tests, code, definition, group="raas")
+        for code, definition in P08_RAAS_DEFINITIONS.items()
+    }
+    _p08_apply_calculated_ratio(raas)
+
+    cardiovascular_summary = _p08_group_summary(cardiovascular, group_name="心血管功能与凝血脂代谢指标")
+    raas_summary = _p08_group_summary(raas, group_name="RAAS系统指标")
+    priorities = _p08_priorities(cardiovascular, raas, cardiovascular_summary, raas_summary)
+    interpretations = _p08_interpretations(cardiovascular, raas, cardiovascular_summary, raas_summary)
+    deep_dive = _p08_deep_dive(cardiovascular, raas, cardiovascular_summary, raas_summary)
+
+    return {
+        "case_id": f"case_{report_id or 'p08'}",
+        "package_code": "P08",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "—",
+            "symptoms": _p08_clinical_diagnosis_display(patient_info.get("clinical_diagnosis")),
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "",
+        },
+        "report": {
+            "report_id": report_id,
+            "assessment_type": P08_ASSESSMENT_TYPE,
+            "method": P08_METHOD,
+            "assessment_date": _date_display(assessment_date_raw),
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P08_ORGANIZATION_ADDRESS,
+        },
+        "p08": {
+            "cardiovascular": {
+                **cardiovascular,
+                **cardiovascular_summary,
+            },
+            "raas": {
+                **raas,
+                **raas_summary,
+            },
+            "core_judgements": _p08_core_judgements(cardiovascular, raas, cardiovascular_summary, raas_summary),
+            "priorities": priorities,
+            "overall_summary": _p08_overall_summary(cardiovascular_summary, raas_summary, cardiovascular, raas),
+            "risk_assessment": _p08_risk_assessment(cardiovascular, raas),
+            "interpretations": interpretations,
+            "deep_dive": deep_dive,
+            "followup_advice": "建议按12周计划执行饮食、作息、运动与阶段复评，并记录血压、心率、体重、症状和生活方式变化。",
+            "disclaimer": "本报告仅供健康管理参考，不作为临床诊断依据。",
+            "review_note": "健康管理专家可结合临床资料、症状、既往史、用药和医学指标进行综合判断。",
+            "page_note": "注：本报告仅供健康管理参考，不作为临床诊断依据。如有不适，请及时就医。",
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P08 OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P08_TEMPLATE_VERSION,
+            "rule_version": P08_RULE_VERSION,
+            "prompt_version": P08_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _p08_clinical_diagnosis_display(value: Any) -> str:
+    text = str(value or "").strip()
+    compact = "".join(text.split()).lower()
+    if not compact or compact in {"-", "—", "/"}:
+        return "—"
+    if "anweikang" in compact or "安为康" in text or "安為康" in text:
+        return "—"
+    return text
+
+
+def _p08_indicator(
+    tests: list[dict[str, Any]],
+    code: str,
+    definition: dict[str, Any],
+    *,
+    group: str,
+) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    result = str(test.get("result") or "").strip() if test else ""
+    indicator = str(test.get("indicator") or "").strip() if test else ""
+    unit = str(test.get("unit") or definition["unit"]).strip() if test else str(definition["unit"])
+    reference = str(test.get("reference_range") or definition["reference"]).strip() if test else str(definition["reference"])
+    method = str(test.get("method") or definition["method"]).strip() if test else str(definition["method"])
+    status = _p08_indicator_status(test, reference, code=code)
+    result_text = _p08_result_with_indicator(result, indicator, missing_text="—" if test else "未识别")
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "group": group,
+        "result": result_text,
+        "raw_value": _safe_float(result),
+        "indicator": indicator,
+        "unit": unit or "—",
+        "result_display": _p08_value_with_unit(result_text, unit),
+        "reference_range": reference or "—",
+        "reference_display": _p08_value_with_unit(reference, unit),
+        "method": method,
+        "status": status,
+        "interpretation": _p08_indicator_interpretation(str(definition["short_name"]), result_text, unit, status),
+    }
+
+
+def _p08_apply_calculated_ratio(raas: dict[str, dict[str, Any]]) -> None:
+    ratio = raas.get("angiotensin_ratio", {})
+    if ratio.get("status") != "未识别":
+        return
+    ang_i = _p08_indicator_value_as_pg_ml(raas.get("angiotensin_i", {}))
+    ang_ii = _p08_indicator_value_as_pg_ml(raas.get("angiotensin_ii", {}))
+    if not ang_i or ang_ii is None:
+        return
+    value = round(ang_ii / ang_i, 2)
+    result = f"{value:.2f}".rstrip("0").rstrip(".")
+    ratio.update(
+        {
+            "result": result,
+            "raw_value": value,
+            "result_display": result,
+            "method": "计算法",
+            "status": _p08_status_from_value(value, str(ratio.get("reference_range") or "")),
+            "interpretation": _p08_indicator_interpretation("Ang II/Ang I", result, "", _p08_status_from_value(value, str(ratio.get("reference_range") or ""))),
+        }
+    )
+
+
+def _p08_indicator_value_as_pg_ml(indicator: dict[str, Any]) -> float | None:
+    value = _safe_float(indicator.get("result"))
+    if value is None:
+        return None
+    unit = str(indicator.get("unit") or "").strip().lower().replace("μ", "u").replace("µ", "u")
+    if unit == "ng/ml":
+        return value * 1000
+    return value
+
+
+def _p08_indicator_status(test: dict[str, Any], reference_range: str, *, code: str) -> str:
+    if not test:
+        return "未识别"
+    signal = f"{test.get('result', '')}{test.get('indicator', '')}{test.get('status', '')}"
+    if not str(test.get("result") or "").strip() and not str(test.get("indicator") or "").strip():
+        return "待复核"
+    if any(word in signal for word in ("↑", "偏高", "升高", "增高", "过高")):
+        value = _safe_float(test.get("result") or test.get("result_display"))
+        if code == "nt_probnp" and _p08_is_markedly_high(value, reference_range):
+            return "明显升高"
+        return "偏高"
+    if any(word in signal for word in ("↓", "偏低", "降低", "减少")):
+        return "偏低"
+    if "异常" in signal:
+        return "异常"
+    if "正常" in signal:
+        return "正常"
+    value = _safe_float(test.get("result") or test.get("result_display"))
+    if value is None:
+        return "需复核"
+    return _p08_status_from_value(value, reference_range, code=code)
+
+
+def _p08_status_from_value(value: float | None, reference_range: str, *, code: str = "") -> str:
+    if value is None:
+        return "需复核"
+    bounds = _p05_parse_reference_bounds(reference_range)
+    for lower, upper in bounds:
+        if lower is not None and value < lower:
+            return "偏低"
+        if upper is not None and value > upper:
+            if code == "nt_probnp" and _p08_is_markedly_high(value, reference_range):
+                return "明显升高"
+            return "偏高"
+        if lower is not None and upper is not None and lower <= value <= upper:
+            return "正常"
+        if lower is None and upper is not None and value <= upper:
+            return "正常"
+        if upper is None and lower is not None and value >= lower:
+            return "正常"
+    return "正常" if bounds else "需复核"
+
+
+def _p08_is_markedly_high(value: float | None, reference_range: str) -> bool:
+    if value is None:
+        return False
+    bounds = _p05_parse_reference_bounds(reference_range)
+    upper_values = [upper for _lower, upper in bounds if upper is not None]
+    return bool(upper_values and value >= max(upper_values) * 2)
+
+
+def _p08_result_with_indicator(result: str, indicator: str, *, missing_text: str = "未识别") -> str:
+    text = str(result or "").strip()
+    flag = str(indicator or "").strip()
+    if not text:
+        return missing_text
+    if flag in {"↑", "↓"} and flag not in text:
+        return f"{text} {flag}"
+    return text
+
+
+def _p08_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    unit_text = str(unit or "").strip()
+    if not text:
+        return "未识别"
+    if text in {"未识别", "—"} or unit_text in {"", "—"}:
+        return text
+    return text if unit_text in text else f"{text} {unit_text}"
+
+
+def _p08_indicator_interpretation(short_name: str, result: str, unit: str, status: str) -> str:
+    result_display = _p08_value_with_unit(result, unit)
+    if status == "未识别":
+        return f"未识别到{short_name}有效结果，建议人工核对原始报告或补录该项目。"
+    if _p08_status_is_normal(status):
+        return f"{short_name}结果为{result_display}，处于参考范围内，当前未见该项提示的明显异常信号。"
+    if _p08_status_is_high(status):
+        return f"{short_name}结果为{result_display}，提示该指标偏高或异常，建议结合原始报告、症状和相关检查人工复核。"
+    if _p08_status_is_low(status):
+        return f"{short_name}结果为{result_display}，提示存在偏低趋势，建议结合采样条件和原始参考范围人工复核。"
+    return f"{short_name}结果为{result_display}，当前状态为{status}，建议人工核对原始报告和参考范围。"
+
+
+def _p08_group_summary(indicators: dict[str, dict[str, Any]], *, group_name: str) -> dict[str, str]:
+    recognized = [item for item in indicators.values() if item.get("status") != "未识别"]
+    review_items = [item for item in recognized if str(item.get("status") or "") in {"待复核", "需复核"}]
+    abnormal = [item for item in recognized if item not in review_items and not _p08_status_is_normal(str(item.get("status") or ""))]
+    if not recognized:
+        return {
+            "overall_status": "待补充",
+            "detail_status": "等待人工补录",
+            "summary": f"当前未识别到{group_name}有效结果，请先核对OCR文本层或人工补录后再进行综合评估。",
+        }
+    if abnormal:
+        focus = "、".join(f"{item['short_name']}{item['status']}" for item in abnormal[:4])
+        return {
+            "overall_status": "需关注",
+            "detail_status": f"{focus}需复核",
+            "summary": f"{group_name}中{focus}，建议结合原始报告参考范围、症状、既往史和相关检查进行人工复核。",
+        }
+    if review_items:
+        focus = "、".join(f"{item['short_name']}{item['status']}" for item in review_items[:4])
+        return {
+            "overall_status": "待复核",
+            "detail_status": focus,
+            "summary": f"{group_name}中{focus}；其余已识别项目未见明显异常，请以原始报告和人工复核结果为准。",
+        }
+    return {
+        "overall_status": "指标稳定",
+        "detail_status": "已识别项目处于参考范围",
+        "summary": f"已识别{group_name}整体处于参考范围内，当前未见明显异常信号，建议结合个体风险因素持续观察。",
+    }
+
+
+def _p08_core_judgements(
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+) -> dict[str, Any]:
+    nt_probnp = cardiovascular["nt_probnp"]
+    d_dimer = cardiovascular["d_dimer"]
+    return {
+        "nt_probnp": {
+            "title": f"NT-proBNP{_p08_status_label(nt_probnp.get('status'))}",
+            "value": nt_probnp.get("result") or "未识别",
+            "unit": nt_probnp.get("unit") or "pg/mL",
+        },
+        "raas": {
+            "title": "RAAS系统正常" if _p08_status_is_normal(raas_summary.get("overall_status")) else f"RAAS系统{raas_summary.get('overall_status', '待复核')}",
+            "status": "指标在正常范围内" if _p08_status_is_normal(raas_summary.get("overall_status")) else raas_summary.get("detail_status", "需人工复核"),
+        },
+        "d_dimer": {
+            "title": f"D-二聚体{_p08_status_label(d_dimer.get('status'))}",
+            "status": "指标在正常范围内" if _p08_status_is_normal(d_dimer.get("status")) else str(d_dimer.get("status") or "需人工复核"),
+        },
+    }
+
+
+def _p08_priorities(
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+) -> dict[str, dict[str, str]]:
+    nt_probnp = cardiovascular["nt_probnp"]
+    d_dimer = cardiovascular["d_dimer"]
+    priorities: list[tuple[str, str]] = []
+    if _p08_status_is_high(str(nt_probnp.get("status") or "")):
+        priorities.append(("心血管功能复核", "结合症状、心电图、心脏超声及肾功能资料，优先复核心脏压力负荷信号。"))
+    elif str(nt_probnp.get("status") or "") == "未识别":
+        priorities.append(("补充NT-proBNP", "先核对原始报告或人工补录NT-proBNP结果，再进行心血管风险判断。"))
+    else:
+        priorities.append(("维持心血管稳定", "继续关注血压、心率、体重和运动耐量，保持规律复评。"))
+
+    if not _p08_status_is_normal(raas_summary.get("overall_status")):
+        priorities.append(("复核RAAS状态", "结合血压、用药、采血体位和采样时间，复核RAAS相关指标。"))
+    else:
+        priorities.append(("生活方式全面优化", "加强饮食管理、规律运动、体重控制、睡眠管理和戒烟限酒。"))
+
+    if _p08_status_is_high(str(d_dimer.get("status") or "")):
+        priorities.append(("凝血风险复核", "结合症状、炎症、近期手术或创伤情况，必要时咨询专业医生。"))
+    else:
+        priorities.append(("定期监测关键指标", "按阶段复查NT-proBNP、D-二聚体、FFA及RAAS指标，动态观察风险变化。"))
+
+    return {f"priority_{index}": {"title": title, "body": body} for index, (title, body) in enumerate(priorities[:3], start=1)}
+
+
+def _p08_interpretations(
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+) -> dict[str, str]:
+    return {
+        "nt_probnp": cardiovascular["nt_probnp"]["interpretation"],
+        "d_dimer": cardiovascular["d_dimer"]["interpretation"],
+        "ffa": cardiovascular["ffa"]["interpretation"],
+        "raas": raas_summary["summary"],
+        "advice": _p08_lifestyle_advice(cardiovascular, raas, cardiovascular_summary, raas_summary),
+    }
+
+
+def _p08_deep_dive(
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+) -> dict[str, Any]:
+    nt_probnp = cardiovascular["nt_probnp"]
+    d_dimer = cardiovascular["d_dimer"]
+    ffa = cardiovascular["ffa"]
+    thrombotic_status = _p08_combined_status([d_dimer, ffa], normal_label="风险较低")
+    return {
+        "nt_probnp": {
+            "key_status": f"重点解读：{_p08_status_label(nt_probnp.get('status'))}",
+            "summary": nt_probnp["interpretation"],
+            "advice": "建议结合临床症状、心脏超声、心电图、肾功能和既往史进一步复核心功能状态，并由专业人员制定管理计划。",
+        },
+        "raas": {
+            "result_status": raas_summary["overall_status"],
+            "key_status": raas_summary["overall_status"],
+            "summary": raas_summary["summary"],
+            "advice": "建议结合血压记录、用药情况、采血体位和作息状态进行复核，并按阶段监测RAAS相关指标。",
+        },
+        "thrombotic_metabolism": {
+            "result_status": thrombotic_status,
+            "key_status": thrombotic_status,
+            "d_dimer_text": d_dimer["interpretation"],
+            "ffa_text": ffa["interpretation"],
+            "advice": "建议继续保持合理饮食、规律运动和体重管理，并结合血脂、血糖、炎症和凝血相关指标动态复评。",
+        },
+    }
+
+
+def _p08_overall_summary(
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+) -> str:
+    if cardiovascular_summary["overall_status"] == "待补充" and raas_summary["overall_status"] == "待补充":
+        return "当前尚未识别到P08关键检测结果，请先核对OCR文本层或人工补录后再进行心血管代谢风险综合评估。"
+    abnormal_names = _p08_abnormal_indicator_names(cardiovascular, raas)
+    if abnormal_names:
+        return f"基于已识别检测数据，{abnormal_names}需重点关注。建议结合症状、既往史、血压血脂血糖资料和原始报告进行人工复核，并制定阶段性健康管理方案。"
+    return "基于已识别检测数据，心血管功能、凝血脂代谢及RAAS系统相关指标整体相对平稳。建议继续保持规律运动、均衡饮食、睡眠管理和阶段复评。"
+
+
+def _p08_risk_assessment(cardiovascular: dict[str, dict[str, Any]], raas: dict[str, dict[str, Any]]) -> str:
+    abnormal_names = _p08_abnormal_indicator_names(cardiovascular, raas)
+    if abnormal_names:
+        return f"检测结果中{abnormal_names}提示需复核风险信号，请结合原始报告和专业人员意见进行人工审查。"
+    missing = [
+        item["short_name"]
+        for item in [*cardiovascular.values(), *raas.values()]
+        if item.get("status") == "未识别"
+    ]
+    if missing:
+        return f"当前缺少{ '、'.join(missing[:5]) }等关键项目，建议补录后再完成风险分层。"
+    return "当前已识别指标未见明显心血管代谢风险信号，建议维持健康生活方式并定期复评。"
+
+
+def _p08_lifestyle_advice(
+    cardiovascular: dict[str, dict[str, Any]],
+    raas: dict[str, dict[str, Any]],
+    cardiovascular_summary: dict[str, str],
+    raas_summary: dict[str, str],
+) -> str:
+    if _p08_abnormal_indicator_names(cardiovascular, raas):
+        return "建议优先复核异常项目，结合血压、血脂、血糖、体重、运动耐量和症状记录制定阶段性健康管理计划。"
+    if cardiovascular_summary["overall_status"] == "待补充" or raas_summary["overall_status"] == "待补充":
+        return "建议先补充缺失检测结果，再结合生活方式、既往史和基础代谢资料进行综合评估。"
+    return "建议保持均衡饮食、规律运动、体重管理、睡眠节律和戒烟限酒，并按计划复查关键指标。"
+
+
+def _p08_abnormal_indicator_names(cardiovascular: dict[str, dict[str, Any]], raas: dict[str, dict[str, Any]]) -> str:
+    abnormal = [
+        item
+        for item in [*cardiovascular.values(), *raas.values()]
+        if item.get("status") not in {"未识别", "待补充", "待复核", "需复核"} and not _p08_status_is_normal(str(item.get("status") or ""))
+    ]
+    names = [f"{item['short_name']}{item['status']}" for item in abnormal[:5]]
+    suffix = "等" if len(abnormal) > 5 else ""
+    return "、".join(names) + suffix if names else ""
+
+
+def _p08_combined_status(items: list[dict[str, Any]], *, normal_label: str) -> str:
+    if any(_p08_status_is_high(str(item.get("status") or "")) for item in items):
+        return "需关注"
+    if any(_p08_status_is_low(str(item.get("status") or "")) for item in items):
+        return "需复核"
+    if all(_p08_status_is_normal(str(item.get("status") or "")) for item in items):
+        return normal_label
+    return "待复核"
+
+
+def _p08_status_label(status: Any) -> str:
+    text = str(status or "").strip()
+    if not text:
+        return "待复核"
+    if text in {"正常", "指标稳定"}:
+        return "正常"
+    return text
+
+
+def _p08_status_is_normal(status: Any) -> bool:
+    text = str(status or "")
+    return text in {"正常", "良好", "平稳", "指标正常", "指标稳定", "风险较低"}
+
+
+def _p08_status_is_high(status: str) -> bool:
+    return any(word in str(status or "") for word in ("偏高", "升高", "增高", "过高", "异常", "高风险", "明显升高", "↑"))
+
+
+def _p08_status_is_low(status: str) -> bool:
+    return any(word in str(status or "") for word in ("偏低", "降低", "减少", "↓"))
+
+
+def _build_p09_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or "血清"
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+    indicators = {
+        code: _p09_indicator(tests, code, definition, patient_info=patient_info)
+        for code, definition in P09_INDICATOR_DEFINITIONS.items()
+    }
+    priorities = _p09_priorities(indicators)
+    management = _p09_management_plan(indicators)
+    hormone_balance_score = _p09_hormone_balance_score(indicators)
+    e2_deep_dive = _p09_e2_deep_dive(indicators["e2"], indicators)
+
+    return {
+        "case_id": f"case_{report_id or 'p09'}",
+        "package_code": "P09",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "未填写",
+            "symptoms": _p09_clinical_diagnosis_display(patient_info.get("clinical_diagnosis")),
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "",
+        },
+        "report": {
+            "report_id": report_id,
+            "assessment_type": P09_ASSESSMENT_TYPE,
+            "method": P09_METHOD,
+            "assessment_date": _date_display(assessment_date_raw),
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+            "generated_at": f"报告生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P09_ORGANIZATION_ADDRESS,
+        },
+        "p09": {
+            "management_focus": "激素平衡与生活方式优化",
+            "indicators": indicators,
+            "scores": {
+                "metabolic": {"value": _p09_metabolic_score(indicators), "unit": "/100", "status": "良好"},
+                "sleep": {"value": _p09_sleep_score(indicators), "unit": "/100", "status": "良好"},
+                "hormone_balance": {"value": hormone_balance_score, "display": f"{hormone_balance_score}分"},
+            },
+            "priorities": priorities,
+            "overall_summary": _p09_overall_summary(indicators),
+            "risk_assessment": _p09_risk_assessment(indicators),
+            "deep_dive": {"e2": e2_deep_dive},
+            "management": management,
+            "followup_advice": "建议按12周计划执行饮食、作息、运动与阶段复评，并记录月经周期、睡眠、情绪和生活方式变化。",
+            "disclaimer": "本报告仅供健康管理参考，不作为临床诊断依据。",
+            "review_note": "健康管理专家可结合月经周期、年龄、症状、用药和原始报告参考范围进行综合判断。",
+            "page_note": "本报告仅供健康管理参考，非疾病诊断依据。如有不适或疑问，请及时咨询专业医生。",
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P09 OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P09_TEMPLATE_VERSION,
+            "rule_version": P09_RULE_VERSION,
+            "prompt_version": P09_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _build_p10_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    ocr_result = _normalize_p10_ocr_result(ocr_result)
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+    p10_report = structured.get("p10_extracted_report", {}) if isinstance(structured.get("p10_extracted_report"), dict) else {}
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+    contact = p10_report.get("contact", {}) if isinstance(p10_report.get("contact"), dict) else {}
+    psa = _p10_indicator_group(tests, "psa", "总PSA", default_reference="0.00~4.00", default_unit="ng/mL")
+    psa_free = _p10_indicator_group(tests, "psa_free", "游离PSA", default_reference="0.00~1.00", default_unit="ng/mL")
+    psa_ratio = _p10_indicator_group(tests, "psa_ratio", "比值（游离/总PSA）", default_reference=">0.25", default_unit="")
+    dhea = _p10_indicator_test(tests, "dhea", "脱氢表雄酮（DHEA）")
+    inhibin_b = _p10_indicator_test(tests, "inhibin_b", "抑制素B")
+    cyp1a1 = _p10_indicator_group(tests, "cyp1a1", "CYP1A1")
+    aldh2 = _p10_indicator_group(tests, "aldh2", "ALDH2")
+    lct = _p10_indicator_group(tests, "lct", "LCT")
+    cyp1a2 = _p10_indicator_group(tests, "cyp1a2", "CYP1A2")
+
+    return {
+        "case_id": f"case_{report_id or 'p10'}",
+        "package_code": "P10",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "—",
+            "symptoms": patient_info.get("clinical_diagnosis") or "/",
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "",
+        },
+        "report": {
+            "report_id": report_id,
+            "assessment_type": P10_ASSESSMENT_TYPE,
+            "method": P10_METHOD,
+            "assessment_date": _date_display(assessment_date_raw),
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+            "generated_at": f"报告生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        },
+        "sample": {
+            "type": P10_SAMPLE_TYPE,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": str(contact.get("phone") or "400-158-1959"),
+            "email": "service@anweikang.com",
+            "website": str(contact.get("website") or "www.anweikang.com"),
+            "address": str(contact.get("address") or P10_ORGANIZATION_ADDRESS),
+        },
+        "p10": {
+            "report_title": str((p10_report.get("report_info") or {}).get("title") or P10_REPORT_NAME),
+            "notes": str(structured.get("notes") or ""),
+            "indicators": {
+                "psa": psa,
+                "psa_free": psa_free,
+                "psa_ratio": psa_ratio,
+                "dhea": dhea,
+                "inhibin_b": inhibin_b,
+                "cyp1a1": cyp1a1,
+                "aldh2": aldh2,
+                "lct": lct,
+                "cyp1a2": cyp1a2,
+            },
+            "deep_dive": {
+                "dhea": {
+                    "summary": _p10_dhea_fallback_summary(dhea)
+                },
+                "inhibin_b": {
+                    "summary": _p10_inhibin_b_fallback_summary(inhibin_b)
+                }
+            },
+            "followup_advice": "建议结合基因风险、前列腺相关指标和生活方式记录进行阶段复评，并由专业人员人工复核。",
+            "disclaimer": str(p10_report.get("remarks") or "本报告仅供健康管理参考，不作为临床诊断依据。"),
+            "review_note": "P10 已切换到新的专业 JSON 蓝本结构，AI 解读与模板渲染应基于 structured_report.tests 和 sections 原始内容复核。",
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已将 P10 专业 OCR JSON 归一为 structured_report；AI 解读可继续基于新蓝本字段生成。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P10_TEMPLATE_VERSION,
+            "rule_version": P10_RULE_VERSION,
+            "prompt_version": P10_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _p10_indicator_test(tests: list[dict[str, Any]], code: str, default_name: str) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code)
+    if not test:
+        return {
+            "code": code,
+            "name": default_name,
+            "result": "待识别",
+            "result_display": "待识别",
+            "reference_range": "",
+            "unit": "",
+            "method": "",
+            "gene_locus": "",
+            "gene_type": "",
+            "status": "待识别",
+        }
+    return {
+        "code": code,
+        "name": str(test.get("test_name") or default_name),
+        "result": str(test.get("result") or ""),
+        "result_display": _test_display(test),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+        "gene_locus": str(test.get("gene_locus") or test.get("locus") or ""),
+        "gene_type": str(test.get("gene_type") or test.get("genotype") or ""),
+        "status": str(test.get("indicator") or ""),
+    }
+
+
+def _p10_indicator_group(
+    tests: list[dict[str, Any]],
+    code: str,
+    default_name: str,
+    *,
+    default_reference: str = "",
+    default_unit: str = "",
+) -> dict[str, Any]:
+    matched = [test for test in tests if str(test.get("item_code") or "") == code]
+    if not matched:
+        return {
+            "code": code,
+            "name": default_name,
+            "result": "待识别",
+            "result_display": "待识别",
+            "reference_range": default_reference,
+            "unit": default_unit,
+            "method": "",
+            "gene_locus": "",
+            "gene_type": "",
+            "status": "待识别",
+        }
+
+    first = matched[0]
+    result_values = _p10_join_unique(str(test.get("result") or "") for test in matched)
+    result_display_values = _p10_join_unique(_test_display(test) for test in matched)
+    gene_loci = _p10_join_unique(str(test.get("gene_locus") or test.get("locus") or "") for test in matched)
+    gene_types = _p10_join_unique(str(test.get("gene_type") or test.get("genotype") or "") for test in matched)
+    status_values = _p10_join_unique(str(test.get("indicator") or "") for test in matched)
+    interpretation_values = _p10_join_unique(str(test.get("interpretation") or "") for test in matched)
+    is_gene_group = bool(gene_loci or gene_types) or code in {"cyp1a1", "aldh2", "lct", "cyp1a2", "adh1b"}
+    display_result = interpretation_values if is_gene_group and interpretation_values else result_values
+    return {
+        "code": code,
+        "name": str(first.get("test_name") or default_name),
+        "result": display_result,
+        "result_display": _p10_result_with_unit(result_display_values or result_values, str(first.get("unit") or default_unit)),
+        "reference_range": str(first.get("reference_range") or default_reference),
+        "unit": str(first.get("unit") or default_unit),
+        "method": _p10_join_unique(str(test.get("method") or "") for test in matched),
+        "gene_locus": gene_loci,
+        "gene_type": gene_types,
+        "status": status_values or interpretation_values or "已识别",
+    }
+
+
+def _p10_join_unique(values: Any) -> str:
+    seen: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in seen:
+            seen.append(text)
+    return "；".join(seen)
+
+
+def _p10_result_with_unit(result: str, unit: str) -> str:
+    result = str(result or "").strip()
+    unit = str(unit or "").strip()
+    if not result or result == "待识别" or not unit or result.endswith(unit):
+        return result
+    if "；" in result:
+        return result
+    return f"{result}{unit}"
+
+
+def _p10_dhea_fallback_summary(indicator: dict[str, Any]) -> str:
+    result = str(indicator.get("result") or "").strip()
+    reference = str(indicator.get("reference_range") or "").strip()
+    unit = str(indicator.get("unit") or "").strip()
+    if not result:
+        return "DHEA 结果待补充，建议结合原始检验报告与临床情况进行人工复核。"
+    return f"本次 DHEA 结果为 {result}{unit}。建议结合参考范围、年龄阶段与精力状态，关注应激储备、能量代谢及雄激素前体支持情况；如有持续疲劳、恢复变慢或状态波动，建议阶段复评。参考范围：{reference}"
+
+
+def _p10_inhibin_b_fallback_summary(indicator: dict[str, Any]) -> str:
+    result = str(indicator.get("result") or "").strip()
+    reference = str(indicator.get("reference_range") or "").strip()
+    unit = str(indicator.get("unit") or "").strip()
+    if not result:
+        return "抑制素B 结果待补充，建议结合原始检验报告与临床情况进行人工复核。"
+    return f"本次抑制素B结果为 {result}{unit}。建议结合参考范围、年龄阶段与生殖健康目标，关注生精功能支持和阶段性复评安排；如有相关困扰，建议进一步结合临床资料综合判断。参考范围：{reference}"
+
+
+def _p09_indicator(
+    tests: list[dict[str, Any]],
+    code: str,
+    definition: dict[str, Any],
+    *,
+    patient_info: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    result = str(test.get("result") or "").strip() if test else ""
+    indicator = str(test.get("indicator") or "").strip() if test else ""
+    unit = str(test.get("unit") or definition["unit"]).strip() if test else str(definition["unit"])
+    reference = str(test.get("reference_range") or definition["reference"]).strip() if test else str(definition["reference"])
+    method = str(test.get("method") or definition["method"]).strip() if test else str(definition["method"])
+    status = _p09_indicator_status(test, reference)
+    result_text = _p09_result_with_indicator(result, indicator, missing_text="未识别" if not test else "—")
+    result_display = _p09_value_with_unit(result_text, unit)
+    reference_display = _p09_reference_display(code, reference, unit, patient_info=patient_info, value=_safe_float(result))
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "group": definition["group"],
+        "result": result_text,
+        "raw_value": _safe_float(result),
+        "indicator": indicator,
+        "unit": unit or "—",
+        "result_display": result_display,
+        "reference_range": reference or "—",
+        "reference_display": reference_display,
+        "status": status,
+        "status_display": _p09_status_display(status),
+        "range_status_display": f"{_p09_status_display(status)} | {reference_display}",
+        "method": method,
+        "interpretation": _p09_indicator_interpretation(definition["short_name"], result_display, status),
+    }
+
+
+def _p09_indicator_status(test: dict[str, Any], reference_range: str) -> str:
+    if not test:
+        return "未识别"
+    signal = f"{test.get('result', '')}{test.get('indicator', '')}{test.get('status', '')}"
+    if not str(test.get("result") or "").strip() and not str(test.get("indicator") or "").strip():
+        return "待复核"
+    if any(word in signal for word in ("↑", "偏高", "升高", "增高", "过高")):
+        return "偏高"
+    if any(word in signal for word in ("↓", "偏低", "降低", "减少")):
+        return "偏低"
+    if "异常" in signal:
+        return "异常"
+    if "正常" in signal:
+        return "正常"
+    value = _safe_float(test.get("result") or test.get("result_display"))
+    if value is None:
+        return "需复核"
+    return _p09_status_from_value(value, reference_range)
+
+
+def _p09_status_from_value(value: float | None, reference_range: str) -> str:
+    if value is None:
+        return "需复核"
+    bounds = _p05_parse_reference_bounds(reference_range)
+    if not bounds:
+        return "待复核"
+    for lower, upper in bounds:
+        if lower is not None and upper is not None and lower <= value <= upper:
+            return "正常"
+        if lower is None and upper is not None and value <= upper:
+            return "正常"
+        if upper is None and lower is not None and value >= lower:
+            return "正常"
+    lows = [lower for lower, _upper in bounds if lower is not None]
+    uppers = [upper for _lower, upper in bounds if upper is not None]
+    if lows and value < min(lows):
+        return "偏低"
+    if uppers and value > max(uppers):
+        return "偏高"
+    return "待复核"
+
+
+def _p09_result_with_indicator(result: str, indicator: str, *, missing_text: str = "未识别") -> str:
+    text = str(result or "").strip()
+    flag = str(indicator or "").strip()
+    if not text:
+        return missing_text
+    if flag in {"↑", "↓"} and flag not in text:
+        return f"{text} {flag}"
+    return text
+
+
+def _p09_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    unit_text = str(unit or "").strip()
+    if not text:
+        return "未识别"
+    if text in {"未识别", "—"} or unit_text in {"", "—"}:
+        return text
+    return text if unit_text in text else f"{text} {unit_text}"
+
+
+def _p09_reference_display(
+    code: str,
+    reference: str,
+    unit: str,
+    *,
+    patient_info: dict[str, Any] | None = None,
+    value: float | None = None,
+) -> str:
+    text = str(reference or "").strip()
+    if not text or text == "—":
+        return "参考范围：待补充"
+    compact = _p09_compact_reference_text(code, text, unit, patient_info=patient_info, value=value)
+    if compact:
+        return compact
+    unit_text = str(unit or "").strip()
+    return f"参考范围：{text}{(' ' + unit_text) if unit_text and unit_text not in text else ''}"
+
+
+def _p09_compact_reference_text(
+    code: str,
+    reference: str,
+    unit: str,
+    *,
+    patient_info: dict[str, Any] | None,
+    value: float | None,
+) -> str:
+    named_segments = _p09_named_reference_segments(reference)
+    if code in {"e2", "lh", "fsh", "progesterone"}:
+        matched = _p09_matching_named_segments(named_segments, value)
+        if len(matched) == 1:
+            label, raw_range = matched[0]
+            return f"参考范围：{label} {raw_range}{(' ' + unit) if unit and unit not in raw_range else ''}"
+        return "参考范围：需结合月经周期阶段判读"
+    if code == "prolactin" and named_segments:
+        return "参考范围：需结合妊娠或绝经状态判读"
+    if code == "shbg" and named_segments:
+        selected = _p09_pick_shbg_segment(named_segments, patient_info)
+        if selected:
+            label, raw_range = selected
+            return f"参考范围：{label} {raw_range}{(' ' + unit) if unit and unit not in raw_range else ''}"
+    return ""
+
+
+def _p09_named_reference_segments(reference: str) -> list[tuple[str, str]]:
+    patterns = [
+        r"(卵泡期|排卵期|黄体期|绝经期|妊娠期|孕早期|孕中期|孕晚期|未妊娠)\s*[:：]\s*([<>≤≥＜＞]?\s*[0-9]+(?:\.[0-9]+)?(?:\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)?)",
+        r"((?:男|女)\s*:\s*[0-9]+岁\s*-\s*[0-9]+岁|(?:男|女)\s*:\s*≥\s*[0-9]+岁)\s*[:：]\s*([0-9]+(?:\.[0-9]+)?(?:\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)?)",
+    ]
+    segments: list[tuple[str, str]] = []
+    normalized = str(reference or "").replace("：", ":")
+    for pattern in patterns:
+        for match in re.finditer(pattern, normalized):
+            label = re.sub(r"\s+", "", match.group(1))
+            raw_range = re.sub(r"\s+", "", match.group(2))
+            if label and raw_range:
+                segments.append((label, raw_range))
+    return segments
+
+
+def _p09_matching_named_segments(segments: list[tuple[str, str]], value: float | None) -> list[tuple[str, str]]:
+    if value is None:
+        return []
+    matched: list[tuple[str, str]] = []
+    for label, raw_range in segments:
+        for lower, upper in _p05_parse_reference_bounds(raw_range):
+            if lower is not None and upper is not None and lower <= value <= upper:
+                matched.append((label, raw_range))
+                break
+            if lower is None and upper is not None and value <= upper:
+                matched.append((label, raw_range))
+                break
+            if upper is None and lower is not None and value >= lower:
+                matched.append((label, raw_range))
+                break
+    return matched
+
+
+def _p09_pick_shbg_segment(segments: list[tuple[str, str]], patient_info: dict[str, Any] | None) -> tuple[str, str] | None:
+    if not patient_info:
+        return None
+    gender = str(patient_info.get("gender") or "").strip()
+    age = patient_info.get("age")
+    if not gender or age in (None, ""):
+        return None
+    try:
+        age_value = int(age)
+    except (TypeError, ValueError):
+        return None
+    for label, raw_range in segments:
+        compact = re.sub(r"\s+", "", label)
+        if not compact.startswith(gender):
+            continue
+        between = re.search(r"([0-9]+)岁-([0-9]+)岁", compact)
+        if between and int(between.group(1)) <= age_value <= int(between.group(2)):
+            return label, raw_range
+        older = re.search(r"≥([0-9]+)岁", compact)
+        if older and age_value >= int(older.group(1)):
+            return label, raw_range
+    return None
+
+
+def _p09_status_display(status: Any) -> str:
+    text = str(status or "").strip()
+    if text == "正常":
+        return "正常范围"
+    if text in {"未识别", "待复核", "需复核"}:
+        return "待补充"
+    return text or "待补充"
+
+
+def _p09_indicator_interpretation(short_name: str, result_display: str, status: str) -> str:
+    if status == "未识别":
+        return f"未识别到{short_name}有效结果，建议核对原始报告或补录。"
+    if status in {"待复核", "需复核"}:
+        return f"{short_name}结果为{result_display}，参考范围或采样背景不完整，建议人工复核。"
+    if _p08_status_is_normal(status):
+        return f"{short_name}结果为{result_display}，当前处于参考范围内。"
+    if _p08_status_is_high(status):
+        return f"{short_name}结果为{result_display}，提示偏高趋势，建议结合周期和症状复核。"
+    if _p08_status_is_low(status):
+        return f"{short_name}结果为{result_display}，提示偏低趋势，建议结合周期和症状复核。"
+    return f"{short_name}结果为{result_display}，当前状态为{status}，建议人工复核。"
+
+
+def _p09_priorities(indicators: dict[str, dict[str, Any]]) -> dict[str, dict[str, str]]:
+    abnormal = _p09_abnormal_indicators(indicators)
+    priorities: list[tuple[str, str]] = []
+    if abnormal:
+        first = abnormal[0]
+        priorities.append(("复核激素波动", f"优先复核{first['short_name']}{first['status']}，结合周期与症状判断。"))
+    else:
+        priorities.append(("维持激素平衡", "保持规律作息、均衡饮食和阶段复评，持续观察激素趋势。"))
+    priorities.append(("生殖健康管理", "结合周期、年龄和AMH等指标，动态关注卵巢储备与周期规律。"))
+    priorities.append(("情绪与睡眠管理", "记录睡眠、压力和情绪变化，减少节律波动对内分泌的影响。"))
+    priorities.append(("生活方式优化", "维持运动、蛋白和膳食纤维摄入，支持代谢与体成分稳定。"))
+    return {f"priority_{index}": {"title": title, "body": body} for index, (title, body) in enumerate(priorities[:4], start=1)}
+
+
+def _p09_overall_summary(indicators: dict[str, dict[str, Any]]) -> str:
+    recognized = [item for item in indicators.values() if item.get("status") != "未识别"]
+    if not recognized:
+        return "当前尚未识别到P09关键女性激素检测结果，请先核对OCR文本层或人工补录后再进行激素平衡综合评估。"
+    abnormal_names = _p09_abnormal_indicator_names(indicators)
+    if abnormal_names:
+        return f"基于已识别检测数据，{abnormal_names}需重点关注。建议结合周期阶段、年龄、症状和原始报告参考范围进行人工复核，并制定阶段性健康管理计划。"
+    return "基于已识别检测数据，女性激素及相关指标整体相对平稳。建议继续保持规律作息、均衡饮食、压力管理和阶段复评。"
+
+
+def _p09_risk_assessment(indicators: dict[str, dict[str, Any]]) -> str:
+    abnormal_names = _p09_abnormal_indicator_names(indicators)
+    if abnormal_names:
+        return f"检测结果中{abnormal_names}提示需复核信号，请结合周期阶段、症状、用药和专业人员意见进行人工审查。"
+    missing = [item["short_name"] for item in indicators.values() if item.get("status") == "未识别"]
+    if missing:
+        return f"当前缺少{'、'.join(missing[:5])}等项目，建议补录后再完成女性激素平衡评估。"
+    return "当前已识别指标未见明显激素失衡风险信号，建议维持健康生活方式并定期复评。"
+
+
+def _p09_e2_deep_summary(e2: dict[str, Any]) -> str:
+    if e2.get("status") == "未识别":
+        return "未识别到雌二醇（E2）有效结果，建议人工核对原始报告或补录后再进行深度解读。"
+    return f"您的雌二醇（E2）水平为{e2.get('result_display')}，{e2.get('status_display')}。雌二醇会随月经周期、年龄、睡眠和压力状态波动，建议结合个人周期阶段和症状综合评估。"
+
+
+def _p09_e2_highlights(e2: dict[str, Any], indicators: dict[str, dict[str, Any]]) -> list[str]:
+    if e2.get("status") == "未识别":
+        return [
+            "雌二醇结果待补充，需先核对原始报告。",
+            "建议同步补充周期阶段、症状和近期用药信息。",
+            "补全核心信息后再完成深度解读与复评安排。",
+        ]
+    highlights = [
+        f"本次E2为{e2.get('result_display')}，{e2.get('status_display')}。",
+        "判读时仍需结合月经周期阶段、年龄和近期压力变化。",
+    ]
+    progesterone = indicators.get("progesterone", {})
+    if progesterone and progesterone.get("status") != "未识别":
+        highlights.append(f"建议与孕酮{progesterone.get('result_display')}联合观察排卵与黄体支持情况。")
+    else:
+        highlights.append("建议与LH、FSH和孕酮等核心激素联动复核，避免单项过度解读。")
+    return highlights[:3]
+
+
+def _p09_e2_action_items(e2: dict[str, Any]) -> list[dict[str, str]]:
+    if e2.get("status") == "未识别":
+        return [
+            {"title": "补全资料", "body": "先补录E2结果及周期阶段，再生成个体化建议。"},
+            {"title": "记录症状", "body": "同步记录月经、睡眠、情绪和压力变化。"},
+            {"title": "阶段复核", "body": "补全数据后结合其他核心激素重新评估。"},
+        ]
+    if _p08_status_is_normal(e2.get("status")):
+        return [
+            {"title": "规律作息", "body": "稳定睡眠与日常节律，减少激素波动干扰。"},
+            {"title": "均衡饮食", "body": "保证蛋白、膳食纤维和优质脂肪摄入。"},
+            {"title": "周期复评", "body": "下次复查尽量注明周期阶段，便于纵向比较。"},
+        ]
+    return [
+        {"title": "复核周期", "body": "先核对采样时的周期阶段和近期症状变化。"},
+        {"title": "降低压力", "body": "优先调整睡眠、运动和压力负荷。"},
+        {"title": "联合判断", "body": "建议与LH、FSH、孕酮等项目一起复评。"},
+    ]
+
+
+def _p09_e2_deep_dive(e2: dict[str, Any], indicators: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    highlights = _p09_e2_highlights(e2, indicators)
+    actions = _p09_e2_action_items(e2)
+    return {
+        "summary": _p09_e2_deep_summary(e2),
+        "highlight_1": highlights[0],
+        "highlight_2": highlights[1],
+        "highlight_3": highlights[2],
+        "advice_1_title": actions[0]["title"],
+        "advice_1_body": actions[0]["body"],
+        "advice_2_title": actions[1]["title"],
+        "advice_2_body": actions[1]["body"],
+        "advice_3_title": actions[2]["title"],
+        "advice_3_body": actions[2]["body"],
+        "ai_insight": _p09_e2_ai_insight(e2),
+    }
+
+
+def _p09_e2_ai_insight(e2: dict[str, Any]) -> str:
+    if e2.get("status") == "未识别":
+        return "雌二醇结果待补充，建议先完成原始报告复核，再生成个性化激素平衡建议。"
+    if _p08_status_is_normal(e2.get("status")):
+        return "您的雌二醇水平处于参考范围，建议继续保持健康生活方式，并结合周期阶段定期监测。"
+    return "您的雌二醇水平存在需关注信号，建议结合月经周期、症状和专业人员意见进行复核。"
+
+
+def _p09_management_plan(indicators: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    followup_focus = "建议3-6个月后复查女性激素相关项目，评估管理效果"
+    if _p09_abnormal_indicators(indicators):
+        followup_focus = "建议按专业意见提前复核异常项目"
+    return {
+        "diet": {
+            "item_1": "优先补足优质蛋白，如鱼类、蛋类和豆制品。",
+            "item_2": "每周2-3次补充深海鱼、坚果或亚麻籽。",
+            "item_3": "增加十字花科蔬菜和深色蔬菜摄入。",
+            "item_4": "保证全谷物、水果和膳食纤维的日常摄入。",
+            "item_5": "减少高糖、高脂和高度加工食品的比例。",
+        },
+        "exercise": {
+            "item_1": "每周保持150分钟左右中等强度有氧运动。",
+            "item_2": "每周安排2-3次力量训练，支持体成分稳定。",
+            "item_3": "可加入瑜伽、普拉提等身心协调训练。",
+            "item_4": "避免过度运动，保留充足恢复和休息时间。",
+        },
+        "stress": {
+            "item_1": "保持规律作息，尽量保证每日7-8小时睡眠。",
+            "item_2": "练习深呼吸、冥想或正念放松，稳定节律。",
+            "item_3": "记录情绪和压力变化，识别高压触发因素。",
+            "item_4": "压力持续升高时，及时寻求专业支持。",
+        },
+        "review": {
+            "item_1": followup_focus,
+            "item_2": "复查时同步记录症状、周期和生活方式变化。",
+            "item_3": "如出现明显月经异常或持续不适，建议及时就医。",
+            "item_4": "阶段性对比E2、LH、FSH、孕酮等核心项目。",
+        },
+        "tip": "本方案用于健康管理参考，执行时请结合周期阶段、症状变化和复评结果动态调整。",
+    }
+
+
+def _p09_hormone_balance_score(indicators: dict[str, dict[str, Any]]) -> int:
+    core_codes = ["e2", "lh", "fsh", "progesterone", "testosterone"]
+    recognized = [indicators[code] for code in core_codes if indicators[code].get("status") != "未识别"]
+    if not recognized:
+        return 0
+    penalty = sum(12 for item in recognized if not _p08_status_is_normal(item.get("status")))
+    missing_penalty = (len(core_codes) - len(recognized)) * 8
+    return max(45, min(95, 88 - penalty - missing_penalty))
+
+
+def _p09_metabolic_score(indicators: dict[str, dict[str, Any]]) -> str:
+    score = 72
+    if not _p08_status_is_normal(indicators["testosterone"].get("status")):
+        score -= 8
+    if not _p08_status_is_normal(indicators["cortisol"].get("status")) and indicators["cortisol"].get("status") != "未识别":
+        score -= 6
+    return str(max(45, score))
+
+
+def _p09_sleep_score(indicators: dict[str, dict[str, Any]]) -> str:
+    score = 74
+    if not _p08_status_is_normal(indicators["cortisol"].get("status")) and indicators["cortisol"].get("status") != "未识别":
+        score -= 10
+    return str(max(45, score))
+
+
+def _p09_abnormal_indicators(indicators: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        item
+        for item in indicators.values()
+        if item.get("status") not in {"未识别", "待补充", "待复核", "需复核"} and not _p08_status_is_normal(item.get("status"))
+    ]
+
+
+def _p09_abnormal_indicator_names(indicators: dict[str, dict[str, Any]]) -> str:
+    abnormal = _p09_abnormal_indicators(indicators)
+    names = [f"{item['short_name']}{item['status']}" for item in abnormal[:5]]
+    suffix = "等" if len(abnormal) > 5 else ""
+    return "、".join(names) + suffix if names else ""
+
+
+def _p09_empty_display(value: Any, *, default: str) -> str:
+    text = str(value or "").strip()
+    if not text or text in {"-", "—", "/"}:
+        return default
+    return text
+
+
+def _p09_clinical_diagnosis_display(value: Any) -> str:
+    text = str(value or "").strip()
+    compact = "".join(text.split()).lower()
+    if not compact or compact in {"-", "—", "/"}:
+        return "-"
+    if "anweikang" in compact or "安为康" in text or "安為康" in text:
+        return "-"
+    return text
+
+
 def _build_placeholder_report_data(package_code: str, ocr_result: dict[str, Any]) -> dict[str, Any]:
     return {
         "case_id": f"case_{package_code.lower()}_placeholder",
@@ -1522,7 +2936,7 @@ def _build_p17_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
     sample_types = patient_info.get("specimen_types") or []
     if not isinstance(sample_types, list):
         sample_types = [str(sample_types)]
-    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or "阴道分泌物"
+    sample_type_display = "分泌物"
     patient_phone = patient_info.get("phone") or first_patient.get("phone") or "—"
     submitting_unit = patient_info.get("hospital") or first_report.get("hospital_name") or ""
     clinical_diagnosis = (
@@ -1566,7 +2980,7 @@ def _build_p17_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
         "report": {
             "report_id": report_id,
             "assessment_type": P17_REPORT_NAME,
-            "method": _method_summary(tests) if tests else P17_METHOD,
+            "method": P17_METHOD,
             "assessment_date": _date_display(sample_date),
             "sample_date": additional_info.get("sample_date") or "",
             "receive_date": additional_info.get("receive_date") or "",
@@ -1592,6 +3006,10 @@ def _build_p17_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
             "good_bacteria_status": p17_summary["good_bacteria_status"],
             "conditional_pathogen_status": p17_summary["conditional_pathogen_status"],
             "pathogen_status": p17_summary["pathogen_status"],
+            "good_bacteria_focus_names": p17_summary["good_bacteria_focus_names"],
+            "conditional_pathogen_focus_names": p17_summary["conditional_pathogen_focus_names"],
+            "pathogen_focus_names": p17_summary["pathogen_focus_names"],
+            "pathogen_analysis_status": p17_summary["pathogen_analysis_status"],
             "hpv_viral_load": p17_summary["hpv_viral_load"],
             "overall_summary": _first_text(
                 p17_report.get("overall_summary"),
@@ -1656,7 +3074,7 @@ def _build_p17_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
             "warnings": ocr_result.get("warnings", []),
         },
         "version_lock": {
-            "template_version": "P17-html-v0.2-new-template",
+            "template_version": "P17-html-v0.6-page04-pathogen-status",
             "rule_version": "P17-rules-v0.1-draft",
             "prompt_version": "P17-prompts-v0.1",
             "ai_model": "deepseek-v4-flash",
@@ -1759,6 +3177,10 @@ def _p17_summary_fields(result_fields: dict[str, dict[str, Any]], p17_report: di
     hpv_status = "阳性" if hpv_positive else "全阴" if hpv_recognized else "未识别"
     micro_status = "阳性" if conditional_positive or pathogen_positive else "阴性" if conditional_recognized or pathogen_recognized or good_recognized else "未识别"
     risk_level = "高风险" if pathogen_positive or hpv_high_positive else "需关注" if conditional_positive or hpv_positive else "低风险" if hpv_recognized or good_recognized else "待人工复核"
+    good_focus_names = _p17_core_focus_names(good_positive, good_recognized)
+    conditional_focus_names = _p17_core_focus_names(conditional_positive, conditional_recognized)
+    pathogen_focus_names = _p17_core_focus_names(pathogen_positive, pathogen_recognized)
+    pathogen_analysis_status = "需关注" if pathogen_positive else "整体状态：良好" if pathogen_recognized else "待复核"
 
     good_summary = _p17_group_summary(
         good_positive,
@@ -1798,6 +3220,10 @@ def _p17_summary_fields(result_fields: dict[str, dict[str, Any]], p17_report: di
         "good_bacteria_status": good_status,
         "conditional_pathogen_status": conditional_status,
         "pathogen_status": pathogen_status,
+        "good_bacteria_focus_names": good_focus_names,
+        "conditional_pathogen_focus_names": conditional_focus_names,
+        "pathogen_focus_names": pathogen_focus_names,
+        "pathogen_analysis_status": pathogen_analysis_status,
         "hpv_viral_load": hpv_viral_load,
         "overall_summary": overall_summary,
         "hpv_detail_summary": hpv_detail,
@@ -1852,6 +3278,14 @@ def _p17_names(items: list[dict[str, str]], *, limit: int = 8) -> str:
         return "无"
     suffix = "等" if len(names) > limit else ""
     return "、".join(names[:limit]) + suffix
+
+
+def _p17_core_focus_names(positive_items: list[dict[str, str]], recognized_items: list[dict[str, str]]) -> str:
+    if positive_items:
+        return _p17_names(positive_items, limit=4)
+    if recognized_items:
+        return "未见阳性"
+    return "待复核"
 
 
 def _p17_focus_sentence(
@@ -3150,6 +4584,290 @@ def _find_test_any(tests: list[dict[str, Any]], keywords: list[str]) -> dict[str
     return {}
 
 
+def _normalize_p10_ocr_result(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report")
+    if isinstance(structured, dict) and structured.get("tests"):
+        return ocr_result
+
+    report_meta = ocr_result.get("reportMeta")
+    reportmeta_sections = ocr_result.get("sections")
+    if isinstance(report_meta, dict) and isinstance(reportmeta_sections, list):
+        return _normalize_p10_reportmeta_ocr_result(ocr_result, report_meta, reportmeta_sections)
+
+    report_info = ocr_result.get("report_info")
+    sections = ocr_result.get("sections")
+    if not isinstance(report_info, dict) or not isinstance(sections, list):
+        return ocr_result
+
+    normalized = dict(ocr_result)
+    tests: list[dict[str, Any]] = []
+    specimen_types: list[str] = []
+    sample_date = ""
+    receive_date = ""
+    report_date = str(report_info.get("date") or "")
+    remarks = ""
+    contact: dict[str, Any] = {}
+    patient_detail: dict[str, Any] = {}
+    submitting_unit = ""
+
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        section_title = str(section.get("section_title") or "").strip()
+        section_description = str(section.get("description") or "").strip()
+
+        for item in section.get("test_results", []):
+            if not isinstance(item, dict):
+                continue
+            gene = str(item.get("gene") or "").strip()
+            locus = str(item.get("locus") or "").strip()
+            genotype = str(item.get("genotype") or "").strip()
+            if not gene and not genotype:
+                continue
+            test_name = gene or section_title
+            tests.append(
+                {
+                    "page": 0,
+                    "specimen_type": "",
+                    "test_name": test_name,
+                    "item_code": _p10_item_code_from_gene(gene, title=section_title),
+                    "result": genotype,
+                    "indicator": "",
+                    "reference_range": "",
+                    "unit": "",
+                    "method": "基因检测",
+                    "gene_locus": locus,
+                    "gene_type": genotype,
+                    "section_title": section_title,
+                    "section_description": section_description,
+                }
+            )
+
+        if "检验报告单" not in section_title and not remarks:
+            advice = [str(value).strip() for value in section.get("health_advice", []) if str(value).strip()]
+            if advice:
+                remarks = "；".join(advice)
+
+        if "检验报告单" in section_title:
+            patient_detail = section.get("patient_info", {}) if isinstance(section.get("patient_info"), dict) else {}
+            specimen_type = str(patient_detail.get("specimen_type") or "").strip()
+            if specimen_type:
+                specimen_types.append(specimen_type)
+            submitting_unit = str(section.get("submitting_unit") or section.get("institution") or "").strip()
+            remarks = str(section.get("remarks") or remarks or "")
+            dates = section.get("dates", {}) if isinstance(section.get("dates"), dict) else {}
+            sample_date = str(dates.get("sampling") or sample_date)
+            receive_date = str(dates.get("receiving") or receive_date)
+            report_date = str(dates.get("reporting") or report_date)
+            contact = section.get("contact", {}) if isinstance(section.get("contact"), dict) else {}
+
+            for item in section.get("test_results", []):
+                if not isinstance(item, dict):
+                    continue
+                test_name = str(item.get("test_item") or "").strip()
+                if not test_name:
+                    continue
+                tests.append(
+                    {
+                        "page": 0,
+                        "specimen_type": specimen_type,
+                        "test_name": test_name,
+                        "item_code": _p10_item_code_from_name(test_name),
+                        "result": str(item.get("result") or "").strip(),
+                        "indicator": str(item.get("indicator") or "").strip(),
+                        "reference_range": str(item.get("reference_range") or "").strip(),
+                        "unit": str(item.get("unit") or "").strip(),
+                        "method": str(item.get("method") or "").strip(),
+                    }
+                )
+
+    specimen_types = [value for value in dict.fromkeys(specimen_types) if value]
+    normalized["structured_report"] = {
+        "report_id": str(report_info.get("barcode") or ocr_result.get("source_file") or ""),
+        "patient_info": {
+            "name": str(patient_detail.get("name") or report_info.get("name") or ""),
+            "gender": str(patient_detail.get("gender") or ""),
+            "age": _parse_age_number(str(patient_detail.get("age") or "")) or str(patient_detail.get("age") or ""),
+            "specimen_condition": str(patient_detail.get("specimen_status") or ""),
+            "specimen_types": specimen_types,
+            "hospital": submitting_unit or str(report_info.get("submitting_unit") or ""),
+            "submitting_unit": submitting_unit or str(report_info.get("submitting_unit") or ""),
+            "clinical_diagnosis": str(report_info.get("subtitle") or ""),
+        },
+        "tests": tests,
+        "notes": remarks,
+        "additional_info": {
+            "sample_date": sample_date,
+            "receive_date": receive_date,
+            "report_date": report_date,
+        },
+        "p10_extracted_report": {
+            "report_info": report_info,
+            "sections": sections,
+            "contact": contact,
+            "remarks": remarks,
+        },
+    }
+    normalized.setdefault("provider", "professional-json-adapter")
+    normalized.setdefault("strategy_version", "P10-ocr-strategy-v0.4-reportmeta-json-blueprint")
+    return normalized
+
+
+def _normalize_p10_reportmeta_ocr_result(
+    ocr_result: dict[str, Any],
+    report_meta: dict[str, Any],
+    sections: list[Any],
+) -> dict[str, Any]:
+    normalized = dict(ocr_result)
+    laboratory_info = ocr_result.get("laboratoryInfo", {}) if isinstance(ocr_result.get("laboratoryInfo"), dict) else {}
+    tests: list[dict[str, Any]] = []
+    specimen_types: list[str] = []
+    sample_type = _first_text(laboratory_info.get("sampleType"))
+    if sample_type:
+        specimen_types.append(sample_type)
+
+    for section_index, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            continue
+        section_title = _first_text(section.get("sectionName"), section.get("section_title"))
+        section_description = _first_text(section.get("description"))
+        section_type = _first_text(section.get("testType"), sample_type)
+        if section_type and section_type not in specimen_types:
+            specimen_types.append(section_type)
+
+        for item in section.get("results", []):
+            if not isinstance(item, dict):
+                continue
+            gene = _first_text(item.get("gene"))
+            locus = _first_text(item.get("variant"), item.get("locus"), item.get("gene_locus"))
+            is_gene_result = bool(gene or locus or _first_text(item.get("genotype"), item.get("geneType")))
+            genotype = _first_text(
+                item.get("genotype"),
+                item.get("geneType"),
+                item.get("result") if is_gene_result else "",
+            )
+            if is_gene_result:
+                tests.append(
+                    {
+                        "page": section_index,
+                        "specimen_type": section_type or "基因检测",
+                        "test_name": gene or section_title,
+                        "item_code": _p10_item_code_from_gene(gene, title=section_title),
+                        "result": genotype,
+                        "indicator": "",
+                        "reference_range": "",
+                        "unit": "",
+                        "method": "基因检测",
+                        "gene_locus": locus,
+                        "gene_type": genotype,
+                        "interpretation": _first_text(section.get("interpretation")),
+                        "recommendations": section.get("recommendations") if isinstance(section.get("recommendations"), list) else [],
+                        "references": section.get("references") if isinstance(section.get("references"), list) else [],
+                        "section_title": section_title,
+                        "section_description": section_description,
+                    }
+                )
+                continue
+
+            test_name = _first_text(item.get("testItem"), item.get("test_item"), item.get("name"))
+            if not test_name:
+                continue
+            tests.append(
+                {
+                    "page": section_index,
+                    "specimen_type": section_type or sample_type,
+                    "test_name": test_name,
+                    "item_code": _p10_item_code_from_name(test_name),
+                    "result": _first_text(item.get("result")),
+                    "indicator": _first_text(item.get("indicator"), item.get("status")),
+                    "reference_range": _first_text(item.get("referenceRange"), item.get("reference_range")),
+                    "unit": _first_text(item.get("unit")),
+                    "method": _first_text(item.get("method")),
+                    "section_title": section_title,
+                    "section_description": section_description,
+                    "note": _first_text(section.get("note")),
+                }
+            )
+
+    lab_name = _first_text(report_meta.get("labName"))
+    report_info = {
+        "title": _first_text(report_meta.get("reportName")),
+        "subtitle": _first_text(report_meta.get("reportSubtitle")),
+        "barcode": _first_text(report_meta.get("barcode")),
+        "date": _first_text(report_meta.get("reportDate")),
+        "submitting_unit": lab_name,
+        "name": _first_text(report_meta.get("patientName"), report_meta.get("name")),
+    }
+    contact = {
+        "website": _first_text(report_meta.get("labWebsite")),
+        "phone": _first_text(report_meta.get("labPhone")),
+        "address": _first_text(report_meta.get("labAddress")),
+    }
+    normalized["structured_report"] = {
+        "report_id": _first_text(report_meta.get("barcode"), ocr_result.get("source_file")),
+        "patient_info": {
+            "name": _first_text(report_meta.get("patientName"), report_meta.get("name")),
+            "gender": _first_text(report_meta.get("gender")),
+            "age": _parse_age_number(report_meta.get("age")) or _first_text(report_meta.get("age")),
+            "specimen_condition": _first_text(laboratory_info.get("sampleStatus")),
+            "specimen_types": [value for value in dict.fromkeys(specimen_types) if value],
+            "hospital": lab_name,
+            "submitting_unit": lab_name,
+            "clinical_diagnosis": _first_text(report_meta.get("reportSubtitle")),
+            "phone": "",
+        },
+        "tests": tests,
+        "notes": _first_text(laboratory_info.get("note")),
+        "additional_info": {
+            "sample_date": _first_text(laboratory_info.get("collectionTime")),
+            "receive_date": _first_text(laboratory_info.get("receiptTime")),
+            "report_date": _first_text(laboratory_info.get("reportTime"), report_meta.get("reportDate")),
+        },
+        "p10_extracted_report": {
+            "report_info": report_info,
+            "sections": sections,
+            "laboratory_info": laboratory_info,
+            "contact": contact,
+            "remarks": _first_text(laboratory_info.get("note")),
+        },
+    }
+    normalized.setdefault("provider", "p10-reportmeta-json-adapter")
+    normalized.setdefault("strategy_version", "P10-ocr-strategy-v0.4-reportmeta-json-blueprint")
+    return normalized
+
+
+def _p10_item_code_from_gene(gene: str, *, title: str = "") -> str:
+    gene_upper = str(gene or "").strip().upper()
+    if gene_upper == "CYP1A1":
+        return "cyp1a1"
+    if gene_upper == "ADH1B":
+        return "adh1b"
+    if gene_upper == "ALDH2":
+        return "aldh2"
+    if "酒精" in title and gene_upper not in {"ADH1B", "ALDH2"}:
+        return "aldh2"
+    if gene_upper in {"MCM6", "LCT"}:
+        return "lct"
+    if gene_upper == "CYP1A2":
+        return "cyp1a2"
+    return gene_upper.lower()
+
+
+def _p10_item_code_from_name(name: str) -> str:
+    normalized_name = str(name or "").strip().lower()
+    if "游离/总前列腺特异" in normalized_name or "游离/总psa" in normalized_name or "f/tpsa" in normalized_name or normalized_name == "比值":
+        return "psa_ratio"
+    if "总前列腺特异" in normalized_name or "总psa" in normalized_name or normalized_name == "psa":
+        return "psa"
+    if "游离前列腺特异" in normalized_name or "游离psa" in normalized_name or "fpsa" in normalized_name:
+        return "psa_free"
+    if "脱氢表雄酮" in normalized_name or "dhea" in normalized_name:
+        return "dhea"
+    if "抑制素" in normalized_name:
+        return "inhibin_b"
+    return normalized_name
+
+
 def _p03_indicator(
     tests: list[dict[str, Any]],
     code: str,
@@ -3514,6 +5232,16 @@ def _safe_float(value: Any) -> float | None:
     try:
         return float(number)
     except ValueError:
+        return None
+
+
+def _parse_age_number(value: Any) -> int | None:
+    parsed = _safe_float(value)
+    if parsed is None:
+        return None
+    try:
+        return int(parsed)
+    except (TypeError, ValueError):
         return None
 
 

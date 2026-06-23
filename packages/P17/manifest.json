@@ -3,7 +3,7 @@
   "package_name": "阴道微生态健康评估管理报告",
   "status": "development",
   "version": "0.2.0",
-  "template_version": "P17-html-v0.2-new-template",
+  "template_version": "P17-html-v0.6-page04-pathogen-status",
   "rule_version": "P17-rules-v0.1-draft",
   "prompt_version": "P17-prompts-v0.1",
   "default_ai_model": "deepseek-v4-flash",

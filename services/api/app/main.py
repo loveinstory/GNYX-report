@@ -349,7 +349,18 @@ def batch_ocr(request_data: BatchRequest, request: Request, background_tasks: Ba
 @app.post("/batch/interpret")
 def batch_interpret(request_data: BatchRequest, request: Request, background_tasks: BackgroundTasks) -> dict[str, Any]:
     require_role(request, {ADMIN, CUSTOMER_SERVICE})
-    logs = _dedupe_latest_ocr_logs(list_pending_ocr_parse_logs(package_code=request_data.package_code, limit=200))
+    imported_documents = list_imported_documents(request_data.package_code)
+    active_source_files = {
+        str(item.get("original_name") or "").strip()
+        for item in imported_documents
+        if str(item.get("original_name") or "").strip()
+    }
+    candidate_logs = list_pending_ocr_parse_logs(package_code=request_data.package_code, limit=200)
+    if active_source_files:
+        candidate_logs = [
+            log for log in candidate_logs if str(log.get("source_file") or "").strip() in active_source_files
+        ]
+    logs = _dedupe_latest_ocr_logs(candidate_logs)
     log_ids = [str(log["log_id"]) for log in logs]
     job = create_job(
         job_type="generate_ai_report",
@@ -427,7 +438,7 @@ def report_detail(report_id: str, request: Request) -> dict[str, Any]:
 def report_page(report_id: str, page_name: str, request: Request) -> dict[str, str]:
     require_role(request, {ADMIN, INSPECTOR})
     try:
-        return get_report_page_content(report_id, page_name, public_base_url=str(request.base_url).rstrip("/"))
+        return get_report_page_content(report_id, page_name)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Report page not found") from exc
 

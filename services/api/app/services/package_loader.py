@@ -10,7 +10,7 @@ from app.core.config import settings
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def list_packages() -> list[dict[str, Any]]:

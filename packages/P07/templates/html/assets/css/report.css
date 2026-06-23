@@ -1105,8 +1105,8 @@ body {
 }
 
 .page-05 .deep-content {
-  left: 32px;
-  right: 32px;
+  left: -42px;
+  right: -42px;
   top: 174px;
   transform: scale(0.69);
   transform-origin: top center;
@@ -1247,17 +1247,18 @@ body {
 }
 
 .page-05 .metric-card {
-  gap: 18px;
-  padding: 16px 18px;
+  grid-template-columns: 276px minmax(0, 1fr);
+  gap: 14px;
+  padding: 15px 16px;
 }
 
 .page-05 .metric-card + .metric-card {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .page-05 .metric-side {
   gap: 12px;
-  padding-right: 14px;
+  padding-right: 12px;
 }
 
 .page-05 .metric-side img {
@@ -1277,26 +1278,38 @@ body {
 
 .page-05 .metric-table {
   font-size: 14px;
+  table-layout: fixed;
+}
+
+.page-05 .metric-table th:nth-child(1),
+.page-05 .metric-table td:nth-child(1) {
+  width: 30%;
+}
+
+.page-05 .metric-table th:nth-child(2),
+.page-05 .metric-table td:nth-child(2) {
+  width: 22%;
 }
 
 .page-05 .metric-table th {
-  padding: 0 6px 8px;
-  font-size: 17px;
+  padding: 0 5px 7px;
+  font-size: 16px;
 }
 
 .page-05 .metric-table td {
-  padding: 7px 6px;
+  padding: 6px 5px;
+  line-height: 1.36;
 }
 
 .page-05 .value-strong {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .page-05 .metric-summary {
-  margin-top: 8px;
-  padding: 10px 12px;
+  margin-top: 7px;
+  padding: 9px 11px;
   font-size: 13px;
-  line-height: 1.52;
+  line-height: 1.46;
 }
 
 .page-05 .metric-page-note {

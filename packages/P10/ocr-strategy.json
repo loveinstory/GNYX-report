@@ -1,0 +1,89 @@
+{
+  "package_code": "P10",
+  "strategy_version": "P10-ocr-strategy-v0.4-reportmeta-json-blueprint",
+  "status": "development",
+  "provider": "p10-reportmeta-json-adapter",
+  "fallback_provider": "pdf-text-extractor",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P10",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P10 男性激素与代谢状态评估健康管理报告 OCR 策略 v0.4，以上传的完整 reportMeta/sections/laboratoryInfo JSON 为权威识别结果并归一 structured_report",
+  "goals": [
+    "仅针对 P10《男性激素与代谢状态评估健康管理报告》生效，不影响其他套餐策略。",
+    "优先读取完整 OCR JSON：reportMeta 作为报告头，sections[].results[] 作为检验和基因结果，laboratoryInfo 作为样本和时间信息。",
+    "首页患者信息中，reportMeta.labName 写入送检单位，reportMeta.barcode 写入样本编号。",
+    "样本信息固定展示为血清/EDTA抗凝血；评估方法固定展示为基因测序&化学发光&ELISA法。",
+    "基因代谢段落中的 sections[].results[] 归一为 structured_report.tests[]，保留 gene、variant、genotype 和 interpretation。",
+    "血清检测段落中的 testItem、result、unit、referenceRange、method 归一为 structured_report.tests[]。",
+    "当输入不是专业 OCR JSON 时，允许回退到 PDF 文本层级解析。",
+    "当前蓝本覆盖 PSA（总PSA、游离PSA、比值）、DHEA、抑制素B，以及 CYP1A1、ADH1B/ALDH2、MCM6/LCT、CYP1A2 等代谢基因结果。"
+  ],
+  "input_contract": {
+    "reportMeta": {
+      "reportName": "报告标题",
+      "reportSubtitle": "副标题/检测主题",
+      "patientName": "受检者姓名",
+      "gender": "性别",
+      "age": "年龄",
+      "reportDate": "报告日期",
+      "barcode": "报告条码/样本编号",
+      "labName": "实验室名称",
+      "labAddress": "实验室地址",
+      "labWebsite": "官网",
+      "labPhone": "电话"
+    },
+    "sections": [
+      {
+        "sectionName": "分节标题",
+        "description": "分节说明",
+        "testType": "样本类型，血清检测段落提供",
+        "results": [
+          {
+            "gene": "基因名，可用于基因段落",
+            "variant": "基因位点",
+            "genotype": "基因型",
+            "testItem": "检验项目名，可用于血清检测段落",
+            "result": "检测结果",
+            "unit": "单位",
+            "referenceRange": "参考范围",
+            "method": "检测方法"
+          }
+        ],
+        "interpretation": "该分节整体结果解读",
+        "recommendations": ["健康建议列表"],
+        "references": ["参考文献列表"],
+        "note": "血清检测段落备注"
+      }
+    ],
+    "laboratoryInfo": {
+      "sampleType": "样本类型",
+      "sampleStatus": "标本状态",
+      "collectionTime": "采样时间",
+      "receiptTime": "接收时间",
+      "reportTime": "报告时间",
+      "note": "报告备注"
+    }
+  },
+  "target_indicators": [
+    { "code": "psa", "name": "总PSA", "short_name": "tPSA", "unit": "ng/mL", "source_names": ["总PSA", "总前列腺特异抗原", "tPSA", "PSA", "Total PSA"] },
+    { "code": "psa_free", "name": "游离PSA", "short_name": "fPSA", "unit": "ng/mL", "source_names": ["游离PSA", "fPSA", "Free PSA"] },
+    { "code": "psa_ratio", "name": "比值", "short_name": "f/tPSA", "unit": "%", "source_names": ["比值", "游离/总PSA", "f/tPSA"] },
+    { "code": "cyp1a1", "name": "吸烟代谢基因", "short_name": "CYP1A1", "unit": "", "source_names": ["吸烟代谢基因", "CYP1A1", "吸烟代谢"] },
+    { "code": "aldh2", "name": "酒精代谢基因", "short_name": "ALDH2", "unit": "", "source_names": ["酒精代谢基因", "ALDH2", "酒精代谢"] },
+    { "code": "lct", "name": "乳糖代谢基因", "short_name": "LCT", "unit": "", "source_names": ["乳糖代谢基因", "LCT", "乳糖代谢", "乳糖不耐受"] },
+    { "code": "cyp1a2", "name": "咖啡代谢基因", "short_name": "CYP1A2", "unit": "", "source_names": ["咖啡代谢基因", "CYP1A2", "咖啡代谢", "咖啡因代谢"] }
+  ],
+  "quality_gate": {
+    "expected_source_test_count": 12,
+    "expected_normalized_test_count": 12,
+    "minimum_without_warning": 11,
+    "required_report_codes": ["psa", "psa_free", "psa_ratio", "cyp1a1", "aldh2", "lct", "cyp1a2", "dhea", "inhibin_b"],
+    "optional_codes": ["adh1b"],
+    "manual_review_required_when_missing": ["psa", "psa_free", "psa_ratio", "cyp1a1", "lct", "cyp1a2"]
+  },
+  "notes": [
+    "v0.2 改为以 report_info + sections[] 的专业 JSON 蓝本作为主输入契约。",
+    "v0.3 调整首页患者信息 OCR 映射：送检单位取 report_info.submitting_unit 或 section.submitting_unit，样本编号取 report_info.barcode。",
+    "v0.4 调整为以 reportMeta + sections[].results[] + laboratoryInfo 的上传 JSON 作为权威 OCR 结果；PSA 三项和基因检测结果均直接从 JSON 归一化。",
+    "检验报告单段落与功能医学基因段落共存，均会归一为同一份 structured_report.tests。"
+  ]
+}

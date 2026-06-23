@@ -1,0 +1,28 @@
+{
+  "package_code": "P09",
+  "package_name": "女性激素平衡评估健康管理报告",
+  "status": "development",
+  "version": "0.1.1",
+  "template_version": "P09-html-v0.2-data-bound-layout",
+  "rule_version": "P09-rules-v0.2-ai-binding-layout",
+  "prompt_version": "P09-prompts-v0.2-a4-bound",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "综合评估结论", "enabled": true },
+    { "page": "page-03.html", "title": "核心指标仪表盘", "enabled": true },
+    { "page": "page-04.html", "title": "激素深度解读", "enabled": true },
+    { "page": "page-05.html", "title": "其他关键指标分析", "enabled": true },
+    { "page": "page-06.html", "title": "综合健康管理方案", "enabled": true },
+    { "page": "page-07.html", "title": "知识科普与长期健康管理", "enabled": true },
+    { "page": "page-08.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

@@ -7,6 +7,13 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
+from app.services.p11_ocr_support import (
+    build_p11_structured_report,
+    build_p11_warning_requirements,
+    extract_p11_fields,
+    extract_p11_warning_messages,
+)
+
 from pypdf import PdfReader
 
 from app.services.ocr_logs import now_iso
@@ -18,9 +25,15 @@ P05_STRATEGY_VERSION = "P05-ocr-strategy-v0.2-multipage-rapidocr"
 P03_STRATEGY_VERSION = "P03-ocr-strategy-v0.3-c-peptide-prefix"
 P04_STRATEGY_VERSION = "P04-ocr-strategy-v0.2-nutrient-multipage-rapidocr"
 P06_STRATEGY_VERSION = "P06-ocr-strategy-v0.3-hscrp-three-page"
-P07_STRATEGY_VERSION = "P07-ocr-strategy-v0.2-xie-three-page-json"
-P17_STRATEGY_VERSION = "P17-ocr-strategy-v0.2-standard-json-aligned"
+P07_STRATEGY_VERSION = "P07-ocr-strategy-v0.3-stacked-table"
+P08_STRATEGY_VERSION = "P08-ocr-strategy-v0.2-professional-json-adapter"
+P09_STRATEGY_VERSION = "P09-ocr-strategy-v0.2-structured-json-row-adapter"
+P10_STRATEGY_VERSION = "P10-ocr-strategy-v0.4-reportmeta-json-blueprint"
+P11_STRATEGY_VERSION = "P11-ocr-strategy-v0.4-food-intolerance-42-adapter"
+P17_STRATEGY_VERSION = "P17-ocr-strategy-v0.3-tail-pathogen-ct"
 PROVIDER = "pdf-text-extractor"
+P10_SAMPLE_TYPE = "血清/EDTA抗凝血"
+P10_METHOD = "基因测序&化学发光&ELISA法"
 
 P17_HPV_HIGH_RISK_TYPES = ["16", "18", "26", "31", "33", "35", "39", "45", "51", "52", "53", "56", "58", "59", "66", "68", "73", "82"]
 P17_HPV_LOW_RISK_TYPES = ["6", "11", "40", "42", "43", "44", "61", "81", "83"]
@@ -314,11 +327,51 @@ P07_LIVER_FUNCTION_TEST_DEFINITIONS = [
 ]
 P07_FIBROSIS_TEST_DEFINITIONS = [
     ("pc_iii", "III型前胶原（PC-III）", ("III型前胶原", "III 型前胶原", "Ⅲ型前胶原", "PC-III", "PIIINP", "PⅢNP"), "ng/mL", "≤30"),
-    ("civ", "IV型胶原（CIV）", ("IV型胶原", "IV 型胶原", "Ⅳ型胶原", "CIV", "C-IV"), "ng/mL", ""),
+    ("civ", "IV型胶原（CIV）", ("IV型胶原", "IV 型胶原", "Ⅳ型胶原", "CIV", "C-IV"), "ng/mL", "≤30"),
     ("ln", "层粘连蛋白（LN）", ("层粘连蛋白", "层黏连蛋白", "LN"), "ug/L", "≤50"),
     ("ha", "透明质酸（HA）", ("透明质酸", "透明质酸酶", "HA"), "ng/mL", "≤100"),
 ]
 P07_TARGET_CODES = {code for code, *_ in [*P07_LIVER_FUNCTION_TEST_DEFINITIONS, *P07_FIBROSIS_TEST_DEFINITIONS]}
+P08_TEST_DEFINITIONS = [
+    ("nt_probnp", "N端脑利钠肽前体", ("N端脑利钠肽前体", "N 端脑利钠肽前体", "NT-proBNP", "NT proBNP", "NT-pro BNP"), "pg/mL", "0-125.00", "cardiovascular", "化学发光法"),
+    ("d_dimer", "D-二聚体", ("D-二聚体", "D二聚体", "D-D", "D Dimer", "D-Dimer"), "mg/L FEU", "0-0.55", "cardiovascular", "免疫比浊法"),
+    ("ffa", "游离脂肪酸", ("游离脂肪酸", "FFA", "Free Fatty Acid"), "mmol/L", "0.10-0.60", "cardiovascular", "酶法"),
+    ("angiotensin_i", "血管紧张素I", ("血管紧张素I", "血管紧张素Ⅰ", "Ang I", "AngI", "Angiotensin I"), "pg/mL", "28.0-125.0", "raas", "化学发光法"),
+    ("angiotensin_ii", "血管紧张素II", ("血管紧张素II", "血管紧张素Ⅱ", "Ang II", "AngII", "Angiotensin II"), "pg/mL", "21.0-75.0", "raas", "化学发光法"),
+    ("angiotensin_ratio", "血管紧张素II / I 比值", ("血管紧张素II / I 比值", "血管紧张素II/I", "Ang II/Ang I", "AngII/AngI", "Ang II / Ang I"), "", "0.20-1.20", "raas", "计算法"),
+    ("renin", "肾素活性", ("肾素活性", "Renin", "PRA"), "ng/mL/h", "0.30-5.70", "raas", "化学发光法"),
+    ("aldosterone", "醛固酮", ("醛固酮", "Aldo", "Aldosterone"), "pg/mL", "79.0-277.0", "raas", "化学发光法"),
+]
+P08_SUPPLEMENTAL_TEST_DEFINITIONS: dict[str, dict[str, str]] = {
+    "angiotensin_i_4c": {
+        "name": "血管紧张素I 4℃",
+        "unit": "ng/mL",
+        "reference": "",
+        "group": "raas",
+        "method": "化学发光法",
+    },
+    "aldosterone_renin_ratio": {
+        "name": "血醛固酮/血浆肾素活性",
+        "unit": "",
+        "reference": "",
+        "group": "raas",
+        "method": "",
+    },
+}
+P09_TEST_DEFINITIONS = [
+    ("e2", "雌二醇（E2）", ("雌二醇", "E2", "Estradiol"), "pg/mL", "卵泡期:19.5-144.2 排卵期:63.9-356.7 黄体期:55.8-214.2 绝经期:0-32.2", "core_hormones", "化学发光法"),
+    ("lh", "促黄体生成素（LH）", ("促黄体生成素", "黄体生成素", "LH"), "mIU/mL", "卵泡期:1.9-12.5 排卵期:8.7-76.3 黄体期:0.5-16.9 绝经期:15.9-54 妊娠期:0-1.5", "core_hormones", "化学发光法"),
+    ("fsh", "促卵泡刺激素（FSH）", ("促卵泡刺激素", "卵泡刺激素", "FSH"), "mIU/mL", "卵泡期:2.5-10.2 排卵期:3.4-33.40 黄体期:1.5-9.1 绝经期:23-116.3 妊娠期:<0.3", "core_hormones", "化学发光法"),
+    ("progesterone", "孕酮（PROG）", ("孕酮", "孕激素", "Progesterone", "PROG"), "ng/mL", "卵泡期:0-1.4 黄体期:3.34-25.56 绝经期:0-0.73 孕早期:11.2-90 孕中期:25.55-89.4 孕晚期:48.4-422.5", "core_hormones", "化学发光法"),
+    ("testosterone", "睾酮", ("睾酮", "总睾酮", "Testosterone"), "ng/mL", "0.08--0.35", "core_hormones", "化学发光法"),
+    ("cortisol", "皮质醇", ("皮质醇", "Cortisol", "CORT"), "nmol/L", "", "stress_metabolism", "化学发光法"),
+    ("shbg", "性激素结合球蛋白（SHBG）", ("性激素结合球蛋白", "SHBG"), "nmol/L", "女:20岁-49岁:22.52-134.90", "ovarian_reserve_binding", "化学发光法"),
+    ("amh", "抗缪勒氏管激素（AMH）", ("抗缪勒氏管激素", "抗穆勒氏管激素", "AMH"), "ng/mL", "0--4.25", "ovarian_reserve_binding", "化学发光法"),
+    ("prolactin", "泌乳素（PRL）", ("泌乳素", "催乳素", "PRL", "Prolactin"), "uIU/mL", "未妊娠:59-619 妊娠期:206-4420 绝经期:38-430", "ovarian_reserve_binding", "化学发光法"),
+    ("total_ige", "总IgE", ("总IgE", "总 IgE", "Total IgE", "IgE"), "IU/mL", "0--100", "immune_allergy", "化学发光法"),
+]
+P09_UNIT_PATTERN = r"mIU/mL|miu/ml|uIU/mL|uiu/ml|μIU/mL|µIU/mL|ng/mL|ng/ml|pg/mL|pg/ml|nmol/L|nmol/l|IU/mL|iu/ml|mIU/L|%"
+P09_METHOD_PATTERN = r"磁微粒化学发光法|化学发光法|免疫法|免疫比浊法|酶法|LC-MS/MS法|质谱法"
 
 
 def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") -> dict[str, Any]:
@@ -329,8 +382,14 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         "P04": P04_STRATEGY_VERSION,
         "P06": P06_STRATEGY_VERSION,
         "P07": P07_STRATEGY_VERSION,
+        "P08": P08_STRATEGY_VERSION,
+        "P09": P09_STRATEGY_VERSION,
+        "P10": P10_STRATEGY_VERSION,
+        "P11": P11_STRATEGY_VERSION,
         "P17": P17_STRATEGY_VERSION,
     }.get(package_code, STRATEGY_VERSION)
+    if pdf_path.suffix.lower() == ".json":
+        return parse_json_to_standard_ocr_json(pdf_path, package_code=package_code, strategy_version=strategy_version)
     reader = PdfReader(str(pdf_path))
     pages = []
     page_texts: list[str] = []
@@ -413,6 +472,15 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         }
     elif package_code == "P17":
         fields = extract_p17_fields(page_texts, structured_report)
+    elif package_code == "P10":
+        fields = extract_p10_fields(page_texts, structured_report)
+    elif package_code == "P11":
+        fields = extract_p11_fields(
+            page_texts=page_texts,
+            structured_report=structured_report,
+            add_field=add_field,
+            find_page=find_page,
+        )
     else:
         fields = extract_p02_fields(full_text, page_texts, structured_report)
     confidence = calculate_confidence(fields, pages)
@@ -470,6 +538,8 @@ def build_structured_report(
         return build_p05_structured_report(source_file, full_text, page_texts, page_ocr_data=page_ocr_data)
     if package_code == "P04":
         return build_p04_structured_report(source_file, full_text, page_texts, page_ocr_data=page_ocr_data or {})
+    if package_code == "P10":
+        return build_p10_structured_report(source_file, full_text, page_texts)
     if package_code == "P17":
         return build_p17_structured_report(source_file, full_text, page_texts)
     return {
@@ -563,6 +633,48 @@ def build_p17_structured_report(source_file: str, full_text: str, page_texts: li
             "approver": extract_staff(full_text, ["批准者", "批准人"]),
         },
         "p17_extracted_report": p17_report,
+    }
+
+
+def build_p10_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    submitting_unit = extract_hospital(full_text)
+    tests = extract_structured_tests(page_texts, package_code="P10")
+    return {
+        "report_id": report_id,
+        "patient_info": {
+            "name": extract_patient_name(full_text),
+            "gender": extract_gender(full_text),
+            "age": extract_age(full_text),
+            "specimen_condition": extract_specimen_condition(full_text),
+            "specimen_types": extract_specimen_types(page_texts),
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "patient_number": "",
+            "bed_number": "",
+            "department": "",
+            "doctor": "",
+            "clinical_diagnosis": "",
+            "phone": "",
+        },
+        "tests": tests,
+        "notes": "",
+        "additional_info": {
+            "sample_date": extract_date(page_texts, "采样时间") or extract_date(page_texts, "采样日期"),
+            "receive_date": extract_date(page_texts, "接收时间"),
+            "report_date": extract_date(page_texts, "报告时间") or extract_date(page_texts, "报告日期"),
+            "technician": extract_staff(full_text, ["检测者", "检验者"]),
+            "reviewer": extract_staff(full_text, ["审核者", "复核者"]),
+            "approver": extract_staff(full_text, ["批准人", "批准者"]),
+        },
+        "p10_extracted_report": {
+            "source_file": source_file,
+            "mode": "pdf-text-structured",
+            "report_info": {
+                "barcode": report_id,
+                "submitting_unit": submitting_unit,
+            },
+        },
     }
 
 
@@ -2424,8 +2536,10 @@ def extract_p17_fields(page_texts: list[str], structured_report: dict[str, Any])
         add_field(fields, "patient.age", "年龄", f"{patient_info['age']} 岁", 0.82, find_page(page_texts, str(patient_info["age"])))
     if patient_info["specimen_types"]:
         add_field(fields, "patient.specimen_types", "样本类型", "、".join(patient_info["specimen_types"]), 0.8, None)
+    add_field(fields, "sample.type", "样本信息", "分泌物", 0.9, None)
     add_field(fields, "patient.hospital", "送检单位", patient_info["hospital"], 0.8, find_page(page_texts, patient_info["hospital"]))
     add_field(fields, "report.assessment_date", "评估日期", additional_info["report_date"] or additional_info["sample_date"], 0.8, find_page(page_texts, additional_info["report_date"] or additional_info["sample_date"]))
+    add_field(fields, "report.method", "评估方法", "荧光PCR法", 0.9, None)
 
     for report in p17_report.get("reports", []):
         if not isinstance(report, dict):
@@ -2441,6 +2555,45 @@ def extract_p17_fields(page_texts: list[str], structured_report: dict[str, Any])
                 result_value = f"{result_value} CT={item.get('ct_value')}"
             add_field(fields, f"p17.{field_key}.result_display", label, result_value, 0.82, page)
             add_field(fields, f"p17.{field_key}.reference_range", label, item.get("reference_value") or item.get("reference_range"), 0.8, page)
+    return fields
+
+
+def extract_p10_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {})
+    additional_info = structured_report.get("additional_info", {})
+
+    add_field(fields, "report.barcode", "条形码", structured_report.get("report_id"), 0.88, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.report_id", "样本编号", structured_report.get("report_id"), 0.88, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.84, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.82, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in ("", None):
+        add_field(fields, "patient.age", "年龄", f"{patient_info.get('age')} 岁", 0.82, find_page(page_texts, str(patient_info.get("age") or "")))
+    submitting_unit = patient_info.get("submitting_unit") or patient_info.get("hospital")
+    add_field(fields, "patient.submitting_unit", "送检单位", submitting_unit, 0.82, find_page(page_texts, str(submitting_unit or "")))
+    add_field(fields, "sample.type", "样本信息", P10_SAMPLE_TYPE, 0.9, None)
+    add_field(fields, "sample.condition", "标本情况", patient_info.get("specimen_condition"), 0.82, find_page(page_texts, str(patient_info.get("specimen_condition") or "")))
+    add_field(fields, "report.assessment_date", "评估日期", additional_info.get("report_date") or additional_info.get("sample_date"), 0.82, None)
+    add_field(fields, "report.method", "评估方法", P10_METHOD, 0.9, None)
+
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        if not code:
+            continue
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        result = str(test.get("result") or "")
+        indicator = str(test.get("indicator") or "")
+        prefix = f"p10.indicators.{code}"
+        add_field(fields, f"{prefix}.result", label, result, 0.84, page)
+        add_field(fields, f"{prefix}.result_display", label, format_result_display(result, indicator), 0.84, page)
+        add_field(fields, f"{prefix}.reference_range", label, test.get("reference_range"), 0.8, page)
+        add_field(fields, f"{prefix}.unit", label, test.get("unit"), 0.8, page)
+        add_field(fields, f"{prefix}.method", label, test.get("method"), 0.8, page)
+        if test.get("gene_locus"):
+            add_field(fields, f"{prefix}.gene_locus", label, test.get("gene_locus"), 0.82, page)
+        if test.get("gene_type"):
+            add_field(fields, f"{prefix}.gene_type", label, test.get("gene_type"), 0.82, page)
     return fields
 
 
@@ -2618,6 +2771,8 @@ def extract_structured_tests(page_texts: list[str], package_code: str = "P02") -
         return extract_p04_structured_tests(page_texts)
     if package_code == "P06":
         return extract_p06_structured_tests(page_texts)
+    if package_code == "P10":
+        return extract_p10_structured_tests(page_texts)
     if package_code == "P17":
         return []
 
@@ -2684,6 +2839,493 @@ def extract_structured_tests(page_texts: list[str], package_code: str = "P02") -
             )
 
     return tests
+
+
+def extract_p10_structured_tests(page_texts: list[str]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for page_number, text in enumerate(page_texts, start=1):
+        specimen_type = extract_page_specimen_type(text) or "血清"
+        for parsed in _extract_p10_gene_tests(text, page_number):
+            dedupe_key = (str(parsed["item_code"]), str(parsed["gene_locus"]))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            tests.append(parsed)
+        for item_code, test_name in (
+            ("psa", "总前列腺特异性抗原"),
+            ("psa_free", "游离前列腺特异性抗原"),
+            ("psa_ratio", "游离/总前列腺特异性抗原比值"),
+            ("dhea", "脱氢表雄酮（DHEA）"),
+            ("inhibin_b", "抑制素B"),
+        ):
+            parsed = _extract_p10_lab_test(text, test_name, item_code=item_code)
+            if not parsed:
+                continue
+            dedupe_key = (item_code, str(parsed["result"]))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": specimen_type,
+                    "test_name": test_name,
+                    "item_code": item_code,
+                    "result": parsed["result"],
+                    "indicator": parsed["indicator"],
+                    "reference_range": parsed["reference_range"],
+                    "unit": parsed["unit"],
+                    "method": parsed["method"],
+                }
+            )
+    return tests
+
+
+def parse_json_to_standard_ocr_json(
+    json_path: Path,
+    package_code: str = "P02",
+    *,
+    strategy_version: str | None = None,
+) -> dict[str, Any]:
+    payload = json.loads(json_path.read_text(encoding="utf-8-sig"))
+    if package_code not in {"P10", "P11"}:
+        raise ValueError(f"{package_code} 暂不支持直接导入 JSON OCR 结果。")
+    if not _is_supported_reportmeta_payload(payload, package_code=package_code):
+        raise ValueError(f"{package_code} JSON OCR 结果缺少可支持的 reportMeta 结构。")
+
+    page_texts = [normalize_text(json.dumps(payload, ensure_ascii=False))]
+    pages = [
+        {
+            "page_number": 1,
+            "width": None,
+            "height": None,
+            "text_blocks": [
+                {
+                    "text": page_texts[0],
+                    "confidence": 0.99,
+                    "bbox": None,
+                }
+            ],
+        }
+    ]
+    strategy = strategy_version or (P11_STRATEGY_VERSION if package_code == "P11" else P10_STRATEGY_VERSION)
+    if package_code == "P11":
+        structured_report = build_structured_report(
+            json_path.name,
+            page_texts[0],
+            page_texts,
+            package_code="P11",
+        )
+        fields = extract_p11_fields(
+            page_texts=page_texts,
+            structured_report=structured_report,
+            add_field=add_field,
+            find_page=find_page,
+        )
+        provider = "p11-reportmeta-food-json-adapter"
+    else:
+        structured_report = build_p10_structured_report_from_reportmeta_json(json_path.name, payload)
+        fields = extract_p10_fields(page_texts, structured_report)
+        provider = "p10-reportmeta-json-adapter"
+    confidence = calculate_confidence(fields, pages)
+    warnings = build_warnings(fields, pages, structured_report, package_code=package_code)
+    result = {
+        "schema_version": "1.0",
+        "package_code": package_code,
+        "source_file": json_path.name,
+        "strategy_version": strategy,
+        "provider": provider,
+        "pages": pages,
+        "fields": fields,
+        "indicators": build_indicators(fields),
+        "structured_report": structured_report,
+        "warnings": warnings,
+        "created_at": now_iso(),
+        "debug": {
+            "comparison_key": f"{package_code}:{json_path.name}:{strategy}",
+            "field_keys": [field["field_key"] for field in fields],
+            "overall_confidence": confidence,
+            "structured_test_count": len(structured_report.get("tests", [])),
+        },
+    }
+    if package_code == "P11":
+        result["p11_extracted_report"] = structured_report.get("p11_extracted_report", {})
+    else:
+        result["p10_extracted_report"] = structured_report.get("p10_extracted_report", {})
+    return result
+
+
+def _is_p10_reportmeta_payload(payload: Any) -> bool:
+    return _is_reportmeta_sections_payload(payload)
+
+
+def _is_supported_reportmeta_payload(payload: Any, *, package_code: str) -> bool:
+    if _is_reportmeta_sections_payload(payload):
+        return True
+    return (
+        package_code == "P11"
+        and isinstance(payload, dict)
+        and isinstance(payload.get("reportMeta"), dict)
+        and isinstance(payload.get("foodIntoleranceResults"), list)
+    )
+
+
+def _is_reportmeta_sections_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("reportMeta"), dict)
+        and isinstance(payload.get("sections"), list)
+    )
+
+
+def _looks_like_json_ocr_file(path: Path, *, package_code: str) -> bool:
+    if package_code not in {"P10", "P11"}:
+        return False
+    if path.suffix.lower() == ".pdf":
+        return False
+    try:
+        with path.open("r", encoding="utf-8-sig") as handle:
+            prefix = handle.read(2048).lstrip()
+    except (OSError, UnicodeDecodeError):
+        return False
+    return prefix.startswith("{") and '"reportMeta"' in prefix and (
+        '"sections"' in prefix or (package_code == "P11" and '"foodIntoleranceResults"' in prefix)
+    )
+
+
+def build_p10_structured_report_from_reportmeta_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    report_meta = payload.get("reportMeta", {}) if isinstance(payload.get("reportMeta"), dict) else {}
+    laboratory_info = payload.get("laboratoryInfo", {}) if isinstance(payload.get("laboratoryInfo"), dict) else {}
+    sections = payload.get("sections", []) if isinstance(payload.get("sections"), list) else []
+    tests: list[dict[str, Any]] = []
+    specimen_types: list[str] = []
+    raw_sample_type = _first_text(laboratory_info.get("sampleType"))
+    if raw_sample_type:
+        specimen_types.append(raw_sample_type)
+
+    for section_index, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            continue
+        section_name = _first_text(section.get("sectionName"), section.get("section_title"))
+        section_type = _first_text(section.get("testType"), raw_sample_type)
+        if section_type and section_type not in specimen_types:
+            specimen_types.append(section_type)
+        for item in section.get("results", []):
+            if not isinstance(item, dict):
+                continue
+            gene = _first_text(item.get("gene"))
+            variant = _first_text(item.get("variant"), item.get("locus"), item.get("gene_locus"))
+            is_gene_result = bool(gene or variant or _first_text(item.get("genotype"), item.get("geneType")))
+            genotype = _first_text(
+                item.get("genotype"),
+                item.get("geneType"),
+                item.get("result") if is_gene_result else "",
+            )
+            if is_gene_result:
+                tests.append(
+                    {
+                        "page": section_index,
+                        "specimen_type": section_type or "基因检测",
+                        "test_name": gene or section_name,
+                        "item_code": _p10_item_code_from_gene_name(gene, title=section_name),
+                        "result": genotype,
+                        "indicator": "",
+                        "reference_range": "",
+                        "unit": "",
+                        "method": "基因检测",
+                        "gene_locus": variant,
+                        "gene_type": genotype,
+                        "interpretation": _first_text(section.get("interpretation")),
+                        "recommendations": section.get("recommendations") if isinstance(section.get("recommendations"), list) else [],
+                        "references": section.get("references") if isinstance(section.get("references"), list) else [],
+                        "section_title": section_name,
+                        "section_description": _first_text(section.get("description")),
+                    }
+                )
+                continue
+
+            test_name = _first_text(item.get("testItem"), item.get("test_item"), item.get("name"))
+            if not test_name:
+                continue
+            tests.append(
+                {
+                    "page": section_index,
+                    "specimen_type": section_type or raw_sample_type,
+                    "test_name": test_name,
+                    "item_code": _p10_item_code_from_test_name(test_name),
+                    "result": _first_text(item.get("result")),
+                    "indicator": _first_text(item.get("indicator"), item.get("status")),
+                    "reference_range": _first_text(item.get("referenceRange"), item.get("reference_range")),
+                    "unit": _first_text(item.get("unit")),
+                    "method": _first_text(item.get("method")),
+                    "section_title": section_name,
+                    "section_description": _first_text(section.get("description")),
+                    "note": _first_text(section.get("note")),
+                }
+            )
+
+    specimen_types = [value for value in dict.fromkeys(specimen_types) if value]
+    report_date = _first_text(laboratory_info.get("reportTime"), report_meta.get("reportDate"))
+    lab_name = _first_text(report_meta.get("labName"))
+    return {
+        "report_id": _first_text(report_meta.get("barcode"), Path(source_file).stem),
+        "patient_info": {
+            "name": _first_text(report_meta.get("patientName"), report_meta.get("name")),
+            "gender": _first_text(report_meta.get("gender")),
+            "age": _parse_age_number(_first_text(report_meta.get("age"))),
+            "specimen_condition": _first_text(laboratory_info.get("sampleStatus")),
+            "specimen_types": specimen_types,
+            "hospital": lab_name,
+            "submitting_unit": lab_name,
+            "patient_number": "",
+            "bed_number": "",
+            "department": "",
+            "doctor": "",
+            "clinical_diagnosis": _first_text(report_meta.get("reportSubtitle")),
+            "phone": "",
+        },
+        "tests": tests,
+        "notes": _first_text(laboratory_info.get("note")),
+        "additional_info": {
+            "sample_date": _first_text(laboratory_info.get("collectionTime")),
+            "receive_date": _first_text(laboratory_info.get("receiptTime")),
+            "report_date": report_date,
+            "technician": "",
+            "reviewer": "",
+            "approver": "",
+        },
+        "p10_extracted_report": {
+            "source_file": source_file,
+            "mode": "reportmeta-json",
+            "report_info": {
+                "title": _first_text(report_meta.get("reportName")),
+                "subtitle": _first_text(report_meta.get("reportSubtitle")),
+                "barcode": _first_text(report_meta.get("barcode")),
+                "date": _first_text(report_meta.get("reportDate")),
+                "submitting_unit": lab_name,
+                "name": _first_text(report_meta.get("patientName"), report_meta.get("name")),
+            },
+            "sections": sections,
+            "laboratory_info": laboratory_info,
+            "contact": {
+                "website": _first_text(report_meta.get("labWebsite")),
+                "phone": _first_text(report_meta.get("labPhone")),
+                "address": _first_text(report_meta.get("labAddress")),
+            },
+            "remarks": _first_text(laboratory_info.get("note")),
+        },
+    }
+
+
+def _p10_item_code_from_gene_name(gene: str, *, title: str = "") -> str:
+    gene_upper = _first_text(gene).upper()
+    if gene_upper == "CYP1A1":
+        return "cyp1a1"
+    if gene_upper == "ADH1B":
+        return "adh1b"
+    if gene_upper == "ALDH2":
+        return "aldh2"
+    if "酒精" in title and gene_upper not in {"ADH1B", "ALDH2"}:
+        return "aldh2"
+    if gene_upper in {"MCM6", "LCT"}:
+        return "lct"
+    if gene_upper == "CYP1A2":
+        return "cyp1a2"
+    return gene_upper.lower() or field_key_safe(title)
+
+
+def _p10_item_code_from_test_name(name: str) -> str:
+    normalized = re.sub(r"[\s_\-（）()]+", "", _first_text(name).lower())
+    if "游离/总前列腺特异" in normalized or "游离/总psa" in normalized or "f/tpsa" in normalized or "比值" == normalized:
+        return "psa_ratio"
+    if "游离前列腺特异" in normalized or "游离psa" in normalized or "fpsa" in normalized:
+        return "psa_free"
+    if "总前列腺特异" in normalized or "总psa" in normalized or normalized == "psa":
+        return "psa"
+    if "脱氢表雄酮" in normalized or "dhea" in normalized:
+        return "dhea"
+    if "抑制素b" in normalized:
+        return "inhibin_b"
+    return field_key_safe(normalized)
+
+
+def _extract_p10_gene_tests(text: str, page_number: int) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+
+    if "CYP1A1" in text:
+        for locus, genotype in re.findall(r"CYP1A1\s+(c\.[^\s]+)\s+([A-Z]{1,2})", text, flags=re.IGNORECASE):
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": "基因检测",
+                    "test_name": "CYP1A1",
+                    "item_code": "cyp1a1",
+                    "result": clean_value(genotype),
+                    "indicator": "",
+                    "reference_range": "",
+                    "unit": "",
+                    "method": "基因检测",
+                    "gene_locus": clean_value(locus),
+                    "gene_type": clean_value(genotype),
+                }
+            )
+
+    if "ADH1B" in text or "ALDH2" in text:
+        for gene, locus, genotype in re.findall(r"(ADH1B|ALDH2)\s+([cg]\.[^\s]+)\s+([A-Z]{1,2})", text, flags=re.IGNORECASE):
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": "基因检测",
+                    "test_name": clean_value(gene),
+                    "item_code": "adh1b" if gene.upper() == "ADH1B" else "aldh2",
+                    "result": clean_value(genotype),
+                    "indicator": "",
+                    "reference_range": "",
+                    "unit": "",
+                    "method": "基因检测",
+                    "gene_locus": clean_value(locus),
+                    "gene_type": clean_value(genotype),
+                }
+            )
+
+    if "MCM6" in text:
+        for locus, genotype in re.findall(r"MCM6\s+(c\.[^\s]+)\s+([A-Z]{2})", text, flags=re.IGNORECASE):
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": "基因检测",
+                    "test_name": "MCM6",
+                    "item_code": "lct",
+                    "result": clean_value(genotype),
+                    "indicator": "",
+                    "reference_range": "",
+                    "unit": "",
+                    "method": "基因检测",
+                    "gene_locus": clean_value(locus),
+                    "gene_type": clean_value(genotype),
+                }
+            )
+
+    if "CYP1A2" in text:
+        for locus, genotype in re.findall(r"CYP1A2\s+(c\.[^\s]+)\s+([A-Z]{2})", text, flags=re.IGNORECASE):
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": "基因检测",
+                    "test_name": "CYP1A2",
+                    "item_code": "cyp1a2",
+                    "result": clean_value(genotype),
+                    "indicator": "",
+                    "reference_range": "",
+                    "unit": "",
+                    "method": "基因检测",
+                    "gene_locus": clean_value(locus),
+                    "gene_type": clean_value(genotype),
+                }
+            )
+
+    return tests
+
+
+def _extract_p10_lab_test(text: str, test_name: str, *, item_code: str = "") -> dict[str, str] | None:
+    if item_code in {"psa", "psa_free", "psa_ratio"}:
+        parsed = _extract_p10_psa_stacked_test(text, item_code)
+        if parsed:
+            return parsed
+
+    match = re.search(
+        rf"{name_pattern(test_name)}\s+"
+        r"(?P<result>[0-9]+(?:\.[0-9]+)?)\s+"
+        r"(?P<method>ELISA法|化学发光法|计算法)\s+"
+        r"(?P<reference>.*?)(?P<unit>ng/mL|pg/mL|%)",
+        text,
+        flags=re.IGNORECASE | re.S,
+    )
+    if not match:
+        return None
+    reference_range = clean_value(match.group("reference"))
+    reference_range = re.sub(r"\s+", " ", reference_range).strip()
+    return {
+        "result": clean_value(match.group("result")),
+        "indicator": "",
+        "reference_range": reference_range,
+        "unit": clean_value(match.group("unit")),
+        "method": clean_value(match.group("method")),
+    }
+
+
+def _extract_p10_psa_stacked_test(text: str, item_code: str) -> dict[str, str] | None:
+    aliases = {
+        "psa": ("总前列腺特异性抗原", "总PSA", "tPSA"),
+        "psa_free": ("游离前列腺特异性抗原", "游离PSA", "fPSA"),
+        "psa_ratio": ("游离/总前列腺特异性抗原比值", "游离/总前列腺特异性抗原", "游离/总PSA", "f/tPSA"),
+    }.get(item_code, ())
+    if not aliases:
+        return None
+
+    match = None
+    for alias in aliases:
+        match = re.search(name_pattern(alias), text, flags=re.IGNORECASE)
+        if match:
+            break
+    if not match:
+        return None
+
+    next_positions = []
+    for other_code, other_aliases in {
+        "psa": ("总前列腺特异性抗原", "总PSA", "tPSA"),
+        "psa_free": ("游离前列腺特异性抗原", "游离PSA", "fPSA"),
+        "psa_ratio": ("游离/总前列腺特异性抗原比值", "游离/总前列腺特异性抗原", "游离/总PSA", "f/tPSA"),
+    }.items():
+        if other_code == item_code:
+            continue
+        for other_alias in other_aliases:
+            other_match = re.search(name_pattern(other_alias), text[match.end() :], flags=re.IGNORECASE)
+            if other_match:
+                next_positions.append(match.end() + other_match.start())
+    window_end = min(next_positions) if next_positions else match.end() + 160
+    window = text[match.end() : window_end]
+    row_match = re.search(
+        r"(?P<result>[0-9]+(?:\.[0-9]+)?)\s*"
+        r"(?P<indicator>[↑↓]|\+|-)?\s*"
+        r"(?P<reference>(?:≤|>=|≥|<=|<|>|＜|＞)\s*[0-9]+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)?",
+        window,
+    )
+    if not row_match:
+        return None
+
+    prefix = text[max(0, match.start() - 80) : match.start()]
+    unit = ""
+    unit_matches = re.findall(r"ng/mL|pg/mL|%", prefix, flags=re.IGNORECASE)
+    if unit_matches:
+        unit = unit_matches[-1]
+    if item_code == "psa_ratio":
+        unit = ""
+
+    method = ""
+    method_matches = re.findall(r"ELISA法|化学发光法|计算法", prefix, flags=re.IGNORECASE)
+    if method_matches:
+        method = method_matches[-1]
+    if item_code == "psa_ratio" and not method:
+        method = "计算法"
+
+    return {
+        "result": clean_value(row_match.group("result")),
+        "indicator": clean_value(row_match.group("indicator") or ""),
+        "reference_range": _p10_normalize_reference(row_match.group("reference") or ""),
+        "unit": clean_value(unit),
+        "method": clean_value(method),
+    }
+
+
+def _p10_normalize_reference(reference: str) -> str:
+    return (
+        clean_value(reference)
+        .replace("＜", "<")
+        .replace("＞", ">")
+        .replace(" ", "")
+    )
 
 
 def extract_p06_structured_tests(page_texts: list[str]) -> list[dict[str, Any]]:
@@ -3745,10 +4387,40 @@ def _extract_p17_micro_table_results(text: str) -> dict[str, tuple[str, str]]:
     for names, values in zip(P17_MICROBE_CT_BLOCK_NAMES, ct_blocks):
         for name, ct_value in zip(names, values):
             results[name] = (_p17_result_from_ct(ct_value), ct_value)
+    results.update(_extract_p17_tail_pathogen_results(normalized))
     for name in P17_MICROBE_TRAILING_NEGATIVE_NAMES:
         if _p17_find_name_in_text(normalized, name):
             results.setdefault(name, ("阴性", "-"))
     return results
+
+
+def _extract_p17_tail_pathogen_results(text: str) -> dict[str, tuple[str, str]]:
+    last_names = P17_MICROBE_TRAILING_NEGATIVE_NAMES[-3:]
+    first_index = _p17_find_first_name_index(text, last_names[0])
+    if first_index < 0:
+        return {}
+    tail = text[first_index:]
+    end_match = re.search(
+        r"检\s*测\s*方\s*法|审\s*核\s*者|检\s*验\s*者|报\s*告\s*时\s*间|网\s*址|电\s*话|公\s*司\s*地\s*址",
+        tail,
+    )
+    if end_match:
+        tail = tail[: end_match.start()]
+    tokens = _extract_p17_ct_tokens(tail)
+    if len(tokens) < len(last_names):
+        return {}
+    values = tokens[-len(last_names):]
+    return {name: (_p17_result_from_ct(value), value) for name, value in zip(last_names, values)}
+
+
+def _p17_find_first_name_index(text: str, name: str) -> int:
+    indexes = [
+        index
+        for candidate in (name, *P17_MICROBE_NAME_ALIASES.get(name, ()))
+        for index in [text.find(candidate)]
+        if index >= 0
+    ]
+    return min(indexes) if indexes else -1
 
 
 def _extract_p17_ct_tokens(text: str) -> list[str]:
@@ -4065,6 +4737,7 @@ def build_indicators(fields: list[dict[str, Any]]) -> dict[str, Any]:
             or key.startswith("p05.")
             or key.startswith("p06.")
             or key.startswith("p07.")
+            or key.startswith("p10.")
             or key.startswith("p17.")
         ):
             indicators[key] = {
@@ -4137,6 +4810,10 @@ def build_warnings(
             "p17.hpv_18.result_display": "HPV-18",
             "p17.阴道毛滴虫.result_display": "阴道毛滴虫",
         }
+    elif package_code == "P11":
+        required = build_p11_warning_requirements()
+    elif package_code == "P11":
+        required = build_p11_warning_requirements()
     else:
         required = {
             "patient.name": "姓名",
@@ -4144,6 +4821,8 @@ def build_warnings(
             "patient.age": "年龄",
             "p02.calprotectin.result_display": "粪便钙卫蛋白检测结果",
         }
+    if package_code == "P11":
+        required = build_p11_warning_requirements()
     existing = {field["field_key"] for field in fields}
     for field_key, label in required.items():
         if field_key not in existing:
@@ -4196,6 +4875,8 @@ def build_warnings(
     if missing_staff:
         warnings.append("未从PDF文本层识别到检测者/审核者/批准人；如需签名信息，请使用图像OCR或人工补录。")
 
+    if package_code == "P11":
+        warnings.extend(extract_p11_warning_messages(structured_report))
     low_confidence = list(dict.fromkeys(field["label"] for field in fields if field["confidence"] < 0.75))
     if low_confidence:
         warnings.append("低置信度字段需人工复核：" + "、".join(low_confidence))
@@ -4211,8 +4892,14 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         "P04": P04_STRATEGY_VERSION,
         "P06": P06_STRATEGY_VERSION,
         "P07": P07_STRATEGY_VERSION,
+        "P08": P08_STRATEGY_VERSION,
+        "P09": P09_STRATEGY_VERSION,
+        "P10": P10_STRATEGY_VERSION,
+        "P11": P11_STRATEGY_VERSION,
         "P17": P17_STRATEGY_VERSION,
     }.get(package_code, STRATEGY_VERSION)
+    if pdf_path.suffix.lower() == ".json" or _looks_like_json_ocr_file(pdf_path, package_code=package_code):
+        return parse_json_to_standard_ocr_json(pdf_path, package_code=package_code, strategy_version=strategy_version)
     reader = PdfReader(str(pdf_path))
     pages: list[dict[str, Any]] = []
     page_texts: list[str] = []
@@ -4269,8 +4956,21 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         fields = extract_p06_fields(page_texts, structured_report)
     elif package_code == "P07":
         fields = extract_p07_fields(page_texts, structured_report)
+    elif package_code == "P08":
+        fields = extract_p08_fields(page_texts, structured_report)
+    elif package_code == "P09":
+        fields = extract_p09_fields(page_texts, structured_report)
     elif package_code == "P17":
         fields = extract_p17_fields(page_texts, structured_report)
+    elif package_code == "P10":
+        fields = extract_p10_fields(page_texts, structured_report)
+    elif package_code == "P11":
+        fields = extract_p11_fields(
+            page_texts=page_texts,
+            structured_report=structured_report,
+            add_field=add_field,
+            find_page=find_page,
+        )
     else:
         fields = extract_p02_fields(full_text, page_texts, structured_report)
 
@@ -4308,6 +5008,14 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         result["p06_extracted_report"] = structured_report.get("p06_extracted_report", {"tests": structured_report.get("tests", [])})
     if package_code == "P07":
         result["p07_extracted_report"] = structured_report.get("p07_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P08":
+        result["p08_extracted_report"] = structured_report.get("p08_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P09":
+        result["p09_extracted_report"] = structured_report.get("p09_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P10":
+        result["p10_extracted_report"] = structured_report.get("p10_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P11":
+        result["p11_extracted_report"] = structured_report.get("p11_extracted_report", {"tests": structured_report.get("tests", [])})
     if package_code == "P17":
         result["p17_extracted_report"] = structured_report.get("p17_extracted_report", {})
     return result
@@ -4331,6 +5039,27 @@ def build_structured_report(
         return build_p06_structured_report(source_file, full_text, page_texts)
     if package_code == "P07":
         return build_p07_structured_report(source_file, full_text, page_texts)
+    if package_code == "P08":
+        return build_p08_structured_report(source_file, full_text, page_texts)
+    if package_code == "P09":
+        return build_p09_structured_report(source_file, full_text, page_texts)
+    if package_code == "P10":
+        return build_p10_structured_report(source_file, full_text, page_texts)
+    if package_code == "P11":
+        return build_p11_structured_report(
+            source_file=source_file,
+            full_text=full_text,
+            page_texts=page_texts,
+            extract_report_id=extract_report_id,
+            extract_patient_name=extract_patient_name,
+            extract_gender=extract_gender,
+            extract_age=extract_age,
+            extract_specimen_condition=extract_specimen_condition,
+            extract_specimen_types=extract_specimen_types,
+            extract_hospital=extract_hospital,
+            extract_date=extract_date,
+            extract_staff=extract_staff,
+        )
     if package_code == "P17":
         return build_p17_structured_report(source_file, full_text, page_texts)
     return {
@@ -4724,11 +5453,13 @@ def _p07_parse_json_payload(full_text: str) -> dict[str, Any]:
 
 def _build_p07_structured_report_from_payload(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
     report_info = payload.get("report_info", {}) if isinstance(payload.get("report_info"), dict) else {}
-    page_1 = payload.get("page_1", {}) if isinstance(payload.get("page_1"), dict) else {}
-    page_2 = payload.get("page_2", {}) if isinstance(payload.get("page_2"), dict) else {}
-    page_3 = payload.get("page_3", {}) if isinstance(payload.get("page_3"), dict) else {}
+    pages_by_number = _p07_payload_pages_by_number(payload)
+    page_1 = pages_by_number.get(1, {})
+    page_2 = pages_by_number.get(2, {})
+    page_3 = pages_by_number.get(3, {})
     tests = _p07_tests_from_json_payload(payload)
-    gene_basic = page_3.get("basic_info", {}) if isinstance(page_3.get("basic_info"), dict) else {}
+    gene_page = _p07_payload_page_by_role(payload, "gene") or page_3
+    gene_basic = gene_page.get("basic_info", {}) if isinstance(gene_page.get("basic_info"), dict) else {}
     name = _first_text(report_info.get("patient_name"), gene_basic.get("name"))
     gender = _first_text(report_info.get("gender"), gene_basic.get("gender"))
     age = report_info.get("age") if report_info.get("age") not in (None, "") else gene_basic.get("age")
@@ -4755,9 +5486,9 @@ def _build_p07_structured_report_from_payload(source_file: str, payload: dict[st
         "clinical_diagnosis": "",
     }
     additional_info = {
-        "sample_date": _first_text(page_1.get("sample_date"), page_2.get("sample_date"), gene_basic.get("sample_date")),
-        "receive_date": _first_text(page_1.get("receive_date"), page_2.get("receive_date"), gene_basic.get("receive_date")),
-        "report_date": _max_date_text([page_1.get("report_date"), page_2.get("report_date")]),
+        "sample_date": _first_text(*[page.get("sample_date") for page in pages_by_number.values()], gene_basic.get("sample_date")),
+        "receive_date": _first_text(*[page.get("receive_date") for page in pages_by_number.values()], gene_basic.get("receive_date")),
+        "report_date": _max_date_text([page.get("report_date") for page in pages_by_number.values()]),
         "technician": "",
         "reviewer": "",
         "approver": "",
@@ -4809,38 +5540,85 @@ def _build_p07_structured_report_from_payload(source_file: str, payload: dict[st
 
 def _p07_tests_from_json_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
     report_info = payload.get("report_info", {}) if isinstance(payload.get("report_info"), dict) else {}
-    page_1 = payload.get("page_1", {}) if isinstance(payload.get("page_1"), dict) else {}
-    page_2 = payload.get("page_2", {}) if isinstance(payload.get("page_2"), dict) else {}
-    page_3 = payload.get("page_3", {}) if isinstance(payload.get("page_3"), dict) else {}
     specimen_type = _first_text(report_info.get("specimen_type")) or "血清"
     tests: list[dict[str, Any]] = []
-    page_1_items = page_1.get("test_items", []) if isinstance(page_1.get("test_items"), list) else []
-    page_2_items = page_2.get("test_items", []) if isinstance(page_2.get("test_items"), list) else []
-    for raw_item in page_1_items:
-        if isinstance(raw_item, dict):
-            tests.append(_p07_json_test_item(raw_item, page=1, group="fibrosis", specimen_type=specimen_type))
-    for raw_item in page_2_items:
-        if isinstance(raw_item, dict):
-            tests.append(_p07_json_test_item(raw_item, page=2, group="liver_function", specimen_type=specimen_type))
-    gene_result = page_3.get("test_result", {}) if isinstance(page_3.get("test_result"), dict) else {}
-    basic_info = page_3.get("basic_info", {}) if isinstance(page_3.get("basic_info"), dict) else {}
-    if gene_result:
-        tests.append(
-            {
-                "page": 3,
-                "specimen_type": _first_text(basic_info.get("specimen_type")) or "EDTA抗凝全血",
-                "test_name": "ALDH2 c.1510G>A",
-                "item_code": "aldh2",
-                "group": "gene",
-                "result": _first_text(gene_result.get("result")),
-                "indicator": _first_text(gene_result.get("indication")),
-                "reference_range": "",
-                "unit": "",
-                "method": _first_text(page_3.get("method")) or "测序法",
-                "locus": _first_text(gene_result.get("gene_locus")) or "ALDH2 c.1510G>A",
-            }
-        )
+    for fallback_number, page in enumerate(_p07_payload_pages(payload), start=1):
+        page_number = _p07_payload_page_number(page, fallback_number)
+        page_specimen_type = _first_text(page.get("specimen_type"), specimen_type) or specimen_type
+        page_group = _p07_payload_page_group(page)
+        page_items = page.get("test_items", []) if isinstance(page.get("test_items"), list) else []
+        if page_items:
+            group = page_group if page_group in {"fibrosis", "liver_function"} else "liver_function"
+            for raw_item in page_items:
+                if isinstance(raw_item, dict):
+                    tests.append(_p07_json_test_item(raw_item, page=page_number, group=group, specimen_type=page_specimen_type))
+        gene_result = page.get("test_result", {}) if isinstance(page.get("test_result"), dict) else {}
+        basic_info = page.get("basic_info", {}) if isinstance(page.get("basic_info"), dict) else {}
+        if gene_result or page_group == "gene":
+            tests.append(
+                {
+                    "page": page_number,
+                    "specimen_type": _first_text(page.get("specimen_type"), basic_info.get("specimen_type")) or "EDTA抗凝全血",
+                    "test_name": "ALDH2 c.1510G>A",
+                    "item_code": "aldh2",
+                    "group": "gene",
+                    "result": _first_text(gene_result.get("result")),
+                    "indicator": _first_text(gene_result.get("indication")),
+                    "reference_range": "",
+                    "unit": "",
+                    "method": _first_text(page.get("method")) or "测序法",
+                    "locus": _first_text(gene_result.get("gene_locus")) or "ALDH2 c.1510G>A",
+                }
+            )
     return tests
+
+
+def _p07_payload_pages(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    pages = payload.get("pages")
+    if isinstance(pages, list):
+        return [page for page in pages if isinstance(page, dict)]
+    result: list[dict[str, Any]] = []
+    for index in range(1, 6):
+        page = payload.get(f"page_{index}")
+        if isinstance(page, dict):
+            page.setdefault("page_number", index)
+            result.append(page)
+    return result
+
+
+def _p07_payload_pages_by_number(payload: dict[str, Any]) -> dict[int, dict[str, Any]]:
+    return {
+        _p07_payload_page_number(page, fallback): page
+        for fallback, page in enumerate(_p07_payload_pages(payload), start=1)
+    }
+
+
+def _p07_payload_page_number(page: dict[str, Any], fallback: int) -> int:
+    value = page.get("page_number", page.get("page", fallback))
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _p07_payload_page_by_role(payload: dict[str, Any], role: str) -> dict[str, Any]:
+    for page in _p07_payload_pages(payload):
+        if _p07_payload_page_group(page) == role:
+            return page
+    return {}
+
+
+def _p07_payload_page_group(page: dict[str, Any]) -> str:
+    title = _first_text(page.get("report_title"))
+    if page.get("test_result") or "ALDH2" in title or "乙醛脱氢酶" in title:
+        return "gene"
+    page_items = page.get("test_items", []) if isinstance(page.get("test_items"), list) else []
+    names = " ".join(_first_text(item.get("test_name")) for item in page_items if isinstance(item, dict))
+    if any(token in names for token in ("前胶原", "胶原", "层粘连蛋白", "透明质酸", "PC-III", "CIV", "LN", "HA")):
+        return "fibrosis"
+    if page_items:
+        return "liver_function"
+    return ""
 
 
 def _p07_json_test_item(raw_item: dict[str, Any], *, page: int, group: str, specimen_type: str) -> dict[str, Any]:
@@ -4958,66 +5736,445 @@ def extract_p07_fields(page_texts: list[str], structured_report: dict[str, Any])
     return fields
 
 
-def _p07_extract_fibrosis_stacked_layout(text: str, page_number: int) -> list[dict[str, Any]]:
-    if "Ⅲ型前胶原" not in text and "III型前胶原" not in text and "PC-III" not in text:
+def build_p08_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    payload = _p08_parse_json_payload(full_text)
+    if payload:
+        return _build_p08_structured_report_from_payload(source_file, payload)
+
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    tests = extract_p08_structured_tests(page_texts)
+    submitting_unit = extract_hospital(full_text)
+    specimen_condition = extract_specimen_condition(full_text)
+    specimen_types = _p08_specimen_types(extract_specimen_types(page_texts), tests)
+    patient_info = {
+        "name": extract_patient_name(full_text),
+        "gender": extract_gender(full_text),
+        "age": extract_age(full_text),
+        "phone": _p07_extract_phone(full_text),
+        "specimen_condition": specimen_condition,
+        "specimen_types": specimen_types,
+        "hospital": submitting_unit,
+        "submitting_unit": submitting_unit,
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": _p07_clean_clinical_diagnosis(_p07_extract_after_label(full_text, "临床诊断")),
+    }
+    report_info = {
+        "report_title": "合肥安为康医学检验实验室检验报告单",
+        "barcode": report_id,
+        "submitting_unit": submitting_unit,
+        "patient_name": patient_info["name"],
+        "gender": patient_info["gender"],
+        "age": patient_info["age"],
+        "specimen_status": specimen_condition,
+        "specimen_type": "、".join(specimen_types),
+    }
+    additional_info = {
+        "sample_date": _p07_extract_date(page_texts, "采样日期"),
+        "receive_date": _p07_extract_date(page_texts, "接收时间"),
+        "report_date": _p07_extract_date(page_texts, "报告时间"),
+        "technician": extract_staff(full_text, ["检测者", "检验者"]),
+        "reviewer": extract_staff(full_text, ["审核者", "复核者"]),
+        "approver": extract_staff(full_text, ["批准人", "批准者"]),
+    }
+    cardiovascular_tests = [test for test in tests if str(test.get("group") or "") == "cardiovascular"]
+    raas_tests = [test for test in tests if str(test.get("group") or "") == "raas"]
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": "",
+        "additional_info": additional_info,
+        "p08_extracted_report": {
+            "report_info": report_info,
+            "cardiovascular": [_p08_test_export_item(test) for test in cardiovascular_tests],
+            "raas": [_p08_test_export_item(test) for test in raas_tests],
+        },
+    }
+
+
+def _p08_parse_json_payload(full_text: str) -> dict[str, Any]:
+    text = str(full_text or "").strip()
+    if not text:
+        return {}
+    candidates = [text]
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        candidate = text[start : end + 1]
+        if candidate not in candidates:
+            candidates.append(candidate)
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if (
+            isinstance(payload, dict)
+            and isinstance(payload.get("report_info"), dict)
+            and isinstance(payload.get("pages"), list)
+        ):
+            return payload
+    return {}
+
+
+def _build_p08_structured_report_from_payload(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    report_info = payload.get("report_info", {}) if isinstance(payload.get("report_info"), dict) else {}
+    pages = _p08_payload_pages(payload)
+    tests = _p08_tests_from_json_payload(payload)
+    if not any(str(test.get("item_code") or "") == "angiotensin_ratio" for test in tests):
+        ratio_test = _p08_calculate_ratio_test(tests)
+        if ratio_test:
+            tests.append(ratio_test)
+
+    sample_dates = [_first_text(page.get("sample_date")) for page in pages]
+    receive_dates = [_first_text(page.get("receive_date")) for page in pages]
+    report_dates = [_first_text(page.get("report_date")) for page in pages]
+    sample_dates = [value for value in sample_dates if value]
+    receive_dates = [value for value in receive_dates if value]
+    specimen_types = _p08_specimen_types([page.get("specimen_type", "") for page in pages], tests)
+    submitting_unit = _first_text(report_info.get("submitting_unit"))
+    name = _first_text(report_info.get("patient_name"), report_info.get("name"))
+    gender = _first_text(report_info.get("gender"))
+    age = report_info.get("age") if report_info.get("age") not in (None, "") else ""
+    patient_info = {
+        "name": name,
+        "gender": gender,
+        "age": age,
+        "phone": "",
+        "specimen_condition": _first_text(report_info.get("specimen_status")),
+        "specimen_types": specimen_types,
+        "hospital": submitting_unit,
+        "submitting_unit": submitting_unit,
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": "",
+    }
+    additional_info = {
+        "sample_date": min(sample_dates) if sample_dates else "",
+        "receive_date": min(receive_dates) if receive_dates else "",
+        "report_date": _max_date_text(report_dates),
+        "technician": "",
+        "reviewer": "",
+        "approver": "",
+    }
+    cardiovascular_tests = [test for test in tests if str(test.get("group") or "") == "cardiovascular"]
+    raas_tests = [test for test in tests if str(test.get("group") or "") == "raas"]
+    return {
+        "report_id": _first_text(report_info.get("barcode"), Path(source_file).stem),
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _p08_payload_notes(pages),
+        "additional_info": additional_info,
+        "p08_extracted_report": {
+            "report_info": {
+                "barcode": _first_text(report_info.get("barcode"), Path(source_file).stem),
+                "submitting_unit": submitting_unit,
+                "patient_name": name,
+                "gender": gender,
+                "age": age,
+                "specimen_status": _first_text(report_info.get("specimen_status")),
+                "specimen_type": "、".join(specimen_types),
+            },
+            "pages": _p08_export_payload_pages(pages, tests),
+            "cardiovascular": [_p08_test_export_item(test) for test in cardiovascular_tests],
+            "raas": [_p08_test_export_item(test) for test in raas_tests],
+        },
+    }
+
+
+def _p08_payload_pages(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    pages = payload.get("pages", [])
+    if not isinstance(pages, list):
         return []
+    return [page for page in pages if isinstance(page, dict)]
+
+
+def _p08_tests_from_json_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
     tests: list[dict[str, Any]] = []
-    pc_match = re.search(r"(?:Ⅲ型前胶原|III型前胶原|III 型前胶原)\(?(?:PC-III)?\)?\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<reference>≤\s*[0-9]+(?:\.[0-9]+)?)", text)
-    if pc_match:
-        tests.append(_p07_make_test(page_number, "fibrosis", "pc_iii", "III型前胶原（PC-III）", pc_match.group("result"), pc_match.group("reference").replace(" ", ""), "ng/mL", "化学发光法"))
-    if "Ⅳ型胶原" in text or "IV型胶原" in text or "CIV" in text:
-        tests.append(_p07_make_test(page_number, "fibrosis", "civ", "IV型胶原（CIV）", "", "", "ng/mL", "化学发光法"))
-    if "层粘连蛋白" in text or "层黏连蛋白" in text or "LN" in text:
-        ln_match = re.search(r"ug/L\s+化学发光法\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<reference>≤\s*[0-9]+(?:\.[0-9]+)?)", text)
-        if ln_match:
-            tests.append(_p07_make_test(page_number, "fibrosis", "ln", "层粘连蛋白（LN）", ln_match.group("result"), ln_match.group("reference").replace(" ", ""), "ug/L", "化学发光法"))
-    if "透明质酸" in text or "HA" in text:
-        ha_match = re.search(r"ng/mL\s+化学发光法\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<reference>≤\s*[0-9]+(?:\.[0-9]+)?)", text)
-        if ha_match:
-            tests.append(_p07_make_test(page_number, "fibrosis", "ha", "透明质酸（HA）", ha_match.group("result"), ha_match.group("reference").replace(" ", ""), "ng/mL", "化学发光法"))
+    for page_index, page in enumerate(_p08_payload_pages(payload), start=1):
+        page_number = int(page.get("page_number") or page_index)
+        specimen_type = _first_text(page.get("specimen_type"))
+        items = page.get("test_items", [])
+        if not isinstance(items, list):
+            continue
+        for raw_item in items:
+            if not isinstance(raw_item, dict):
+                continue
+            test = _p08_json_test_item(raw_item, page=page_number, specimen_type=specimen_type)
+            if test:
+                tests.append(test)
     return tests
 
 
-def _p07_extract_liver_stacked_layout(text: str, page_number: int) -> list[dict[str, Any]]:
-    if "前白蛋白(PAB)" not in text or "天门冬氨酸氨基转移酶(AST)" not in text or "白/球蛋白比" not in text:
-        return []
+def _p08_json_test_item(raw_item: dict[str, Any], *, page: int, specimen_type: str) -> dict[str, Any] | None:
+    source_name = _first_text(raw_item.get("test_name"))
+    code = _p08_code_for_json_name(source_name)
+    if not code:
+        return None
+    definition = _p08_definition_for_code(code)
+    default_unit = definition.get("unit", "")
+    default_method = definition.get("method", "")
+    default_reference = definition.get("reference", "")
+    raw_reference = _first_text(raw_item.get("reference_range"))
+    if code in {"angiotensin_i", "angiotensin_i_4c", "aldosterone_renin_ratio"} and not raw_reference:
+        default_reference = ""
+    return {
+        "page": page,
+        "specimen_type": specimen_type,
+        "test_name": source_name or definition.get("name", ""),
+        "item_code": code,
+        "group": _p08_group_for_code(code),
+        "result": _p08_result_text(raw_item.get("result")),
+        "indicator": _first_text(raw_item.get("indicator")),
+        "reference_range": raw_reference or default_reference,
+        "unit": _p08_normalize_unit(_first_text(raw_item.get("unit")) or default_unit),
+        "method": _first_text(raw_item.get("method")) or default_method,
+    }
+
+
+def _p08_code_for_json_name(name: str) -> str:
+    compact = re.sub(r"\s+", "", str(name or "")).replace("（", "(").replace("）", ")").replace("／", "/")
+    lower = compact.lower()
+    if not compact:
+        return ""
+    if "nt-probnp" in lower or "ntprobnp" in lower or "利钠肽" in compact:
+        return "nt_probnp"
+    if "d-二聚体" in lower or "d二聚体" in lower or "d-d" in lower or "d-dimer" in lower:
+        return "d_dimer"
+    if "游离脂肪酸" in compact or "ffa" in lower:
+        return "ffa"
+    if ("醛固酮" in compact and "肾素" in compact) or "arr" in lower:
+        return "aldosterone_renin_ratio"
+    if "血管紧张素" in compact and (("ii/i" in lower) or ("Ⅱ/Ⅰ" in compact)):
+        return "angiotensin_ratio"
+    if "血管紧张素ii" in lower or "血管紧张素Ⅱ" in compact or "angii" in lower or "angiotensinii" in lower:
+        return "angiotensin_ii"
+    if "血管紧张素i" in lower or "血管紧张素Ⅰ" in compact or "angiotensini" in lower or "angi" in lower:
+        if "4℃" in compact or "4°c" in lower or "4c" in lower:
+            return "angiotensin_i_4c"
+        return "angiotensin_i"
+    if "血浆肾素活性" in compact or "肾素活性" in compact or "renin" in lower or lower == "pra":
+        return "renin"
+    if "醛固酮" in compact or "aldosterone" in lower or "aldo" in lower:
+        return "aldosterone"
+    return ""
+
+
+def _p08_definition_for_code(code: str) -> dict[str, str]:
+    for item_code, output_name, _, default_unit, default_reference, group, default_method in P08_TEST_DEFINITIONS:
+        if item_code == code:
+            return {
+                "name": output_name,
+                "unit": default_unit,
+                "reference": default_reference,
+                "group": group,
+                "method": default_method,
+            }
+    return P08_SUPPLEMENTAL_TEST_DEFINITIONS.get(code, {"name": code, "unit": "", "reference": "", "group": "raas", "method": ""})
+
+
+def _p08_group_for_code(code: str) -> str:
+    return "cardiovascular" if code in {"nt_probnp", "d_dimer", "ffa"} else "raas"
+
+
+def _p08_normalize_unit(unit: str) -> str:
+    text = str(unit or "").strip()
+    lower = text.lower().replace("μ", "u").replace("µ", "u")
+    if lower == "pg/ml":
+        return "pg/mL"
+    if lower == "ng/ml":
+        return "ng/mL"
+    if lower in {"ng/ml/hr", "ng/ml/h"}:
+        return "ng/mL/h"
+    if lower in {"ug/ml", "μg/ml", "µg/ml"}:
+        return "ug/mL"
+    if lower == "mg/l feu":
+        return "mg/L FEU"
+    return text
+
+
+def _p08_result_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    return str(value).strip()
+
+
+def _p08_payload_notes(pages: list[dict[str, Any]]) -> str:
+    notes: list[str] = []
+    for page in pages:
+        remark = _first_text(page.get("remark"))
+        if remark and remark not in notes:
+            notes.append(remark)
+    return " ".join(notes)
+
+
+def _p08_export_payload_pages(pages: list[dict[str, Any]], tests: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    exported: list[dict[str, Any]] = []
+    for index, page in enumerate(pages, start=1):
+        page_number = int(page.get("page_number") or index)
+        exported.append(
+            {
+                "page_number": page_number,
+                "specimen_type": _first_text(page.get("specimen_type")),
+                "test_items": [
+                    _p08_test_export_item(test)
+                    for test in tests
+                    if int(test.get("page") or 0) == page_number and str(test.get("item_code") or "") != "angiotensin_ratio"
+                ],
+                "remark": _first_text(page.get("remark")),
+                "sample_date": _first_text(page.get("sample_date")),
+                "receive_date": _first_text(page.get("receive_date")),
+                "report_date": _first_text(page.get("report_date")),
+            }
+        )
+    return exported
+
+
+def extract_p08_structured_tests(page_texts: list[str]) -> list[dict[str, Any]]:
     tests: list[dict[str, Any]] = []
-    alt_match = re.search(r"(?P<reference>9--50)\s*U/L\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*前白蛋白", text)
-    pab_match = re.search(r"前白蛋白\(PAB\)\s*mg/L\s*(?P<reference>200--430)\s*(?P<result>[0-9]+(?:\.[0-9]+)?)", text)
-    if alt_match:
-        tests.append(_p07_make_test(page_number, "liver_function", "alt", "丙氨酸氨基转移酶(ALT)", alt_match.group("result"), alt_match.group("reference"), "U/L", "肝功能检测"))
-    if pab_match:
-        tests.append(_p07_make_test(page_number, "liver_function", "pab", "前白蛋白(PAB)", pab_match.group("result"), pab_match.group("reference"), "mg/L", "肝功能检测"))
-
-    value_match = re.search(
-        r"U/L\s+↑\s+g/L\s+g/L\s+g/L\s+umol/L\s+umol/L\s+umol/L\s+U/L\s+U/L\s+U/L\s+umol/L\s+(?P<values>.*?)\s+≤10\.0",
-        text,
-    )
-    values = re.findall(r"[0-9]+(?:\.[0-9]+)?", value_match.group("values")) if value_match else []
-    if len(values) < 13:
-        return tests
-
-    ordered = [
-        ("ast", "天门冬氨酸氨基转移酶(AST)", values[0], "15--40", "U/L", ""),
-        ("ast_alt_ratio", "谷草谷丙比", values[1], "", "", "↑" if "↑" in text else ""),
-        ("tp", "总蛋白(TP)", values[2], "65--85", "g/L", ""),
-        ("alb", "白蛋白(ALB)", values[3], "40--55", "g/L", ""),
-        ("glo", "球蛋白(GLB)", values[4], "20--40", "g/L", ""),
-        ("ag_ratio", "白/球蛋白比", values[5], "1.2--2.4", "", ""),
-        ("tbil", "总胆红素(T-BIL)", values[6], "≤23.0", "umol/L", ""),
-        ("dbil", "直接胆红素(D-BIL)", values[7], "≤6.0", "umol/L", ""),
-        ("ibil", "间接胆红素(I-BIL)", values[8], "≤16.16", "umol/L", ""),
-        ("alp", "碱性磷酸酶(ALP)", values[9], "45--125", "U/L", ""),
-        ("ggt", "γ-谷氨酰转肽酶(GGT)", values[10], "10.00--60.00", "U/L", ""),
-        ("che", "胆碱酯酶(CHE)", values[11], "5000--12000", "U/L", ""),
-        ("tba", "总胆汁酸(TBA)", values[12], "≤10.0", "umol/L", ""),
-    ]
-    for code, name, result, reference, unit, indicator in ordered:
-        tests.append(_p07_make_test(page_number, "liver_function", code, name, result, reference, unit, "肝功能检测", indicator=indicator))
+    seen_codes: set[str] = set()
+    for page_number, text in enumerate(page_texts, start=1):
+        for item_code, output_name, aliases, default_unit, default_reference, group, default_method in P08_TEST_DEFINITIONS:
+            if item_code in seen_codes:
+                continue
+            parsed = _p08_parse_test_after_name(
+                text,
+                aliases,
+                default_unit=default_unit,
+                default_reference=default_reference,
+                default_method=default_method,
+            )
+            if not parsed:
+                continue
+            tests.append(
+                _p08_make_test(
+                    page_number,
+                    group,
+                    item_code,
+                    output_name,
+                    parsed["result"],
+                    parsed["reference_range"],
+                    parsed["unit"],
+                    parsed["method"],
+                    indicator=parsed["indicator"],
+                )
+            )
+            seen_codes.add(item_code)
+    ratio_test = _p08_calculate_ratio_test(tests)
+    if ratio_test and "angiotensin_ratio" not in seen_codes:
+        tests.append(ratio_test)
     return tests
 
 
-def _p07_make_test(
+def extract_p08_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {})
+    additional_info = structured_report.get("additional_info", {})
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.88, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.86, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        age_text = f"{patient_info['age']}岁" if str(patient_info["age"]).isdigit() else str(patient_info["age"])
+        add_field(fields, "patient.age", "年龄", age_text, 0.86, find_page(page_texts, str(patient_info["age"])))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone"), 0.8, find_page(page_texts, str(patient_info.get("phone") or "")))
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis"), 0.75, find_page(page_texts, str(patient_info.get("clinical_diagnosis") or "")))
+    submitting_unit = patient_info.get("submitting_unit") or patient_info.get("hospital") or ""
+    add_field(fields, "patient.submitting_unit", "送检单位", submitting_unit, 0.84, find_page(page_texts, str(submitting_unit or "")))
+    add_field(fields, "sample.type", "样本信息", "血清、血浆、全血", 0.9, None)
+    add_field(fields, "sample.condition", "标本情况", patient_info.get("specimen_condition"), 0.82, find_page(page_texts, str(patient_info.get("specimen_condition") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.assessment_date", "评估日期", additional_info.get("report_date") or additional_info.get("sample_date"), 0.84, None)
+    add_field(fields, "report.method", "评估方法", "化学发光&免疫比浊", 0.9, None)
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        group = str(test.get("group") or "")
+        if group not in {"cardiovascular", "raas"}:
+            continue
+        prefix_group = "cardiovascular" if group == "cardiovascular" else "raas"
+        prefix = f"p08.{prefix_group}.{code}"
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        result = str(test.get("result") or "")
+        indicator = str(test.get("indicator") or "")
+        status = _p08_status_from_test(test)
+        add_field(fields, f"{prefix}.result", label, result, 0.86, page)
+        add_field(fields, f"{prefix}.result_display", label, format_result_display(result, indicator), 0.86, page)
+        add_field(fields, f"{prefix}.reference_range", label, test.get("reference_range"), 0.84, page)
+        add_field(fields, f"{prefix}.unit", label, test.get("unit"), 0.84, page)
+        add_field(fields, f"{prefix}.status", label, status, 0.84, page)
+        add_field(fields, f"{prefix}.method", label, test.get("method"), 0.82, page)
+    return fields
+
+
+def _p08_parse_test_after_name(
+    text: str,
+    aliases: tuple[str, ...],
+    *,
+    default_unit: str,
+    default_reference: str,
+    default_method: str,
+) -> dict[str, str] | None:
+    for alias in aliases:
+        match = re.search(rf"{name_pattern(alias)}", text, flags=re.IGNORECASE)
+        if not match:
+            continue
+        window = normalize_text(text[match.end() : match.end() + 180])
+        value_match = re.search(r"(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<indicator>[↑↓])?", window)
+        if not value_match:
+            continue
+        reference_match = re.search(
+            r"(?P<reference>"
+            r"[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?|"
+            r"(?:≤|>=|≥|<=|<|>|＜|＞)\s*[0-9]+(?:\.[0-9]+)?"
+            r")",
+            window[value_match.end() :],
+        )
+        unit_match = re.search(r"mg/L\s*FEU|ng/mL/h|pg/mL|pg/ml|mmol/L|ng/mL|mg/L|g/L|U/L|%", window, flags=re.IGNORECASE)
+        method_match = re.search(r"化学发光法|磁微粒化学发光法|免疫比浊法|酶法|计算法|LC-MS/MS法|质谱法", window)
+        unit = unit_match.group(0).replace(" ", " ") if unit_match else default_unit
+        if unit.lower() == "pg/ml":
+            unit = "pg/mL"
+        return {
+            "result": value_match.group("result"),
+            "indicator": value_match.group("indicator") or "",
+            "reference_range": (reference_match.group("reference").replace(" ", "") if reference_match else default_reference),
+            "unit": unit,
+            "method": method_match.group(0) if method_match else default_method,
+        }
+    return None
+
+
+def _p08_calculate_ratio_test(tests: list[dict[str, Any]]) -> dict[str, Any] | None:
+    ang_i = next((test for test in tests if str(test.get("item_code") or "") == "angiotensin_i"), None)
+    ang_ii = next((test for test in tests if str(test.get("item_code") or "") == "angiotensin_ii"), None)
+    value_i = _p08_value_as_pg_ml(ang_i)
+    value_ii = _p08_value_as_pg_ml(ang_ii)
+    if not value_i or value_ii is None:
+        return None
+    result = f"{(value_ii / value_i):.2f}".rstrip("0").rstrip(".")
+    page = int(ang_ii.get("page") or ang_i.get("page") or 1)
+    return _p08_make_test(page, "raas", "angiotensin_ratio", "血管紧张素II / I 比值", result, "0.20-1.20", "", "计算法")
+
+
+def _p08_value_as_pg_ml(test: dict[str, Any] | None) -> float | None:
+    if not test:
+        return None
+    value = _safe_number(test.get("result"))
+    if value is None:
+        return None
+    unit = str(test.get("unit") or "").strip().lower().replace("μ", "u").replace("µ", "u")
+    if unit == "ng/ml":
+        return value * 1000
+    return value
+
+
+def _p08_make_test(
     page_number: int,
     group: str,
     item_code: str,
@@ -5041,6 +6198,976 @@ def _p07_make_test(
         "unit": unit,
         "method": method,
     }
+
+
+def _p08_status_from_test(test: dict[str, Any]) -> str:
+    indicator = str(test.get("indicator") or "").strip()
+    if indicator:
+        if indicator in {"↑", "升高", "偏高"}:
+            value = _safe_number(test.get("result"))
+            if str(test.get("item_code") or "") == "nt_probnp" and _p08_value_is_markedly_high(value, str(test.get("reference_range") or "")):
+                return "明显升高"
+            return "偏高"
+        if indicator in {"↓", "降低", "偏低"}:
+            return "偏低"
+        return indicator
+    result = _safe_number(test.get("result"))
+    if result is None:
+        return "待复核"
+    bounds = _p07_reference_bounds(str(test.get("reference_range") or ""))
+    for lower, upper in bounds:
+        if lower is not None and result < lower:
+            return "偏低"
+        if upper is not None and result > upper:
+            return "偏高"
+        if lower is not None and upper is not None and lower <= result <= upper:
+            return "正常"
+        if lower is None and upper is not None and result <= upper:
+            return "正常"
+        if upper is None and lower is not None and result >= lower:
+            return "正常"
+    return "正常" if bounds else "待复核"
+
+
+def _p08_value_is_markedly_high(value: float | None, reference_range: str) -> bool:
+    if value is None:
+        return False
+    bounds = _p07_reference_bounds(reference_range)
+    uppers = [upper for _, upper in bounds if upper is not None]
+    if not uppers:
+        return False
+    return value >= max(uppers) * 2
+
+
+def _p08_specimen_types(values: list[str], tests: list[dict[str, Any]]) -> list[str]:
+    result: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in result:
+            result.append(text)
+    for test in tests:
+        text = str(test.get("specimen_type") or "").strip()
+        if text and text not in result:
+            result.append(text)
+    if not result and tests:
+        result.append("血液指标")
+    return result
+
+
+def _p08_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+    }
+
+
+def build_p09_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    payload = _p09_parse_json_payload(full_text)
+    if payload:
+        return _build_p09_structured_report_from_payload(source_file, payload)
+
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    tests = extract_p09_structured_tests(page_texts)
+    sample_types = _p09_specimen_types(extract_specimen_types(page_texts), tests)
+    primary_dates = _p09_primary_dates(page_texts, tests)
+    patient_info = {
+        "name": extract_patient_name(full_text),
+        "gender": extract_gender(full_text),
+        "age": extract_age(full_text),
+        "phone": _p09_extract_phone(full_text),
+        "specimen_condition": extract_specimen_condition(full_text),
+        "specimen_types": sample_types,
+        "hospital": extract_hospital(full_text),
+        "submitting_unit": extract_hospital(full_text),
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": _p09_extract_after_label(full_text, "临床诊断"),
+    }
+    additional_info = {
+        "sample_date": primary_dates.get("sample_date") or extract_date(page_texts, "采样日期"),
+        "receive_date": primary_dates.get("receive_date") or extract_date(page_texts, "接收时间"),
+        "report_date": primary_dates.get("report_date") or extract_date(page_texts, "报告时间"),
+        "technician": extract_staff(full_text, ["检测者", "检验者"]),
+        "reviewer": extract_staff(full_text, ["审核者", "复核者"]),
+        "approver": extract_staff(full_text, ["批准人", "批准者"]),
+    }
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _p09_collect_notes(full_text),
+        "additional_info": additional_info,
+        "p09_extracted_report": {
+            "report_info": {
+                "barcode": report_id,
+                "submitting_unit": patient_info["submitting_unit"],
+                "patient_name": patient_info["name"],
+                "gender": patient_info["gender"],
+                "age": patient_info["age"],
+                "specimen_status": patient_info["specimen_condition"],
+                "specimen_type": "、".join(sample_types),
+            },
+            "pages": _p09_export_text_pages(page_texts, tests),
+            "tests": [_p09_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def _p09_parse_json_payload(full_text: str) -> dict[str, Any]:
+    text = str(full_text or "").strip()
+    if not text:
+        return {}
+    candidates = [text]
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        candidate = text[start : end + 1]
+        if candidate not in candidates:
+            candidates.append(candidate)
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if (
+            isinstance(payload, dict)
+            and isinstance(payload.get("report_info"), dict)
+            and isinstance(payload.get("pages"), list)
+        ):
+            return payload
+    return {}
+
+
+def _build_p09_structured_report_from_payload(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    report_info = payload.get("report_info", {}) if isinstance(payload.get("report_info"), dict) else {}
+    pages = _p09_payload_pages(payload)
+    tests = _p09_tests_from_json_payload(payload)
+    specimen_types = _p09_specimen_types([page.get("specimen_type", "") for page in pages], tests)
+    submitting_unit = _first_text(report_info.get("submitting_unit"))
+    name = _first_text(report_info.get("patient_name"), report_info.get("name"))
+    gender = _first_text(report_info.get("gender"))
+    age = report_info.get("age") if report_info.get("age") not in (None, "") else ""
+    primary_dates = _p09_primary_dates_from_payload_pages(pages)
+    patient_info = {
+        "name": name,
+        "gender": gender,
+        "age": age,
+        "phone": "",
+        "specimen_condition": _first_text(report_info.get("specimen_status")),
+        "specimen_types": specimen_types,
+        "hospital": submitting_unit,
+        "submitting_unit": submitting_unit,
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": "",
+    }
+    additional_info = {
+        "sample_date": primary_dates.get("sample_date", ""),
+        "receive_date": primary_dates.get("receive_date", ""),
+        "report_date": primary_dates.get("report_date", ""),
+        "technician": "",
+        "reviewer": "",
+        "approver": "",
+    }
+    barcode = _first_text(report_info.get("barcode"), Path(source_file).stem)
+    return {
+        "report_id": barcode,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _p09_payload_notes(pages),
+        "additional_info": additional_info,
+        "p09_extracted_report": {
+            "report_info": {
+                "barcode": barcode,
+                "submitting_unit": submitting_unit,
+                "patient_name": name,
+                "gender": gender,
+                "age": age,
+                "specimen_status": patient_info["specimen_condition"],
+                "specimen_type": "、".join(specimen_types),
+            },
+            "pages": _p09_export_payload_pages(pages, tests),
+            "tests": [_p09_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def _p09_payload_pages(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    pages = payload.get("pages", [])
+    if not isinstance(pages, list):
+        return []
+    return [page for page in pages if isinstance(page, dict)]
+
+
+def _p09_tests_from_json_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    for page_index, page in enumerate(_p09_payload_pages(payload), start=1):
+        page_number = int(page.get("page_number") or page_index)
+        specimen_type = _first_text(page.get("specimen_type"))
+        items = page.get("test_items", [])
+        if not isinstance(items, list):
+            continue
+        for raw_item in items:
+            if not isinstance(raw_item, dict):
+                continue
+            test = _p09_json_test_item(raw_item, page=page_number, specimen_type=specimen_type)
+            if test:
+                tests.append(test)
+    return tests
+
+
+def _p09_json_test_item(raw_item: dict[str, Any], *, page: int, specimen_type: str) -> dict[str, Any] | None:
+    source_name = _first_text(raw_item.get("test_name"))
+    code = _p09_code_for_json_name(source_name)
+    if not code:
+        return None
+    definition = _p09_definition_for_code(code)
+    return {
+        "page": page,
+        "specimen_type": specimen_type or "血清",
+        "test_name": source_name or definition.get("name", ""),
+        "item_code": code,
+        "group": definition.get("group", ""),
+        "result": _p09_result_text(raw_item.get("result")),
+        "indicator": _first_text(raw_item.get("indicator")),
+        "reference_range": _first_text(raw_item.get("reference_range")) or definition.get("reference", ""),
+        "unit": _p09_normalize_unit(_first_text(raw_item.get("unit")) or definition.get("unit", "")),
+        "method": _first_text(raw_item.get("method")) or definition.get("method", ""),
+    }
+
+
+def _p09_code_for_json_name(name: str) -> str:
+    compact = re.sub(r"\s+", "", str(name or "")).replace("（", "(").replace("）", ")").replace("／", "/")
+    lower = compact.lower()
+    if not compact:
+        return ""
+    if "性激素结合球蛋白" in compact or "shbg" in lower:
+        return "shbg"
+    if "雌二醇" in compact or "estradiol" in lower or re.search(r"(?<![a-z0-9])e2(?![a-z0-9])", lower):
+        return "e2"
+    if "促黄体生成素" in compact or "黄体生成素" in compact or re.search(r"(?<![a-z0-9])lh(?![a-z0-9])", lower):
+        return "lh"
+    if "促卵泡刺激素" in compact or "卵泡刺激素" in compact or re.search(r"(?<![a-z0-9])fsh(?![a-z0-9])", lower):
+        return "fsh"
+    if "抗缪勒氏管激素" in compact or "抗穆勒氏管激素" in compact or re.search(r"(?<![a-z0-9])amh(?![a-z0-9])", lower):
+        return "amh"
+    if "泌乳素" in compact or "催乳素" in compact or "prolactin" in lower or re.search(r"(?<![a-z0-9])prl(?![a-z0-9])", lower):
+        return "prolactin"
+    if "孕酮" in compact or "孕激素" in compact or "progesterone" in lower or re.search(r"(?<![a-z0-9])prog(?![a-z0-9])", lower):
+        return "progesterone"
+    if "睾酮" in compact or "testosterone" in lower:
+        return "testosterone"
+    if "皮质醇" in compact or "cortisol" in lower or re.search(r"(?<![a-z0-9])cort(?![a-z0-9])", lower):
+        return "cortisol"
+    if "总ige" in lower or "totalige" in lower or "totalige" in compact.lower():
+        return "total_ige"
+    return ""
+
+
+def _p09_definition_for_code(code: str) -> dict[str, str]:
+    for item_code, output_name, _, default_unit, default_reference, group, default_method in P09_TEST_DEFINITIONS:
+        if item_code == code:
+            return {
+                "name": output_name,
+                "unit": default_unit,
+                "reference": default_reference,
+                "group": group,
+                "method": default_method,
+            }
+    return {"name": code, "unit": "", "reference": "", "group": "", "method": ""}
+
+
+def _p09_result_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    return str(value).strip()
+
+
+def _p09_payload_notes(pages: list[dict[str, Any]]) -> str:
+    notes: list[str] = []
+    for page in pages:
+        remark = _first_text(page.get("remark"))
+        if remark and remark not in notes:
+            notes.append(remark)
+    return " ".join(notes)
+
+
+def _p09_export_payload_pages(pages: list[dict[str, Any]], tests: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    exported: list[dict[str, Any]] = []
+    for index, page in enumerate(pages, start=1):
+        page_number = int(page.get("page_number") or index)
+        exported.append(
+            {
+                "page_number": page_number,
+                "specimen_type": _first_text(page.get("specimen_type")),
+                "test_items": [_p09_test_export_item(test) for test in tests if int(test.get("page") or 0) == page_number],
+                "remark": _first_text(page.get("remark")),
+                "sample_date": _first_text(page.get("sample_date")),
+                "receive_date": _first_text(page.get("receive_date")),
+                "report_date": _first_text(page.get("report_date")),
+            }
+        )
+    return exported
+
+
+def _p09_export_text_pages(page_texts: list[str], tests: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    exported: list[dict[str, Any]] = []
+    for page_number, _text in enumerate(page_texts, start=1):
+        page_tests = [test for test in tests if int(test.get("page") or 0) == page_number]
+        if not page_tests:
+            continue
+        exported.append(
+            {
+                "page_number": page_number,
+                "specimen_type": page_tests[0].get("specimen_type") or "血清",
+                "test_items": [_p09_test_export_item(test) for test in page_tests],
+                "remark": _p09_extract_remark(page_texts, page_number),
+                "sample_date": _p09_extract_page_date(page_texts, page_number, "采样日期"),
+                "receive_date": _p09_extract_page_date(page_texts, page_number, "接收时间"),
+                "report_date": _p09_extract_page_date(page_texts, page_number, "报告时间"),
+            }
+        )
+    return exported
+
+
+def _p09_primary_dates(page_texts: list[str], tests: list[dict[str, Any]]) -> dict[str, str]:
+    if not page_texts:
+        return {"sample_date": "", "receive_date": "", "report_date": ""}
+    counts: dict[int, int] = {}
+    for test in tests:
+        page = int(test.get("page") or 0)
+        if page:
+            counts[page] = counts.get(page, 0) + 1
+    primary_page = max(counts, key=counts.get) if counts else 1
+    return {
+        "sample_date": _p09_extract_page_date(page_texts, primary_page, "采样日期"),
+        "receive_date": _p09_extract_page_date(page_texts, primary_page, "接收时间"),
+        "report_date": _p09_extract_page_date(page_texts, primary_page, "报告时间"),
+    }
+
+
+def _p09_primary_dates_from_payload_pages(pages: list[dict[str, Any]]) -> dict[str, str]:
+    dated_pages = [page for page in pages if _first_text(page.get("sample_date"), page.get("receive_date"), page.get("report_date"))]
+    if not dated_pages:
+        return {"sample_date": "", "receive_date": "", "report_date": ""}
+    primary = max(dated_pages, key=lambda page: len(page.get("test_items", [])) if isinstance(page.get("test_items"), list) else 0)
+    return {
+        "sample_date": _first_text(primary.get("sample_date")),
+        "receive_date": _first_text(primary.get("receive_date")),
+        "report_date": _first_text(primary.get("report_date")),
+    }
+
+
+def _p09_extract_page_date(page_texts: list[str], page_number: int, label: str) -> str:
+    if page_number < 1 or page_number > len(page_texts):
+        return ""
+    pattern = re.compile(rf"{label_pattern(label)}[:：]?\s*({DATE_VALUE_PATTERN})")
+    match = pattern.search(page_texts[page_number - 1])
+    return match.group(1) if match else ""
+
+
+def _p09_extract_remark(page_texts: list[str], page_number: int) -> str:
+    if page_number < 1 or page_number > len(page_texts):
+        return ""
+    match = re.search(r"备\s*注[:：]?\s*([^\s]+)", page_texts[page_number - 1])
+    return clean_value(match.group(1)) if match else ""
+
+
+def extract_p09_structured_tests(page_texts: list[str]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    seen_codes: set[str] = set()
+    for page_number, text in enumerate(page_texts, start=1):
+        for item_code, output_name, aliases, default_unit, default_reference, group, default_method in P09_TEST_DEFINITIONS:
+            if item_code in seen_codes:
+                continue
+            parsed = _p09_parse_test_after_name(
+                text,
+                aliases,
+                default_unit=default_unit,
+                default_reference=default_reference,
+                default_method=default_method,
+            )
+            if not parsed:
+                continue
+            tests.append(
+                _p09_make_test(
+                    page_number,
+                    group,
+                    item_code,
+                    output_name,
+                    parsed["result"],
+                    parsed["reference_range"],
+                    parsed["unit"],
+                    parsed["method"],
+                    indicator=parsed["indicator"],
+                )
+            )
+            seen_codes.add(item_code)
+    return tests
+
+
+def extract_p09_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {})
+    additional_info = structured_report.get("additional_info", {})
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.88, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.86, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        age_text = f"{patient_info['age']}岁" if str(patient_info["age"]).isdigit() else str(patient_info["age"])
+        add_field(fields, "patient.age", "年龄", age_text, 0.86, find_page(page_texts, str(patient_info["age"])))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone"), 0.78, find_page(page_texts, str(patient_info.get("phone") or "")))
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis") or "-", 0.75, find_page(page_texts, str(patient_info.get("clinical_diagnosis") or "")))
+    submitting_unit = patient_info.get("submitting_unit") or patient_info.get("hospital") or ""
+    add_field(fields, "patient.submitting_unit", "送检单位", submitting_unit, 0.84, find_page(page_texts, str(submitting_unit or "")))
+    add_field(fields, "sample.type", "样本信息", "、".join(patient_info.get("specimen_types") or []) or "血清", 0.9, None)
+    add_field(fields, "sample.condition", "标本情况", patient_info.get("specimen_condition"), 0.82, find_page(page_texts, str(patient_info.get("specimen_condition") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.assessment_date", "评估日期", additional_info.get("report_date") or additional_info.get("sample_date"), 0.84, None)
+    add_field(fields, "report.method", "评估方法", "化学发光法", 0.9, None)
+
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        if not code:
+            continue
+        prefix = f"p09.indicators.{code}"
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        result = str(test.get("result") or "")
+        indicator = str(test.get("indicator") or "")
+        unit = str(test.get("unit") or "")
+        reference = str(test.get("reference_range") or "")
+        status = _p09_status_from_test(test)
+        result_display = _p09_value_with_unit(format_result_display(result, indicator), unit)
+        reference_display = _p09_reference_display(reference, unit)
+        add_field(fields, f"{prefix}.result", label, result, 0.86, page)
+        add_field(fields, f"{prefix}.unit", label, unit, 0.84, page)
+        add_field(fields, f"{prefix}.result_display", label, result_display, 0.86, page)
+        add_field(fields, f"{prefix}.reference_range", label, reference, 0.84, page)
+        add_field(fields, f"{prefix}.reference_display", label, reference_display, 0.84, page)
+        add_field(fields, f"{prefix}.status", label, status, 0.84, page)
+        add_field(fields, f"{prefix}.status_display", label, _p09_status_display(status), 0.84, page)
+        add_field(fields, f"{prefix}.range_status_display", label, f"{_p09_status_display(status)} | {reference_display}", 0.84, page)
+        add_field(fields, f"{prefix}.method", label, test.get("method"), 0.82, page)
+    return fields
+
+
+def _p09_parse_test_after_name(
+    text: str,
+    aliases: tuple[str, ...],
+    *,
+    default_unit: str,
+    default_reference: str,
+    default_method: str,
+) -> dict[str, str] | None:
+    normalized = normalize_text(text)
+    ordered_aliases = sorted(aliases, key=lambda value: (0 if _p09_contains_cjk(value) else 1, -len(value)))
+    for alias in ordered_aliases:
+        for match in re.finditer(rf"{name_pattern(alias)}", normalized, flags=re.IGNORECASE):
+            parsed = _p09_parse_test_row(normalized, match, default_unit=default_unit, default_reference=default_reference, default_method=default_method)
+            if parsed:
+                return parsed
+    return None
+
+
+def _p09_parse_test_row(
+    text: str,
+    match: re.Match[str],
+    *,
+    default_unit: str,
+    default_reference: str,
+    default_method: str,
+) -> dict[str, str] | None:
+    row_start, row_end = _p09_row_bounds(text, match)
+    row = normalize_text(text[row_start:row_end])
+    if not row:
+        return None
+    alias_end = max(0, match.end() - row_start)
+    after_alias = row[alias_end:]
+    after_alias = re.sub(r"^\s*[（(][^）)]{1,30}[）)]\s*", " ", after_alias)
+    after_alias = re.sub(r"^\s*[）)]\s*", " ", after_alias)
+    value_match = re.search(
+        r"(?P<indicator_before>[↑↓])?\s*(?P<result>(?:[<>≤≥＜＞]\s*)?[0-9]+(?:\.[0-9]+)?)\s*(?P<indicator_after>[↑↓])?",
+        after_alias,
+    )
+    if not value_match:
+        return None
+    result = value_match.group("result").replace(" ", "")
+    indicator = value_match.group("indicator_after") or value_match.group("indicator_before") or ""
+    reference = _p09_clean_reference_tail(after_alias[value_match.end() :]) or default_reference
+    unit_matches = list(re.finditer(P09_UNIT_PATTERN, row, flags=re.IGNORECASE))
+    method_match = re.search(P09_METHOD_PATTERN, row)
+    unit = _p09_normalize_unit(unit_matches[0].group(0) if unit_matches else default_unit)
+    method = method_match.group(0) if method_match else default_method
+    return {
+        "result": result,
+        "indicator": indicator,
+        "reference_range": reference,
+        "unit": unit,
+        "method": method,
+    }
+
+
+def _p09_row_bounds(text: str, match: re.Match[str]) -> tuple[int, int]:
+    prefix_start = max(0, match.start() - 100)
+    prefix = text[prefix_start : match.start()]
+    row_start = match.start()
+    for unit_method in re.finditer(rf"(?:{P09_UNIT_PATTERN})\s+(?:{P09_METHOD_PATTERN})", prefix, flags=re.IGNORECASE):
+        row_start = prefix_start + unit_method.start()
+
+    next_item = _p09_next_item_start(text, match.end())
+    footer = _p09_footer_start(text, match.end())
+    candidates = [value for value in [next_item, footer] if value >= 0]
+    row_end = min(candidates) if candidates else min(len(text), match.end() + 650)
+    if next_item >= 0 and row_end == next_item:
+        between = text[match.end() : next_item]
+        unit_methods = list(re.finditer(rf"(?:{P09_UNIT_PATTERN})\s+(?:{P09_METHOD_PATTERN})", between, flags=re.IGNORECASE))
+        if unit_methods:
+            row_end = match.end() + unit_methods[-1].start()
+    return row_start, row_end
+
+
+def _p09_next_item_start(text: str, start: int) -> int:
+    positions: list[int] = []
+    for _code, _output_name, aliases, *_rest in P09_TEST_DEFINITIONS:
+        for alias in aliases:
+            if not _p09_contains_cjk(alias):
+                continue
+            match = re.search(rf"{name_pattern(alias)}", text[start:], flags=re.IGNORECASE)
+            if match:
+                positions.append(start + match.start())
+                break
+    return min(positions) if positions else -1
+
+
+def _p09_footer_start(text: str, start: int) -> int:
+    match = re.search(r"采样日期|接收时间|报告时间|公司地址|本检测|审核者|批准人|检测者|备\s*注|医院条码", text[start:])
+    return start + match.start() if match else -1
+
+
+def _p09_clean_reference_tail(value: str) -> str:
+    text = normalize_text(value)
+    if not text:
+        return ""
+    text = re.split(r"采样日期|接收时间|报告时间|公司地址|本检测|审核者|批准人|检测者|备\s*注|医院条码", text, maxsplit=1)[0]
+    text = re.split(rf"(?:{P09_UNIT_PATTERN})\s+(?:{P09_METHOD_PATTERN})", text, maxsplit=1, flags=re.IGNORECASE)[0]
+    text = re.sub(rf"^\s*(?:{P09_METHOD_PATTERN})\s*", "", text)
+    text = re.sub(r"^\s*(?:参考范围|正常参考值|提示)[:：]?\s*", "", text)
+    text = re.sub(rf"\s*(?:{P09_UNIT_PATTERN})\s*$", "", text, flags=re.IGNORECASE)
+    return clean_value(text)
+
+
+def _p09_contains_cjk(value: str) -> bool:
+    return bool(re.search(r"[\u4e00-\u9fff]", str(value or "")))
+
+
+def _p09_make_test(
+    page_number: int,
+    group: str,
+    item_code: str,
+    test_name: str,
+    result: str,
+    reference_range: str,
+    unit: str,
+    method: str,
+    *,
+    indicator: str = "",
+) -> dict[str, Any]:
+    return {
+        "page": page_number,
+        "specimen_type": "血清",
+        "test_name": test_name,
+        "item_code": item_code,
+        "group": group,
+        "result": str(result or "").strip(),
+        "indicator": indicator,
+        "reference_range": str(reference_range or "").strip(),
+        "unit": unit,
+        "method": method,
+    }
+
+
+def _p09_status_from_test(test: dict[str, Any]) -> str:
+    indicator = str(test.get("indicator") or "").strip()
+    if indicator:
+        if indicator in {"↑", "升高", "偏高"}:
+            return "偏高"
+        if indicator in {"↓", "降低", "偏低"}:
+            return "偏低"
+        return indicator
+    result = _safe_number(test.get("result"))
+    if result is None:
+        return "待复核"
+    bounds = _p07_reference_bounds(str(test.get("reference_range") or ""))
+    return _p09_status_from_bounds(result, bounds)
+
+
+def _p09_status_from_bounds(result: float, bounds: list[tuple[float | None, float | None]]) -> str:
+    if not bounds:
+        return "待复核"
+    for lower, upper in bounds:
+        if lower is not None and upper is not None and lower <= result <= upper:
+            return "正常"
+        if lower is None and upper is not None and result <= upper:
+            return "正常"
+        if upper is None and lower is not None and result >= lower:
+            return "正常"
+    lows = [lower for lower, _upper in bounds if lower is not None]
+    uppers = [upper for _lower, upper in bounds if upper is not None]
+    if lows and result < min(lows):
+        return "偏低"
+    if uppers and result > max(uppers):
+        return "偏高"
+    return "待复核"
+
+
+def _p09_status_display(status: str) -> str:
+    text = str(status or "").strip()
+    if text == "正常":
+        return "正常范围"
+    if text == "偏高":
+        return "偏高"
+    if text == "偏低":
+        return "偏低"
+    return text or "待复核"
+
+
+def _p09_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    unit_text = str(unit or "").strip()
+    if not text:
+        return "未识别"
+    if text in {"未识别", "—"} or unit_text in {"", "—"}:
+        return text
+    return text if unit_text in text else f"{text} {unit_text}"
+
+
+def _p09_reference_display(reference: str, unit: str) -> str:
+    text = str(reference or "").strip()
+    if not text:
+        return "参考范围：待补充"
+    unit_text = str(unit or "").strip()
+    return f"参考范围：{text}{(' ' + unit_text) if unit_text and unit_text not in text else ''}"
+
+
+def _p09_normalize_unit(unit: str) -> str:
+    text = str(unit or "").strip()
+    lower = text.lower().replace("μ", "u").replace("µ", "u")
+    if lower in {"pg/ml"}:
+        return "pg/mL"
+    if lower in {"ng/ml"}:
+        return "ng/mL"
+    if lower in {"miu/ml"}:
+        return "mIU/mL"
+    if lower in {"uiu/ml", "uiu/ml"}:
+        return "uIU/mL"
+    if lower in {"iu/ml"}:
+        return "IU/mL"
+    if lower == "nmol/l":
+        return "nmol/L"
+    return text
+
+
+def _p09_specimen_types(values: list[str], tests: list[dict[str, Any]]) -> list[str]:
+    result: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in result:
+            result.append(text)
+    for test in tests:
+        text = str(test.get("specimen_type") or "").strip()
+        if text and text not in result:
+            result.append(text)
+    if not result and tests:
+        result.append("血清")
+    return result
+
+
+def _p09_extract_phone(full_text: str) -> str:
+    phone = extract_patient_phone(full_text)
+    if phone:
+        return phone
+    match = re.search(r"(?<![0-9])(1[3-9][0-9]{9})(?![0-9])", full_text)
+    return clean_value(match.group(1)).replace(" ", "") if match else ""
+
+
+def _p09_extract_after_label(full_text: str, label: str) -> str:
+    pattern = re.compile(rf"{label_pattern(label)}[:：]?\s*([^\s]+)")
+    match = pattern.search(full_text)
+    if not match:
+        return ""
+    value = clean_value(match.group(1))
+    return "" if looks_like_label(value) else value
+
+
+def _p09_collect_notes(full_text: str) -> str:
+    parts: list[str] = []
+    for pattern in [r"备注[:：]?\s*([^\s]+)", r"友情提示[:：]?\s*(.*?)(?:检测方法|$)"]:
+        match = re.search(pattern, full_text)
+        if match:
+            value = clean_value(match.group(1))
+            if value and value not in parts:
+                parts.append(value)
+    return " ".join(parts)
+
+
+def _p09_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+    }
+
+
+def _p07_extract_fibrosis_stacked_layout(text: str, page_number: int) -> list[dict[str, Any]]:
+    if "Ⅲ型前胶原" not in text and "III型前胶原" not in text and "PC-III" not in text:
+        return []
+    tests: list[dict[str, Any]] = []
+    for code, output_name, aliases, default_unit, default_reference in P07_FIBROSIS_TEST_DEFINITIONS:
+        parsed = _p07_parse_fibrosis_row(text, aliases, default_reference=default_reference)
+        if parsed:
+            tests.append(
+                _p07_make_test(
+                    page_number,
+                    "fibrosis",
+                    code,
+                    output_name,
+                    parsed["result"],
+                    parsed["reference_range"],
+                    default_unit,
+                    "化学发光法",
+                    indicator=parsed["indicator"],
+                )
+            )
+        elif code == "civ" and any(alias in text for alias in aliases):
+            tests.append(_p07_make_test(page_number, "fibrosis", code, output_name, "", default_reference, default_unit, "化学发光法"))
+    seen_codes = {str(test.get("item_code") or "") for test in tests}
+    for test in _p07_extract_fibrosis_legacy_stacked_values(text, page_number):
+        code = str(test.get("item_code") or "")
+        if code not in seen_codes:
+            tests.append(test)
+            seen_codes.add(code)
+    by_code = {str(test.get("item_code") or ""): test for test in tests}
+    return [by_code[code] for code, *_ in P07_FIBROSIS_TEST_DEFINITIONS if code in by_code]
+
+
+def _p07_extract_liver_stacked_layout(text: str, page_number: int) -> list[dict[str, Any]]:
+    if "PAB" not in text or "AST" not in text or "白/球蛋白比" not in text:
+        return []
+    by_code: dict[str, dict[str, Any]] = {}
+    for test in [*_p07_extract_liver_alt_pab_tail(text, page_number), *_p07_extract_liver_stacked_values(text, page_number)]:
+        by_code[str(test.get("item_code") or "")] = test
+    return [by_code[code] for code, *_ in P07_LIVER_FUNCTION_TEST_DEFINITIONS if code in by_code]
+
+
+def _p07_extract_liver_stacked_values(text: str, page_number: int) -> list[dict[str, Any]]:
+    anchor_match = re.search(r"丙氨酸氨基转移酶[（(]\s*ALT\s*[）)]|ALT", text, flags=re.IGNORECASE)
+    if not anchor_match:
+        return []
+    tokens = _p07_numeric_or_reference_tokens(text[: anchor_match.start()])
+    if len(tokens) < 26:
+        return []
+    tail_tokens = tokens[-26:]
+    values = tail_tokens[:13]
+    references = list(reversed(tail_tokens[13:]))
+    ordered_codes = [
+        "ast",
+        "ast_alt_ratio",
+        "tp",
+        "alb",
+        "glo",
+        "ag_ratio",
+        "tbil",
+        "dbil",
+        "ibil",
+        "alp",
+        "ggt",
+        "che",
+        "tba",
+    ]
+    definitions = {code: (name, unit, reference) for code, name, _aliases, unit, reference in P07_LIVER_FUNCTION_TEST_DEFINITIONS}
+    tests: list[dict[str, Any]] = []
+    for index, code in enumerate(ordered_codes):
+        name, unit, default_reference = definitions[code]
+        reference = references[index] if index < len(references) else default_reference
+        result = values[index] if index < len(values) else ""
+        if _p07_is_reference_token(result):
+            continue
+        tests.append(_p07_make_test(page_number, "liver_function", code, name, result, reference or default_reference, unit, "肝功能检测"))
+    return tests
+
+
+def _p07_extract_liver_alt_pab_tail(text: str, page_number: int) -> list[dict[str, Any]]:
+    anchor = text.find("PAB")
+    if anchor < 0:
+        anchor = text.find("前白蛋白")
+    if anchor < 0:
+        return []
+    tokens = _p07_numeric_or_reference_tokens(text[anchor : anchor + 220])
+    if len(tokens) < 4:
+        return []
+    definitions = {code: (name, unit, reference) for code, name, _aliases, unit, reference in P07_LIVER_FUNCTION_TEST_DEFINITIONS}
+    tests: list[dict[str, Any]] = []
+    alt_reference, alt_result, pab_reference, pab_result = tokens[:4]
+    if _p07_is_reference_token(alt_reference) and not _p07_is_reference_token(alt_result):
+        name, unit, default_reference = definitions["alt"]
+        tests.append(_p07_make_test(page_number, "liver_function", "alt", name, alt_result, alt_reference or default_reference, unit, "肝功能检测"))
+    if _p07_is_reference_token(pab_reference) and not _p07_is_reference_token(pab_result):
+        name, unit, default_reference = definitions["pab"]
+        tests.append(_p07_make_test(page_number, "liver_function", "pab", name, pab_result, pab_reference or default_reference, unit, "肝功能检测"))
+    return tests
+
+
+def _p07_parse_fibrosis_row(text: str, aliases: tuple[str, ...], *, default_reference: str) -> dict[str, str] | None:
+    for alias in sorted(aliases, key=len, reverse=True):
+        match = re.search(name_pattern(alias), text, flags=re.IGNORECASE)
+        if not match:
+            continue
+        window = text[match.end() : match.end() + 90].lstrip(")） ")
+        value_match = re.search(
+            r"(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<indicator>[↑↓])?\s*"
+            r"(?P<reference>(?:≤|>=|≥|<=|<|>|＜|＞)\s*[0-9]+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)?",
+            window,
+        )
+        if not value_match:
+            continue
+        result = value_match.group("result")
+        reference = (value_match.group("reference") or default_reference).replace(" ", "")
+        return {
+            "result": result,
+            "indicator": value_match.group("indicator") or _p07_indicator_from_result_reference(result, reference),
+            "reference_range": reference,
+        }
+    return None
+
+
+def _p07_extract_fibrosis_legacy_stacked_values(text: str, page_number: int) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    if "层粘连蛋白" in text or "层黏连蛋白" in text or "LN" in text:
+        ln_matches = list(
+            re.finditer(
+                r"ug/L\s+化学发光法\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<reference>(?:≤|<|＜)\s*[0-9]+(?:\.[0-9]+)?)",
+                text,
+            )
+        )
+        if ln_matches:
+            match = ln_matches[-1]
+            tests.append(
+                _p07_make_test(
+                    page_number,
+                    "fibrosis",
+                    "ln",
+                    "层粘连蛋白（LN）",
+                    match.group("result"),
+                    match.group("reference").replace(" ", ""),
+                    "ug/L",
+                    "化学发光法",
+                )
+            )
+    if "透明质酸" in text or "HA" in text:
+        ha_matches = list(
+            re.finditer(
+                r"ng/mL\s+化学发光法\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?P<reference>(?:≤|<|＜)\s*[0-9]+(?:\.[0-9]+)?)",
+                text,
+            )
+        )
+        if ha_matches:
+            match = ha_matches[-1]
+            tests.append(
+                _p07_make_test(
+                    page_number,
+                    "fibrosis",
+                    "ha",
+                    "透明质酸（HA）",
+                    match.group("result"),
+                    match.group("reference").replace(" ", ""),
+                    "ng/mL",
+                    "化学发光法",
+                )
+            )
+    return tests
+
+
+def _p07_numeric_or_reference_tokens(text: str) -> list[str]:
+    pattern = (
+        r"(?:(?:≤|>=|≥|<=|<|>|＜|＞)\s*)?"
+        r"[0-9]+(?:\.[0-9]+)?"
+        r"(?:\s*(?:--|-|~|～|—|–)\s*[0-9]+(?:\.[0-9]+)?)?"
+    )
+    return [_p07_normalize_numeric_token(match.group(0)) for match in re.finditer(pattern, text)]
+
+
+def _p07_normalize_numeric_token(value: str) -> str:
+    return (
+        re.sub(r"\s+", "", str(value or ""))
+        .replace("～", "--")
+        .replace("~", "--")
+        .replace("—", "--")
+        .replace("–", "--")
+        .replace("＜", "<")
+        .replace("＞", ">")
+    )
+
+
+def _p07_is_reference_token(value: str) -> bool:
+    text = str(value or "")
+    return "--" in text or "-" in text or text.startswith(("≤", "<", "≥", ">"))
+
+
+def _p07_make_test(
+    page_number: int,
+    group: str,
+    item_code: str,
+    test_name: str,
+    result: str,
+    reference_range: str,
+    unit: str,
+    method: str,
+    *,
+    indicator: str = "",
+) -> dict[str, Any]:
+    normalized_reference = str(reference_range or "").strip()
+    normalized_result = str(result or "").strip()
+    return {
+        "page": page_number,
+        "specimen_type": "血清",
+        "test_name": test_name,
+        "item_code": item_code,
+        "group": group,
+        "result": normalized_result,
+        "indicator": indicator or _p07_indicator_from_result_reference(normalized_result, normalized_reference),
+        "reference_range": normalized_reference,
+        "unit": unit,
+        "method": method,
+    }
+
+
+def _p07_indicator_from_result_reference(result: Any, reference_range: str) -> str:
+    value = _safe_number(result)
+    if value is None:
+        return ""
+    for lower, upper in _p07_reference_bounds(reference_range):
+        if lower is not None and value < lower:
+            return "↓"
+        if upper is not None and value > upper:
+            return "↑"
+        if lower is not None or upper is not None:
+            return ""
+    return ""
 
 
 def _p07_parse_test_after_name(
@@ -5396,6 +7523,31 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
             "p07.fibrosis.ha.result_display": "HA",
             "p07.gene.aldh2.result_display": "ALDH2",
         }
+    elif package_code == "P08":
+        required = {"patient.name": "姓名", "patient.gender": "性别", "patient.age": "年龄"}
+        for code, output_name, *_ in P08_TEST_DEFINITIONS:
+            group = "cardiovascular" if code in {"nt_probnp", "d_dimer", "ffa"} else "raas"
+            required[f"p08.{group}.{code}.result_display"] = output_name
+    elif package_code == "P09":
+        required = {"patient.name": "姓名", "patient.gender": "性别", "patient.age": "年龄"}
+        for code, output_name, *_ in P09_TEST_DEFINITIONS:
+            if code in {"e2", "lh", "fsh", "progesterone", "testosterone", "shbg", "amh", "prolactin", "total_ige"}:
+                required[f"p09.indicators.{code}.result_display"] = output_name
+    elif package_code == "P10":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "patient.age": "年龄",
+            "p10.indicators.psa.result_display": "总PSA",
+            "p10.indicators.psa_free.result_display": "游离PSA",
+            "p10.indicators.psa_ratio.result_display": "游离/总PSA比值",
+            "p10.indicators.cyp1a1.result_display": "CYP1A1",
+            "p10.indicators.aldh2.result_display": "ALDH2",
+            "p10.indicators.lct.result_display": "MCM6/LCT",
+            "p10.indicators.cyp1a2.result_display": "CYP1A2",
+        }
+    elif package_code == "P11":
+        required = build_p11_warning_requirements()
     elif package_code == "P17":
         required = {
             "patient.name": "姓名",
@@ -5403,7 +7555,7 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
             "patient.age": "年龄",
             "p17.hpv_16.result_display": "HPV-16",
             "p17.hpv_18.result_display": "HPV-18",
-            "p17.闃撮亾姣涙淮铏?result_display": "阴道毛滴虫",
+            "p17.阴道毛滴虫.result_display": "阴道毛滴虫",
         }
     else:
         required = {
@@ -5466,6 +7618,43 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
             if missing_codes:
                 warnings.append(f"P07 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
         test_names = []
+    if package_code == "P08":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"nt_probnp", "d_dimer", "ffa", "angiotensin_i", "angiotensin_ii", "angiotensin_ratio", "renin", "aldosterone"}
+        if not test_names:
+            warnings.append("P08 未识别到NT-proBNP、RAAS、凝血或脂代谢检验明细，请核对文本层或切换云OCR。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P08 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
+    if package_code == "P09":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"e2", "lh", "fsh", "progesterone", "testosterone", "shbg", "amh", "prolactin"}
+        optional_codes = {"cortisol"}
+        if not test_names:
+            warnings.append("P09 未识别到女性激素或相关检验明细，请核对文本层、补充样例或切换云OCR。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P09 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+            missing_optional = sorted(optional_codes - recognized_codes)
+            if missing_optional:
+                warnings.append(f"P09 当前未识别到可选项目：{', '.join(missing_optional)}；如原始报告包含这些项目，请人工复核。")
+        test_names = []
+    if package_code == "P10":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"psa", "psa_free", "psa_ratio", "cyp1a1", "aldh2", "lct", "cyp1a2", "dhea", "inhibin_b"}
+        if not test_names:
+            warnings.append("P10 未识别到PSA、激素或代谢基因检验明细，请核对上传JSON。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P10 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
+    if package_code == "P11":
+        warnings.extend(extract_p11_warning_messages(structured_report))
+        test_names = []
     if package_code == "P01":
         if not test_names:
             warnings.append("P01 当前仍以基础资料抽取为主，专项菌群指标需结合真实样例继续增强。")
@@ -5475,7 +7664,7 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
 
     allergen_count = sum(1 for name in test_names if "钙卫蛋白" not in name and "IgE" not in name)
     if not test_names:
-        if package_code not in {"P01", "P04", "P05", "P06", "P07"}:
+        if package_code not in {"P01", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11"}:
             warnings.append("未识别到检验项目明细。")
     elif package_code == "P02" and allergen_count and allergen_count < 10:
         warnings.append(f"P02 过敏原项目仅识别到 {allergen_count} 项，建议人工复核。")
@@ -5487,7 +7676,7 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
         missing_staff = not any([additional_info.get("technician"), additional_info.get("reviewer"), additional_info.get("approver")])
     elif package_code in {"P04", "P06"}:
         missing_staff = not additional_info.get("reviewer")
-    elif package_code in {"P07", "P17"}:
+    elif package_code in {"P07", "P08", "P09", "P10", "P11", "P17"}:
         missing_staff = False
     elif package_code == "P01":
         missing_staff = not additional_info.get("technician") or not additional_info.get("reviewer")

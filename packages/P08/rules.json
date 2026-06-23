@@ -1,0 +1,48 @@
+{
+  "package_code": "P08",
+  "version": "P08-rules-v0.1-draft",
+  "status": "draft",
+  "description": "P08 心血管代谢风险评估健康管理报告规则草案。当前优先使用原始检验报告参考范围和升降提示，AI仅可基于真实识别数据生成健康管理解读。",
+  "method": "NT-proBNP、RAAS、凝血与脂代谢综合评估",
+  "principles": [
+    "优先读取原始检验报告中的结果、单位、参考范围和异常标记。",
+    "当原始报告给出升高、降低、异常或正常提示时，优先采用原始报告结论。",
+    "NT-proBNP、D-二聚体、游离脂肪酸、血管紧张素I、血管紧张素II、Ang II/Ang I比值、肾素活性、醛固酮必须以实际识别结果为准；不得补造数值。",
+    "Ang II/Ang I 比值如原始报告未给出，但 Ang I 与 Ang II 均有有效数值，可由系统计算并标记为规则计算结果，仍需人工复核。",
+    "健康管理建议必须定位为风险管理、生活方式优化、阶段复评和必要时咨询专业医生，不输出临床诊断、治疗方案或药物剂量。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "indicator_groups": {
+    "cardiovascular": ["NT-proBNP", "D-D", "FFA"],
+    "raas": ["Ang I", "Ang II", "Ang II/Ang I", "Renin", "Aldo"]
+  },
+  "reference_defaults": {
+    "nt_probnp": "0-125.00 pg/mL",
+    "d_dimer": "0-0.55 mg/L FEU",
+    "ffa": "0.10-0.60 mmol/L",
+    "angiotensin_i": "28.0-125.0 pg/mL",
+    "angiotensin_ii": "21.0-75.0 pg/mL",
+    "angiotensin_ratio": "0.20-1.20",
+    "renin": "0.30-5.70 ng/mL/h",
+    "aldosterone": "79.0-277.0 pg/mL"
+  },
+  "ai_field_mapping": {
+    "overall_summary": "p08.overall_summary",
+    "risk_assessment": "p08.risk_assessment",
+    "indicator_interpretations.nt_probnp": "p08.interpretations.nt_probnp / p08.deep_dive.nt_probnp.summary",
+    "indicator_interpretations.d_dimer": "p08.interpretations.d_dimer",
+    "indicator_interpretations.ffa": "p08.interpretations.ffa",
+    "indicator_interpretations.raas": "p08.interpretations.raas / p08.deep_dive.raas.summary",
+    "recommendations.management_priorities[0..2]": "p08.priorities.priority_1 至 p08.priorities.priority_3",
+    "recommendations.lifestyle_advice": "p08.interpretations.advice",
+    "recommendations.followup_advice": "p08.followup_advice",
+    "recommendations.nt_probnp_advice": "p08.deep_dive.nt_probnp.advice",
+    "recommendations.raas_advice": "p08.deep_dive.raas.advice",
+    "recommendations.thrombotic_metabolism_advice": "p08.deep_dive.thrombotic_metabolism.advice",
+    "safety.disclaimer": "p08.disclaimer"
+  },
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  }
+}

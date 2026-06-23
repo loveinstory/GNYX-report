@@ -264,9 +264,8 @@ type ImportDocumentsResponse = {
 type ViewKey = "dashboard" | "batch" | "review" | "packages" | "accounts" | "admin";
 type RoleKey = "admin" | "customer_service" | "inspector";
 
-const browserHost = typeof window !== "undefined" ? window.location.hostname : "127.0.0.1";
-const defaultApiBase = `http://${browserHost}:8111`;
-const apiBase = import.meta.env.VITE_API_BASE_URL || defaultApiBase;
+const defaultApiBase = "/api";
+const apiBase = (import.meta.env.VITE_API_BASE_URL || defaultApiBase).replace(/\/$/, "");
 const tokenStorageKey = "awk-auth-token";
 const ocrLogPageSize = 10;
 const defaultOcrLogPagination: OcrLogPagination = {
@@ -348,7 +347,7 @@ const viewCopy: Record<ViewKey, { title: string; subtitle: string }> = {
   },
   batch: {
     title: "批量任务",
-    subtitle: "批量导入 PDF、OCR 解析、AI 输出和报告合成。"
+    subtitle: "批量导入 PDF/JSON、OCR 解析、AI 输出和报告合成。"
   },
   review: {
     title: "报告审查",
@@ -369,7 +368,7 @@ const viewCopy: Record<ViewKey, { title: string; subtitle: string }> = {
 };
 
 const jobTypeLabels: Record<string, string> = {
-  import_documents: "导入PDF任务",
+  import_documents: "导入文件任务",
   ocr_documents: "OCR解析任务",
   extract_fields: "字段抽取任务",
   generate_ai_report: "AI输出任务",
@@ -915,12 +914,12 @@ function BatchActions({
     <section className="panel wide-panel">
       <div className="panel-heading">
         <h3>批量流程</h3>
-        <span className="muted">{selectedPackageCode} 已导入 {documents.length} 个PDF</span>
+        <span className="muted">{selectedPackageCode} 已导入 {documents.length} 个文件</span>
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf,.pdf"
+        accept="application/pdf,application/json,.pdf,.json"
         multiple
         className="hidden-file-input"
         onChange={(event) => {
@@ -932,7 +931,7 @@ function BatchActions({
         }}
       />
       <div className={`action-grid ${canRunExport ? "action-grid-wide" : "action-grid-three"}`}>
-        <button onClick={() => inputRef.current?.click()}><UploadCloud size={18} /> 导入PDF任务</button>
+        <button onClick={() => inputRef.current?.click()}><UploadCloud size={18} /> 导入文件任务</button>
         <button onClick={() => void onCreateJob("ocr")}><Activity size={18} /> OCR解析任务</button>
         <button onClick={() => void onCreateJob("interpret")}><ServerCog size={18} /> AI输出任务</button>
         {canRunExport && <button onClick={() => void onCreateJob("export")}><FileText size={18} /> 报告合成任务</button>}
@@ -943,10 +942,10 @@ function BatchActions({
           {latestDocuments.map((document) => (
             <span key={document.document_id}>{document.original_name}</span>
           ))}
-          {documents.length > latestDocuments.length && <span>另有 {documents.length - latestDocuments.length} 个PDF</span>}
+          {documents.length > latestDocuments.length && <span>另有 {documents.length - latestDocuments.length} 个文件</span>}
         </div>
       )}
-      <p className="panel-note">导入和OCR任务使用已选择PDF的真实数量；AI输出会读取最新OCR日志生成报告。</p>
+      <p className="panel-note">导入和OCR任务使用已选择文件的真实数量；JSON会作为完整OCR结果直接归一化，AI输出会读取最新OCR日志生成报告。</p>
     </section>
   );
 }
@@ -1661,6 +1660,7 @@ function ReviewView({
   const [isDeleting, setIsDeleting] = React.useState(false);
   const selectedReport = reports.find((item) => item.report_id === selectedReportId) || detail;
   const isLocked = isLockedReportStatus(selectedReport?.status);
+  const frameKey = `${selectedReportId || "none"}:${selectedPageName || "none"}:${pageContent?.base_url || "no-base"}`;
 
   const saveCurrentPage = async () => {
     if (!canReview || isLocked) return;
@@ -1818,6 +1818,7 @@ function ReviewView({
           </div>
           {pageContent ? (
             <iframe
+              key={frameKey}
               ref={iframeRef}
               className="review-frame"
               title={`报告审查 ${pageContent.page_name}`}
@@ -2040,6 +2041,7 @@ function App() {
     let cancelled = false;
     const loadDetail = async () => {
       try {
+        setReviewPageContent(null);
         const detail = await getJson<ReviewReportDetail>(`/reports/${encodeURIComponent(selectedReviewReportId)}`);
         if (cancelled) return;
         setReviewDetail(detail);
@@ -2069,6 +2071,7 @@ function App() {
     let cancelled = false;
     const loadPage = async () => {
       try {
+        setReviewPageContent(null);
         const page = await getJson<ReportPageContent>(
           `/reports/${encodeURIComponent(selectedReviewReportId)}/pages/${encodeURIComponent(selectedReviewPageName)}`
         );
@@ -2124,16 +2127,16 @@ function App() {
       setImportMessage("当前账号无批量任务权限。");
       return;
     }
-    const pdfFiles = Array.from(files).filter((file) => file.name.toLowerCase().endsWith(".pdf"));
-    if (pdfFiles.length === 0) {
-      setImportMessage("请选择PDF文件。");
+    const documentFiles = Array.from(files).filter((file) => /\.(pdf|json)$/i.test(file.name));
+    if (documentFiles.length === 0) {
+      setImportMessage("请选择PDF或JSON文件。");
       return;
     }
 
     const formData = new FormData();
     formData.append("package_code", selectedPackageCode);
-    pdfFiles.forEach((file) => formData.append("files", file));
-    setImportMessage(`正在导入 ${pdfFiles.length} 个PDF...`);
+    documentFiles.forEach((file) => formData.append("files", file));
+    setImportMessage(`正在导入 ${documentFiles.length} 个文件...`);
     const response = await fetch(`${apiBase}/documents/import`, {
       method: "POST",
       headers: apiHeaders(),
@@ -2145,7 +2148,7 @@ function App() {
     const result = (await response.json()) as ImportDocumentsResponse;
     setJobs((current) => [result.job, ...current.filter((item) => item.job_id !== result.job.job_id)].slice(0, 15));
     setImportedDocuments(result.documents);
-    setImportMessage(`已导入 ${result.documents.length} 个PDF，可继续执行OCR解析任务。`);
+    setImportMessage(`已导入 ${result.documents.length} 个文件，可继续执行OCR解析任务。`);
     await refresh();
   };
 
@@ -2159,7 +2162,7 @@ function App() {
       return;
     }
     if (type === "ocr" && importedDocuments.length === 0) {
-      setImportMessage("请先点击“导入PDF任务”选择PDF文件，再执行OCR解析任务。");
+      setImportMessage("请先点击“导入文件任务”选择PDF或JSON文件，再执行OCR解析任务。");
       return;
     }
     const job = await postJson<Job>(`/batch/${type}`, { package_code: selectedPackageCode });

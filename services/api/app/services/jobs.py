@@ -132,7 +132,7 @@ def _run_ocr_job(job: dict[str, Any]) -> None:
             progress=0,
             succeeded=0,
             failed=0,
-            message="未找到已导入PDF，请先点击“导入PDF任务”选择文件。",
+            message="未找到已导入PDF或JSON，请先点击“导入文件任务”选择文件。",
         )
         return
 
@@ -152,7 +152,7 @@ def _run_ocr_job(job: dict[str, Any]) -> None:
                 confidence=confidence,
                 provider=str(result_json.get("provider") or "pdf-text-extractor"),
                 strategy_version=str(result_json.get("strategy_version") or ""),
-                notes="基于用户导入PDF的文本抽取解析结果；若PDF无文本层则需切换云OCR。",
+                notes="基于用户导入文件的OCR解析结果；JSON会作为完整识别结果直接归一化，PDF会读取文本层。",
             )
             update_document_status(str(document["document_id"]), "parsed")
         except Exception:
@@ -165,7 +165,7 @@ def _run_ocr_job(job: dict[str, Any]) -> None:
             progress=int((index / total) * 100),
             succeeded=succeeded,
             failed=failed,
-            message=f"已解析 {index}/{total} 个PDF",
+            message=f"已解析 {index}/{total} 个文件",
         )
 
     update_job(
@@ -258,5 +258,5 @@ def _run_ai_report_job(job: dict[str, Any]) -> None:
         progress=100,
         succeeded=rendered,
         failed=failed,
-        message=f"AI输出完成：生成 {rendered} 份待审报告，失败 {failed} 份，已清理 {completed_documents} 个导入PDF记录",
+        message=f"AI输出完成：生成 {rendered} 份待审报告，失败 {failed} 份，已清理 {completed_documents} 个导入文件记录",
     )

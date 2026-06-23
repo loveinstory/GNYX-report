@@ -1,6 +1,6 @@
 {
   "package_code": "P17",
-  "strategy_version": "P17-ocr-strategy-v0.2-standard-json-aligned",
+  "strategy_version": "P17-ocr-strategy-v0.3-tail-pathogen-ct",
   "status": "development",
   "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P17",
   "goals": [

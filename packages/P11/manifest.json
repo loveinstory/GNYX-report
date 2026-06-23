@@ -1,0 +1,29 @@
+{
+  "package_code": "P11",
+  "package_name": "食物敏感/免疫相关评估健康管理报告",
+  "status": "development",
+  "version": "0.2.0",
+  "template_version": "P11-html-v0.2-ocr-42-dynamic-binding",
+  "rule_version": "P11-rules-v0.2-food-42-render",
+  "prompt_version": "P11-prompts-v0.2-food-42-ai-diagnosis",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "综合评估结论", "enabled": true },
+    { "page": "page-03.html", "title": "食物不耐受检测结果", "enabled": true },
+    { "page": "page-04.html", "title": "免疫球蛋白亚类检测结果", "enabled": true },
+    { "page": "page-05.html", "title": "深度解读与健康建议", "enabled": true },
+    { "page": "page-06.html", "title": "个性化饮食调整方案", "enabled": true },
+    { "page": "page-07.html", "title": "免疫健康与生活方式管理", "enabled": true },
+    { "page": "page-08.html", "title": "知识科普与长期健康管理", "enabled": true },
+    { "page": "page-09.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

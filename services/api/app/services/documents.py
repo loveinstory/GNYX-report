@@ -20,37 +20,41 @@ def create_import_job_from_files(
     package_code: str,
     files: list[tuple[str, bytes]],
 ) -> dict[str, Any]:
-    pdf_files = [(name, content) for name, content in files if name.lower().endswith(".pdf")]
-    if not pdf_files:
+    document_files = [
+        (name, content)
+        for name, content in files
+        if Path(name).suffix.lower() in {".pdf", ".json"}
+    ]
+    if not document_files:
         job = create_job(
             job_type="import_documents",
             package_code=package_code,
             payload={"file_names": [name for name, _ in files]},
             total=0,
         )
-        update_job(job["job_id"], status="failed", message="未选择PDF文件，请重新导入。")
+        update_job(job["job_id"], status="failed", message="未选择PDF或JSON文件，请重新导入。")
         return {"job": get_job(job["job_id"]), "documents": []}
 
     job = create_job(
         job_type="import_documents",
         package_code=package_code,
-        payload={"file_names": [name for name, _ in pdf_files]},
-        total=len(pdf_files),
+        payload={"file_names": [name for name, _ in document_files]},
+        total=len(document_files),
     )
-    update_job(job["job_id"], status="running", message="正在保存导入PDF")
+    update_job(job["job_id"], status="running", message="正在保存导入文件")
 
     documents: list[dict[str, Any]] = []
-    for index, (original_name, content) in enumerate(pdf_files, start=1):
+    for index, (original_name, content) in enumerate(document_files, start=1):
         documents.append(_save_imported_document(job["job_id"], package_code, original_name, content))
         update_job(
             job["job_id"],
-            progress=int((index / len(pdf_files)) * 100),
+            progress=int((index / len(document_files)) * 100),
             succeeded=index,
             failed=0,
-            message=f"已导入 {index}/{len(pdf_files)} 个PDF",
+            message=f"已导入 {index}/{len(document_files)} 个文件",
         )
 
-    update_job(job["job_id"], status="succeeded", progress=100, message=f"已导入 {len(pdf_files)} 个PDF")
+    update_job(job["job_id"], status="succeeded", progress=100, message=f"已导入 {len(document_files)} 个文件")
     return {"job": get_job(job["job_id"]), "documents": documents}
 
 
@@ -151,6 +155,6 @@ def get_imported_document(document_id: str) -> dict[str, Any]:
 def _safe_filename(name: str) -> str:
     cleaned = Path(name).name.strip() or "document.pdf"
     cleaned = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", cleaned)
-    if not cleaned.lower().endswith(".pdf"):
+    if Path(cleaned).suffix.lower() not in {".pdf", ".json"}:
         cleaned = f"{cleaned}.pdf"
     return cleaned[:160]

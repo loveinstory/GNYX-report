@@ -1,0 +1,71 @@
+{
+  "package_code": "P08",
+  "strategy_version": "P08-ocr-strategy-v0.2-professional-json-adapter",
+  "status": "development",
+  "provider": "professional-json-adapter",
+  "fallback_provider": "pdf-text-extractor",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P08",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P08 心血管代谢风险评估健康管理报告 OCR 策略 v0.2，优先适配 hebing22757.pdf 同形态的 report_info + pages[].test_items 专业 OCR JSON，同时保留 PDF 文本层回退解析。",
+  "goals": [
+    "仅针对 P08《心血管代谢风险评估健康管理报告》生效，不影响其他套餐策略。",
+    "优先读取完整 OCR JSON：report_info 用于条码、送检单位和受检者信息，pages[].test_items 用于多页检验项目、样本类型和日期。",
+    "当输入不是专业 OCR JSON 时，继续回退到文本层表格识别；所有缺失项目必须标记为未识别或待复核，不允许 AI 补造检测数值。",
+    "Ang II/Ang I 比值允许系统计算；计算前必须将 Ang I 与 Ang II 统一到 pg/mL 量纲。"
+  ],
+  "input_contract": {
+    "report_info": {
+      "barcode": "报告条码",
+      "submitting_unit": "送检单位",
+      "patient_name": "受检者姓名",
+      "gender": "性别",
+      "age": "年龄",
+      "specimen_status": "样本状态"
+    },
+    "pages": [
+      {
+        "page_number": "页码",
+        "specimen_type": "本页样本类型",
+        "test_items": [
+          {
+            "test_name": "项目名称",
+            "result": "结果，可为数字或字符串",
+            "indicator": "升降提示，可为空",
+            "reference_range": "参考范围，可为空",
+            "unit": "单位，可为空",
+            "method": "检测方法，可为空"
+          }
+        ],
+        "remark": "备注",
+        "sample_date": "采样日期",
+        "receive_date": "接收日期",
+        "report_date": "报告日期"
+      }
+    ]
+  },
+  "target_indicators": [
+    { "code": "nt_probnp", "name": "N末端B型利钠肽前体", "short_name": "NT-proBNP", "group": "cardiovascular", "source_names": ["N 末端B 型利钠肽前体(NT-proBNP)", "NT-proBNP"], "unit": "pg/mL" },
+    { "code": "d_dimer", "name": "血浆D-二聚体", "short_name": "D-D", "group": "cardiovascular", "source_names": ["血浆D-二聚体（D-D）", "D-Dimer"], "unit": "ug/mL" },
+    { "code": "ffa", "name": "游离脂肪酸", "short_name": "FFA", "group": "cardiovascular", "source_names": ["游离脂肪酸（FFA）", "FFA"], "unit": "mmol/L" },
+    { "code": "angiotensin_i", "name": "血管紧张素I 37℃", "short_name": "Ang I 37℃", "group": "raas", "source_names": ["血管紧张素I 37℃"], "unit": "ng/mL", "display_slot": "p08.raas.angiotensin_i" },
+    { "code": "angiotensin_i_4c", "name": "血管紧张素I 4℃", "short_name": "Ang I 4℃", "group": "raas", "source_names": ["血管紧张素I 4℃"], "unit": "ng/mL", "display_slot": "structured_report.tests only" },
+    { "code": "angiotensin_ii", "name": "血管紧张素II", "short_name": "Ang II", "group": "raas", "source_names": ["血管紧张素II"], "unit": "pg/mL" },
+    { "code": "angiotensin_ratio", "name": "血管紧张素II / I 比值", "short_name": "Ang II/Ang I", "group": "raas", "source_names": ["system_calculated"], "unit": "", "calculation": "Ang II(pg/mL) / Ang I(pg/mL)" },
+    { "code": "renin", "name": "血浆肾素活性", "short_name": "Renin", "group": "raas", "source_names": ["血浆肾素活性"], "unit": "ng/mL/h" },
+    { "code": "aldosterone_renin_ratio", "name": "血醛固酮/血浆肾素活性", "short_name": "ARR", "group": "raas", "source_names": ["血醛固酮／血浆肾素活性"], "unit": "", "display_slot": "structured_report.tests only" },
+    { "code": "aldosterone", "name": "血醛固酮", "short_name": "Aldo", "group": "raas", "source_names": ["血醛固酮（ALD）"], "unit": "pg/mL" }
+  ],
+  "quality_gate": {
+    "expected_source_test_count": 9,
+    "expected_normalized_test_count": 10,
+    "minimum_without_warning": 7,
+    "required_report_codes": ["nt_probnp", "d_dimer", "ffa", "angiotensin_i", "angiotensin_ii", "angiotensin_ratio", "renin", "aldosterone"],
+    "supplemental_source_codes": ["angiotensin_i_4c", "aldosterone_renin_ratio"],
+    "manual_review_required_when_missing": ["nt_probnp", "d_dimer", "angiotensin_i", "angiotensin_ii", "renin", "aldosterone"]
+  },
+  "notes": [
+    "v0.2 根据 hebing22757.pdf 的完整 OCR JSON 样例校准，重点支持多页样本类型：血清、血浆、枸橼酸钠1:9。",
+    "血管紧张素I 37℃作为当前报告模板 Ang I 展示位；血管紧张素I 4℃与血醛固酮/血浆肾素活性作为补充 RAAS 源项目保留在结构化结果中。",
+    "当 Ang I 单位为 ng/mL、Ang II 单位为 pg/mL 时，系统先将 Ang I 换算为 pg/mL 后再计算 Ang II/Ang I。"
+  ]
+}

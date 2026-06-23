@@ -1,0 +1,692 @@
+{
+  "package_code": "P11",
+  "config_version": "P11-fields-v0.2-ocr-42-ai-binding",
+  "description": "P11 ????/???????????????? v0.2???42?OCR?????AI????????????",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "report.assessment_type",
+    "sample.type",
+    "report.method",
+    "report.assessment_date",
+    "patient.submitting_unit",
+    "p11.management_focus",
+    "p11.focus_items.focus_1.name",
+    "p11.focus_items.focus_1.status",
+    "p11.focus_items.focus_2.name",
+    "p11.focus_items.focus_2.status",
+    "p11.overall_summary",
+    "p11.followup_advice"
+  ],
+  "optional_fields": [
+    "patient.symptoms",
+    "p11.focus_items.focus_1.summary",
+    "p11.focus_items.focus_2.summary",
+    "p11.priorities.priority_1.title",
+    "p11.priorities.priority_1.body",
+    "p11.priorities.priority_2.title",
+    "p11.priorities.priority_2.body",
+    "p11.priorities.priority_3.title",
+    "p11.priorities.priority_3.body",
+    "p11.priorities.priority_4.title",
+    "p11.priorities.priority_4.body",
+    "p11.indicators.igg1.result",
+    "p11.indicators.igg1.status",
+    "p11.indicators.igg1.reference_range",
+    "p11.indicators.igg1.range_note",
+    "p11.indicators.igg2.result",
+    "p11.indicators.igg2.status",
+    "p11.indicators.igg2.reference_range",
+    "p11.indicators.igg2.range_note",
+    "p11.indicators.igg3.result",
+    "p11.indicators.igg3.status",
+    "p11.indicators.igg3.reference_range",
+    "p11.indicators.igg3.range_note",
+    "p11.indicators.igg4.result",
+    "p11.indicators.igg4.status",
+    "p11.indicators.igg4.reference_range",
+    "p11.indicators.igg4.range_note",
+    "p11.ai_insight",
+    "p11.disclaimer",
+    "p11.review_note",
+    "organization.phone",
+    "organization.email",
+    "organization.website",
+    "organization.address",
+    "p11.food_results",
+    "p11.food_summary.total_count",
+    "p11.food_summary.positive_count",
+    "p11.food_summary.weak_positive_count",
+    "p11.food_summary.negative_count",
+    "p11.food_summary.attention_names_display",
+    "p11.diet.avoid_note",
+    "p11.diet.recommended_note",
+    "p11.diet.avoid_attention",
+    "p11.diet.recommended_attention",
+    "p11.ai_assisted_diagnosis",
+    "p11.ai_progress_display",
+    "p11.indicators.total_ige.result",
+    "p11.indicators.total_ige.status",
+    "p11.indicators.total_ige.reference_range"
+  ],
+  "field_mapping": [
+    {
+      "key": "patient.name",
+      "label": "姓名",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.name",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.gender",
+      "label": "性别",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.gender",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.age",
+      "label": "年龄",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.age",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.submitting_unit",
+      "label": "送检单位",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.submitting_unit or hospital",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.symptoms",
+      "label": "相关症状",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.clinical_diagnosis",
+      "fill_type": "ocr_or_manual",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_type",
+      "label": "评估类型",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "package.manifest.package_name",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.type",
+      "label": "样本信息",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "system.fixed.空腹血清",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "report.method",
+      "label": "评估方法",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "system.fixed.流式荧光发光法&化学发光法&酶联免疫法",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_date",
+      "label": "评估日期",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.additional_info.report_date or sample_date",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.management_focus",
+      "label": "样本编号",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.report_id or report_info.barcode",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.focus_items.focus_1.name",
+      "label": "重点关注食物1",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "structured_report.tests positive top1",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.focus_items.focus_1.status",
+      "label": "重点关注状态1",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "structured_report.tests positive top1",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.focus_items.focus_1.summary",
+      "label": "重点关注说明1",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "rules or DeepSeek.indicator_interpretations.focus_1_summary",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.focus_items.focus_2.name",
+      "label": "重点关注食物2",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "structured_report.tests positive top2",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.focus_items.focus_2.status",
+      "label": "重点关注状态2",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "structured_report.tests positive top2",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.focus_items.focus_2.summary",
+      "label": "重点关注说明2",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "rules or DeepSeek.indicator_interpretations.focus_2_summary",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_1.title",
+      "label": "管理优先级1标题",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[0].title",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_1.body",
+      "label": "管理优先级1正文",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[0].body",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_2.title",
+      "label": "管理优先级2标题",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[1].title",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_2.body",
+      "label": "管理优先级2正文",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[1].body",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_3.title",
+      "label": "管理优先级3标题",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[2].title",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_3.body",
+      "label": "管理优先级3正文",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[2].body",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_4.title",
+      "label": "管理优先级4标题",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[3].title",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.priorities.priority_4.body",
+      "label": "管理优先级4正文",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.recommendations.management_priorities[3].body",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.overall_summary",
+      "label": "AI健康管理洞察",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.overall_summary with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.ai_insight",
+      "label": "AI提示",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "DeepSeek.indicator_interpretations.immune_summary or overall_summary",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.indicators.igg1.result",
+      "label": "IgG1结果",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg1].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg1.status",
+      "label": "IgG1状态",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg1.reference_range",
+      "label": "IgG1参考范围",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg1].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg1.range_note",
+      "label": "IgG1范围说明",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg2.result",
+      "label": "IgG2结果",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg2].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg2.status",
+      "label": "IgG2状态",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg2.reference_range",
+      "label": "IgG2参考范围",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg2].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg2.range_note",
+      "label": "IgG2范围说明",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg3.result",
+      "label": "IgG3结果",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg3].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg3.status",
+      "label": "IgG3状态",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg3.reference_range",
+      "label": "IgG3参考范围",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg3].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg3.range_note",
+      "label": "IgG3范围说明",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg4.result",
+      "label": "IgG4结果",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg4].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg4.status",
+      "label": "IgG4状态",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg4.reference_range",
+      "label": "IgG4参考范围",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "structured_report.tests[item_code=igg4].reference_range",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.indicators.igg4.range_note",
+      "label": "IgG4范围说明",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules from reference_range",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.followup_advice",
+      "label": "后续行动",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "DeepSeek.recommendations.followup_advice",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.disclaimer",
+      "label": "免责声明",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "DeepSeek.safety.disclaimer with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.review_note",
+      "label": "审核信息",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "DeepSeek.review_note",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "organization.phone",
+      "label": "联系电话",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "system.organization.phone",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.email",
+      "label": "电子邮箱",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "system.organization.email",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.website",
+      "label": "官方网站",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "system.organization.website",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.address",
+      "label": "公司地址",
+      "pages": [
+        "page-09.html"
+      ],
+      "source": "system.organization.address",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.food_results",
+      "label": "42??????????",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "structured_report.tests[item_code startswith food_] ordered by OCR id/index",
+      "fill_type": "ocr_dynamic",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.food_summary.total_count",
+      "label": "??????",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "count(p11.food_results)",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.food_summary.attention_names_display",
+      "label": "??/???????",
+      "pages": [
+        "page-02.html",
+        "page-05.html",
+        "page-06.html"
+      ],
+      "source": "positive and weak-positive food results from OCR",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p11.ai_assisted_diagnosis",
+      "label": "AI????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "DeepSeek.ai_assisted_diagnosis with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.diet.avoid_note",
+      "label": "??????",
+      "pages": [
+        "page-06.html"
+      ],
+      "source": "DeepSeek.recommendations.avoid_note with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.diet.recommended_note",
+      "label": "??????",
+      "pages": [
+        "page-06.html"
+      ],
+      "source": "DeepSeek.recommendations.recommended_note with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.diet.avoid_attention",
+      "label": "????????",
+      "pages": [
+        "page-06.html"
+      ],
+      "source": "DeepSeek.recommendations.avoid_attention with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.diet.recommended_attention",
+      "label": "????????",
+      "pages": [
+        "page-06.html"
+      ],
+      "source": "DeepSeek.recommendations.recommended_attention with rules fallback",
+      "fill_type": "ai_or_rules",
+      "status": "ai_connected"
+    },
+    {
+      "key": "p11.indicators.total_ige.result",
+      "label": "?IgE??",
+      "pages": [
+        "report-data.json"
+      ],
+      "source": "structured_report.tests[item_code=total_ige].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    }
+  ],
+  "result_table_fields": [
+    "p11.indicators.igg1",
+    "p11.indicators.igg2",
+    "p11.indicators.igg3",
+    "p11.indicators.igg4",
+    "p11.food_results",
+    "p11.indicators.total_ige"
+  ],
+  "ai_connected_fields": [
+    "p11.focus_items.focus_1.summary",
+    "p11.focus_items.focus_2.summary",
+    "p11.priorities.priority_1.title",
+    "p11.priorities.priority_1.body",
+    "p11.priorities.priority_2.title",
+    "p11.priorities.priority_2.body",
+    "p11.priorities.priority_3.title",
+    "p11.priorities.priority_3.body",
+    "p11.priorities.priority_4.title",
+    "p11.priorities.priority_4.body",
+    "p11.overall_summary",
+    "p11.ai_insight",
+    "p11.followup_advice",
+    "p11.disclaimer",
+    "p11.review_note",
+    "p11.ai_assisted_diagnosis",
+    "p11.diet.avoid_note",
+    "p11.diet.recommended_note",
+    "p11.diet.avoid_attention",
+    "p11.diet.recommended_attention"
+  ],
+  "notes": [
+    "P11 ???????D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P11\\P11?",
+    "v0.2 ?? reportMeta + foodIntoleranceResults ???42?OCR????????3???????5?AI??????6??????",
+    "?42??????????????????????????????????"
+  ]
+}

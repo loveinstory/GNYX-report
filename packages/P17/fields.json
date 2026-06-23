@@ -1,7 +1,7 @@
 {
   "package_code": "P17",
-  "config_version": "P17-fields-v0.8-submitting-unit-homepage",
-  "description": "P17 field mapping: homepage patient card uses OCR-recognized submitting unit instead of phone, page 03 keeps full conditional pathogen list, and visible AI-generated fields are marked as ai_connected.",
+  "config_version": "P17-fields-v1.1-pathogen-page04-status",
+  "description": "P17 field mapping: homepage patient card uses OCR-recognized submitting unit, core judgment subtitles are bound to rule-derived positive item names, page 04 pathogen analysis status is rule-derived, and visible AI-generated fields are marked as ai_connected.",
   "required_fields": [
     "patient.name",
     "patient.gender",
@@ -22,12 +22,14 @@
     "p17.b族链球菌.result_display",
     "p17.b族链球菌.trend_display",
     "p17.caution_note",
+    "p17.conditional_pathogen_focus_names",
     "p17.conditional_pathogen_status",
     "p17.conditional_pathogen_summary",
     "p17.diet_limit_advice",
     "p17.disclaimer",
     "p17.exercise_detail_advice",
     "p17.followup_advice",
+    "p17.good_bacteria_focus_names",
     "p17.good_bacteria_status",
     "p17.good_bacteria_summary",
     "p17.hpv_11.result_display",
@@ -74,6 +76,8 @@
     "p17.microecology_management_advice_4",
     "p17.nutrition_advice",
     "p17.overall_summary",
+    "p17.pathogen_analysis_status",
+    "p17.pathogen_focus_names",
     "p17.pathogen_status",
     "p17.pathogen_summary",
     "p17.protein_advice",
@@ -230,6 +234,17 @@
       "status": "mapped"
     },
     {
+      "key": "p17.conditional_pathogen_focus_names",
+      "label": "实际阳性条件致病菌名称",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "small",
+      "source": "P17 rules: conditional pathogen positive item names from OCR",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
       "key": "p17.conditional_pathogen_summary",
       "label": "检测到白假丝酵母菌、阴道加德纳菌、微小脲原体、解脲脲原体等定植 / 条件致病菌阳性，提示微生态失衡风险需关注。",
       "pages": [
@@ -294,6 +309,17 @@
       "tag": "strong",
       "source": "ai_output / P17 rules fallback",
       "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.good_bacteria_focus_names",
+      "label": "实际阳性有益菌名称",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "small",
+      "source": "P17 rules: good bacteria positive item names from OCR",
+      "fill_type": "rules",
       "status": "mapped"
     },
     {
@@ -804,6 +830,28 @@
       "tag": "strong",
       "source": "ai_output / P17 rules fallback",
       "fill_type": "ai_or_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.pathogen_analysis_status",
+      "label": "需关注",
+      "pages": [
+        "page-04.html"
+      ],
+      "tag": "strong",
+      "source": "P17 rules: 良好 when pathogen group is all negative, 需关注 when any pathogen is positive",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p17.pathogen_focus_names",
+      "label": "实际阳性致病菌名称",
+      "pages": [
+        "page-02.html"
+      ],
+      "tag": "small",
+      "source": "P17 rules: pathogen positive item names from OCR",
+      "fill_type": "rules",
       "status": "mapped"
     },
     {
@@ -1597,13 +1645,13 @@
     },
     {
       "key": "report.method",
-      "label": "HPV分型与阴道微生态综合评估",
+      "label": "荧光PCR法",
       "pages": [
         "page-01.html"
       ],
       "tag": "strong",
-      "source": "structured_report.metadata",
-      "fill_type": "ocr_or_rules",
+      "source": "system.fixed.荧光PCR法",
+      "fill_type": "system",
       "status": "mapped"
     },
     {
@@ -1619,13 +1667,13 @@
     },
     {
       "key": "sample.type",
-      "label": "阴道分泌物",
+      "label": "分泌物",
       "pages": [
         "page-01.html"
       ],
       "tag": "strong",
-      "source": "structured_report.metadata",
-      "fill_type": "ocr_or_rules",
+      "source": "system.fixed.分泌物",
+      "fill_type": "system",
       "status": "mapped"
     }
   ]

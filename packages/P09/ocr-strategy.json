@@ -1,0 +1,71 @@
+{
+  "package_code": "P09",
+  "strategy_version": "P09-ocr-strategy-v0.2-structured-json-row-adapter",
+  "status": "development",
+  "provider": "professional-json-adapter",
+  "fallback_provider": "pdf-text-extractor",
+  "source_template": "C:\\Users\\Administrator\\Desktop\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P09",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P09 女性激素平衡评估健康管理报告 OCR 策略 v0.2，优先适配 hebing93044.pdf 同形态的 report_info + pages[].test_items 专业 OCR JSON，同时增强 PDF 文本层单位前置行解析。",
+  "goals": [
+    "仅针对 P09《女性激素平衡评估健康管理报告》生效，不影响其他套餐策略。",
+    "优先读取完整 OCR JSON：report_info 用于条码、送检单位和受检者信息，pages[].test_items 用于多页检验项目、样本类型和日期。",
+    "当输入不是专业 OCR JSON 时，回退到 PDF 文本层行级解析，支持“单位 + 方法 + 项目名 + 结果 + 参考范围”和“项目名 + 结果 + 方法 + 参考范围 + 单位”两类布局。",
+    "当前核心报告项目包括 E2、LH、FSH、PROG、T、SHBG、AMH、PRL；Cortisol 作为可选项目保留。"
+  ],
+  "input_contract": {
+    "report_info": {
+      "barcode": "报告条码",
+      "submitting_unit": "送检单位",
+      "patient_name": "受检者姓名",
+      "gender": "性别",
+      "age": "年龄",
+      "specimen_status": "样本状态"
+    },
+    "pages": [
+      {
+        "page_number": "页码",
+        "specimen_type": "本页样本类型",
+        "test_items": [
+          {
+            "test_name": "项目名称",
+            "result": "结果，可为数字或字符串",
+            "indicator": "升降提示，可为空",
+            "reference_range": "参考范围，可为空",
+            "unit": "单位，可为空",
+            "method": "检测方法，可为空"
+          }
+        ],
+        "remark": "备注",
+        "sample_date": "采样日期",
+        "receive_date": "接收日期",
+        "report_date": "报告日期"
+      }
+    ]
+  },
+  "target_indicators": [
+    { "code": "e2", "name": "雌二醇", "short_name": "E2", "unit": "pg/mL", "source_names": ["雌二醇", "E2", "Estradiol"] },
+    { "code": "lh", "name": "促黄体生成素", "short_name": "LH", "unit": "mIU/mL", "source_names": ["促黄体生成素", "黄体生成素", "LH"] },
+    { "code": "fsh", "name": "促卵泡刺激素", "short_name": "FSH", "unit": "mIU/mL", "source_names": ["促卵泡刺激素", "卵泡刺激素", "FSH"] },
+    { "code": "progesterone", "name": "孕酮", "short_name": "PROG", "unit": "ng/mL", "source_names": ["孕酮", "孕激素", "Progesterone", "PROG"] },
+    { "code": "testosterone", "name": "睾酮", "short_name": "T", "unit": "ng/mL", "source_names": ["睾酮", "总睾酮", "Testosterone"] },
+    { "code": "cortisol", "name": "皮质醇", "short_name": "Cortisol", "unit": "nmol/L", "source_names": ["皮质醇", "Cortisol", "CORT"], "display_slot": "optional" },
+    { "code": "shbg", "name": "性激素结合球蛋白", "short_name": "SHBG", "unit": "nmol/L", "source_names": ["性激素结合球蛋白", "SHBG"] },
+    { "code": "amh", "name": "抗缪勒氏管激素", "short_name": "AMH", "unit": "ng/mL", "source_names": ["抗缪勒氏管激素", "抗穆勒氏管激素", "AMH"] },
+    { "code": "prolactin", "name": "泌乳素", "short_name": "PRL", "unit": "uIU/mL", "source_names": ["泌乳素", "催乳素", "PRL", "Prolactin"] }
+  ],
+  "quality_gate": {
+    "expected_source_test_count": 8,
+    "expected_normalized_test_count": 8,
+    "minimum_without_warning": 8,
+    "required_report_codes": ["e2", "lh", "fsh", "progesterone", "testosterone", "shbg", "amh", "prolactin"],
+    "optional_codes": ["cortisol"],
+    "manual_review_required_when_missing": ["e2", "lh", "fsh", "progesterone", "testosterone", "shbg", "amh", "prolactin"]
+  },
+  "notes": [
+    "v0.2 根据 hebing93044.pdf 校准，修正短英文别名误命中页码、单位前置行串行、参考范围只抓首段等问题。",
+    "PDF 文本层解析会优先保留原始报告的多阶段参考范围；缺少月经周期阶段时，结果落入任一原始参考区间即标记为正常范围，否则进入人工复核或异常提示。",
+    "皮质醇参考范围受采样时间影响较大，缺少原始参考范围时只标记为待复核。",
+    "所有异常和缺失项目均需要进入人工复核。"
+  ]
+}

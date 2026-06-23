@@ -387,7 +387,11 @@ def sync_existing_case_reports() -> None:
             str(row["report_id"])
             for row in conn.execute("SELECT report_id FROM reports").fetchall()
         }
-    for case_dir in sorted(settings.cases_dir.glob("report_*"), key=lambda path: path.stat().st_mtime, reverse=True):
+    try:
+        case_dirs = sorted(settings.cases_dir.glob("report_*"), key=lambda path: path.stat().st_mtime, reverse=True)
+    except FileNotFoundError:
+        case_dirs = []
+    for case_dir in case_dirs:
         if case_dir.name in existing:
             continue
         data_path = case_dir / "report-data.json"

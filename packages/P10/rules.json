@@ -1,0 +1,47 @@
+﻿{
+  "package_code": "P10",
+  "version": "P10-rules-v0.1-ai-binding-layout",
+  "status": "draft",
+  "description": "P10 男性激素与代谢状态评估健康管理报告规则草案 v0.1",
+  "method": "前列腺特异抗原（PSA）、吸烟代谢、酒精代谢、乳糖代谢、咖啡代谢基因综合评估",
+  "principles": [
+    "优先读取原始检验报告中的结果、单位、参考范围和异常标记。",
+    "当原始报告给出升高、降低、异常或正常提示时，优先采用原始报告结论。",
+    "PSA、游离PSA、比值及各基因检测结果必须以实际识别结果为准，不得补造数值。",
+    "PSA解读必须结合年龄、前列腺体积、炎症等因素进行人工复核；系统首版不自动给出临床诊断。",
+    "健康管理建议定位为生活方式优化、阶段复评和专业咨询提醒，不输出治疗方案、药物剂量或绝对化结论。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "indicator_groups": {
+    "prostate_health": ["tPSA", "fPSA", "f/tPSA"],
+    "smoking_metabolism": ["CYP1A1"],
+    "alcohol_metabolism": ["ALDH2"],
+    "lactose_metabolism": ["LCT"],
+    "caffeine_metabolism": ["CYP1A2"]
+  },
+  "reference_defaults": {
+    "psa": "0.00~4.00 ng/mL",
+    "psa_free": "0.00~1.00 ng/mL",
+    "psa_ratio": ">10%",
+    "cyp1a1": "基因型决定代谢能力（快代谢/中代谢/慢代谢）",
+    "aldh2": "基因型决定酒精代谢能力及乙醛堆积风险",
+    "lct": "基因型决定乳糖耐受能力",
+    "cyp1a2": "基因型决定咖啡因代谢速率"
+  },
+  "ai_field_mapping": {
+    "overall_summary": "p10.overall_summary",
+    "indicator_interpretations.psa_summary": "p10.indicators.psa.interpretation",
+    "indicator_interpretations.smoking_summary": "p10.deep_dive.smoking.summary",
+    "indicator_interpretations.alcohol_summary": "p10.deep_dive.alcohol.summary",
+    "indicator_interpretations.lactose_summary": "p10.deep_dive.lactose.summary",
+    "indicator_interpretations.caffeine_summary": "p10.deep_dive.caffeine.summary",
+    "recommendations.management_priorities[0..3]": "p10.priorities.priority_1 至 p10.priorities.priority_4",
+    "recommendations.followup_advice": "p10.followup_advice",
+    "safety.disclaimer": "p10.disclaimer",
+    "review_note": "p10.review_note"
+  },
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  }
+}

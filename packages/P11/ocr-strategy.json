@@ -1,0 +1,10 @@
+{
+  "package_code": "P11",
+  "strategy_version": "P11-ocr-strategy-v0.4-food-intolerance-42-adapter",
+  "status": "development",
+  "provider": "p11-reportmeta-food-json-adapter",
+  "fallback_provider": "pdf-text-extractor",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P11\\P11",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P11 OCR 策略 v0.4，优先适配食物不耐受完整42项 OCR JSON（reportMeta + foodIntoleranceResults），同时兼容 reportMeta + sections[].results + foodAppendix 综合 JSON，覆盖 IgG1-IgG4、总IgE 和食物不耐受项目；当输入为 PDF 时保留文本层回退解析。"
+}

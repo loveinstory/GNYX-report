@@ -2,7 +2,7 @@
   "package_code": "P07",
   "package_name": "肝脏解毒功能评估健康管理报告",
   "status": "development",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "template_version": "P07-html-v0.4-symptom-address-cleanup",
   "rule_version": "P07-rules-v0.2-original-report-aligned",
   "prompt_version": "P07-prompts-v0.2-field-bound-a4",
