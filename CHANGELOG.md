@@ -6,6 +6,9 @@
 
 ### 新增与完善
 
+- 新增 P14「安康御癌专项评估健康管理报告」研发接入，包含 11 页 HTML 模板、关键字段配置、规则草案、OCR 策略占位和 AI 提示词；当前已完成第01-04、06-08、11页关键 `data-field` 绑定，并接入基础报告数据骨架与 AI 合并链路。
+- 新增并升级 P13「年轻力精准评估健康管理报告」研发接入，包含 10 页 HTML 模板、字段配置、规则、OCR 策略和 AI 提示词；OCR 策略升级至 `P13-ocr-strategy-v0.2-telomere-json-pdf`，支持端粒报告 JSON OCR 结构和同版 PDF 文本层解析，第 07 页已调用 `assets/images/p07-food-pyramid.png` 食物金字塔图片。
+- 新增并升级 P16「药物基因组学评估健康管理报告」研发接入，包含 16 页 HTML 模板、字段配置、规则、OCR 策略和 AI 提示词；OCR 策略升级至 `P16-ocr-strategy-v0.2-pgx-multireport-json-pdf`，支持 `reports[]` 多报告聚合 JSON OCR 结构，并在解析 `hebing44831.pdf` 时优先读取同目录 `OCR.txt` 作为结构化 sidecar 输入。
 - 新增 P08「心血管代谢风险评估健康管理报告」研发接入，包含模板工程化、字段配置、规则草案、OCR 策略和 AI 提示词。
 - 升级 P08 OCR 策略至 `P08-ocr-strategy-v0.2-professional-json-adapter`，适配 `hebing22757.pdf` 同形态完整 OCR JSON，保留 9 个源检验项目并单位换算生成 Ang II/Ang I 比值。
 - 调整 P08 首页患者信息：联系电话改为送检单位，样本信息和评估方法改为固定展示，并新增报告编号字段绑定 OCR 条形码。

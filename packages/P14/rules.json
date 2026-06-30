@@ -1,0 +1,41 @@
+{
+  "package_code": "P14",
+  "version": "P14-rules-v0.2-ocr-grounded",
+  "status": "draft",
+  "description": "P14 安康御癌专项评估健康管理报告规则初版，当前围绕肿瘤风险指标结果概览、随访优先级和健康管理建议建立字段骨架，后续需结合真实样例继续校准专项判定边界。",
+  "method": "多维风险综合评估",
+  "principles": [
+    "优先使用原始报告或 OCR 结构化结果中的项目名称、结果、单位、参考范围与异常标识。",
+    "不得编造未识别项目、具体疾病诊断、治疗方案、药物处方或绝对化结论。",
+    "综合结论只用于健康管理分层与随访提醒，所有导出报告在使用前必须经过人工复核。",
+    "若核心项目缺失、参考范围不完整或连续复测数据不足，必须明确提示“待补录/待人工复核”。"
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  },
+  "rules": [
+    {
+      "rule_id": "p14_cda_attention",
+      "item_code": "cda",
+      "item_name": "CDA",
+      "condition": { "status_in": ["偏高", "异常", "需关注"] },
+      "classification": { "risk_level": "attention", "result_display": "建议随访" },
+      "report_text": {
+        "short_interpretation": "CDA 指标提示需要结合既往病史、症状和其他肿瘤风险线索进行综合复核。",
+        "advice": "建议围绕生活方式、代谢压力与复测计划开展阶段性健康管理。"
+      }
+    },
+    {
+      "rule_id": "p14_ctc_followup",
+      "item_code": "ctc",
+      "item_name": "CTC计数",
+      "condition": { "status_in": ["需关注", "待复核"] },
+      "classification": { "risk_level": "followup", "result_display": "重点随访" },
+      "report_text": {
+        "short_interpretation": "CTC 结果需要结合采样背景、既往复测记录和临床资料综合判断。",
+        "advice": "如已有连续复测结果，建议结合趋势变化安排阶段性复查与人工审核。"
+      }
+    }
+  ]
+}

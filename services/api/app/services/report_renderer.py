@@ -57,6 +57,7 @@ P09_STATUS_CLASSES = ("normal-pill", "warn-pill", "status-high", "status-normal"
 P10_STATUS_CLASSES = ("status-green", "status-orange", "status-blue", "status-red")
 P11_PILL_CLASSES = ("pill-red", "pill-orange", "pill-green")
 P11_FOCUS_STATUS_CLASSES = ("status-red", "status-orange", "status-green")
+P12_STATUS_CLASSES = ("red", "green", "orange", "red-text", "green-text", "orange-text", "status-high", "status-normal", "status-low")
 P03_INDICATOR_CODES = (
     "alb",
     "glucose",
@@ -144,6 +145,10 @@ def render_report(package_code: str, report_data: dict[str, Any]) -> dict[str, s
             _apply_p10_dynamic_styles(soup)
         if package_code.upper() == "P11":
             _apply_p11_dynamic_styles(soup, report_data)
+        if package_code.upper() == "P12":
+            _apply_p12_dynamic_styles(soup, report_data)
+        if package_code.upper() == "P15":
+            _apply_p15_dynamic_styles(soup, report_data)
         if package_code.upper() == "P17":
             _apply_p17_dynamic_styles(soup)
         html_path.write_text(str(soup), encoding="utf-8")
@@ -1092,6 +1097,154 @@ def _p09_pointer_from_status(status: str) -> float:
     if any(word in text for word in ("偏高",)):
         return 79.0
     return 48.0
+
+
+def _apply_p12_dynamic_styles(soup: BeautifulSoup, report_data: dict[str, Any]) -> None:
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p12."):
+            continue
+        if not field_key.endswith((".status", ".status_display", ".warning_note")):
+            continue
+        status_class = _p12_status_class(node.get_text(" ", strip=True))
+        _remove_classes(node, P12_STATUS_CLASSES)
+        if not status_class:
+            continue
+        _add_class(node, status_class)
+        existing = list(node.get("class", []))
+        if "status-pill" in existing:
+            if status_class == "status-normal":
+                _add_class(node, "green")
+            elif status_class == "status-high":
+                _add_class(node, "red")
+            else:
+                _add_class(node, "orange")
+        elif node.name in {"b", "td", "span", "p"}:
+            if status_class == "status-normal":
+                _add_class(node, "green-text")
+            elif status_class == "status-high":
+                _add_class(node, "red-text")
+            else:
+                _add_class(node, "orange-text")
+
+        card = _find_first_ancestor_with_any_class(node, ("result-card", "judgement-card", "metric-item"))
+        if card is not None:
+            _remove_classes(card, ("red", "green", "orange"))
+            if status_class == "status-normal":
+                _add_class(card, "green")
+            elif status_class == "status-high":
+                _add_class(card, "red")
+            else:
+                _add_class(card, "orange")
+    _apply_p12_nad_chart_marker(soup, report_data)
+
+
+def _apply_p12_nad_chart_marker(soup: BeautifulSoup, report_data: dict[str, Any]) -> None:
+    p12 = report_data.get("p12", {}) if isinstance(report_data.get("p12"), dict) else {}
+    indicators = p12.get("indicators", {}) if isinstance(p12.get("indicators"), dict) else {}
+    nad = indicators.get("nad", {}) if isinstance(indicators.get("nad"), dict) else {}
+    value = _safe_float_for_render(nad.get("raw_value") or nad.get("result") or nad.get("result_display"))
+    if value is None:
+        return
+    marker_text = str(p12.get("nad_chart_marker") or nad.get("result_display") or "").strip() or "未识别"
+    patient = report_data.get("patient", {}) if isinstance(report_data.get("patient"), dict) else {}
+    age = _safe_float_for_render(patient.get("age"))
+    if age is None:
+        x = 300.0
+    else:
+        x = 58.0 + (min(max(age, 20.0), 80.0) - 20.0) / 60.0 * 550.0
+    y = 300.0 - min(max(value, 0.0), 120.0) / 120.0 * 260.0
+    y = min(max(y, 44.0), 292.0)
+    bubble_y = max(y - 44.0, 40.0)
+    label_y = bubble_y + 22.0
+    pointer_y = bubble_y + 35.0
+    bubble_padding = 18.0
+    bubble_width = max(74.0, min(160.0, len(marker_text) * 9.2 + bubble_padding * 2.0))
+    bubble_left = min(max(x + 12.0, 70.0), 608.0 - bubble_width - 10.0)
+    bubble_tip = bubble_left
+    bubble_text_x = bubble_left + bubble_width / 2.0
+    bubble_right = bubble_left + bubble_width
+    bubble_inner_left = bubble_left + 14.0
+    for node in soup.select(".nad-marker-line"):
+        node["y1"] = f"{y:.1f}"
+        node["y2"] = f"{y:.1f}"
+    for node in soup.select(".nad-marker-stem"):
+        node["x1"] = f"{x:.1f}"
+        node["x2"] = f"{x:.1f}"
+        node["y1"] = f"{y:.1f}"
+    for node in soup.select(".nad-marker-dot"):
+        node["cx"] = f"{x:.1f}"
+        node["cy"] = f"{y:.1f}"
+    for node in soup.select(".nad-marker-bubble"):
+        node["d"] = (
+            f"M{bubble_tip:.1f} {pointer_y:.1f} L{bubble_inner_left:.1f} {bubble_y:.1f} L{bubble_right:.1f} {bubble_y:.1f} "
+            f"Q{bubble_right + 8:.1f} {bubble_y:.1f} {bubble_right + 8:.1f} {bubble_y + 8:.1f} "
+            f"L{bubble_right + 8:.1f} {bubble_y + 27:.1f} Q{bubble_right + 8:.1f} {bubble_y + 35:.1f} {bubble_right:.1f} {bubble_y + 35:.1f} "
+            f"L{bubble_inner_left - 8:.1f} {bubble_y + 35:.1f} Z"
+        )
+    for node in soup.select(".nad-marker-label"):
+        node.string = marker_text
+        node["x"] = f"{bubble_text_x:.1f}"
+        node["y"] = f"{label_y:.1f}"
+    for node in soup.select(".nad-age-label"):
+        node["x"] = f"{x - 5.0:.1f}"
+
+
+def _apply_p15_dynamic_styles(soup: BeautifulSoup, report_data: dict[str, Any]) -> None:
+    p15 = report_data.get("p15", {}) if isinstance(report_data.get("p15"), dict) else {}
+    exposure_index = p15.get("exposure_index", {}) if isinstance(p15.get("exposure_index"), dict) else {}
+    level = str(exposure_index.get("level") or "")
+
+    for node in soup.select("[data-field]"):
+        field_key = str(node.get("data-field") or "")
+        if not field_key.startswith("p15.results.") or not field_key.endswith(".status"):
+            continue
+        status_text = node.get_text(" ", strip=True)
+        status_class = _p08_status_class(status_text)
+        if status_class == "status-normal":
+            _add_class(node, "green-text")
+        elif status_class == "status-high":
+            _add_class(node, "red-text")
+        elif status_class == "status-low":
+            _add_class(node, "orange-text")
+
+        status_wrap = _find_first_ancestor_with_any_class(node, ("status-wrap",))
+        if status_wrap is None:
+            continue
+        bar = status_wrap.select_one(".bar")
+        if bar is None:
+            continue
+        if status_class == "status-high":
+            _add_class(bar, "redbar")
+        else:
+            _remove_classes(bar, ("redbar",))
+
+    needle = soup.select_one(".gauge-needle")
+    icon = soup.select_one(".gauge-icon")
+    if needle is not None:
+        rotation = "-34"
+        if "中度" in level:
+            rotation = "6"
+        elif "高度" in level or "高风险" in level:
+            rotation = "34"
+        elif "平稳" in level or "低风险" in level:
+            rotation = "-62"
+        needle["transform"] = f"rotate({rotation} 380 300)"
+    if icon is not None:
+        icon.string = "!" if "预警" in level else "✓"
+
+
+def _p12_status_class(value: str) -> str:
+    text = "".join(str(value or "").split())
+    if not text:
+        return ""
+    if any(word in text for word in ("严重不足", "中度耗竭", "偏低", "偏高", "异常", "需重点关注", "不足")):
+        return "status-high"
+    if any(word in text for word in ("轻度失衡", "建议干预", "待复核", "待补录", "未识别")):
+        return "status-low"
+    if any(word in text for word in ("正常", "良好", "平衡", "理想", "水平良好", "整体平稳")):
+        return "status-normal"
+    return ""
 
 
 def _parse_numeric_bounds(reference_text: str) -> list[tuple[float | None, float | None]]:

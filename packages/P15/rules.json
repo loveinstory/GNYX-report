@@ -1,0 +1,42 @@
+{
+  "package_code": "P15",
+  "version": "P15-rules-v0.1-initial-binding",
+  "status": "draft",
+  "description": "P15 环境荷尔蒙评估健康管理报告规则初版，围绕环境激素暴露结果、综合暴露分层、风险提示和长期管理建议提供结构化兜底。",
+  "method": "质谱分析技术",
+  "principles": [
+    "优先使用原始报告或OCR结构化结果中的项目名称、结果、单位、参考范围与异常标识。",
+    "不得编造未识别项目、结果值、临床诊断、药物治疗方案或绝对化结论。",
+    "综合暴露指数与风险提示应围绕已识别异常项目数量、异常程度与潜在暴露类别生成。",
+    "生活方式建议聚焦于减少环境激素暴露、支持代谢排出和阶段性复评，不输出处方与治疗承诺。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  },
+  "rules": [
+    {
+      "rule_id": "p15_ee2_high",
+      "item_code": "ee2",
+      "item_name": "17α-乙炔基雌二醇",
+      "condition": { "status": "升高" },
+      "classification": { "risk_level": "attention", "result_display": "升高" },
+      "report_text": {
+        "short_interpretation": "合成雌激素暴露升高提示需要重点排查外源性激素接触、饮水与塑化材料来源。",
+        "advice": "建议优先梳理药物使用、饮用水来源、塑料接触习惯与个护产品暴露，并结合阶段性复评观察变化。"
+      }
+    },
+    {
+      "rule_id": "p15_multi_exposure_attention",
+      "item_code": "exposure_summary",
+      "item_name": "综合暴露负荷",
+      "condition": { "abnormal_count_gte": 2 },
+      "classification": { "risk_level": "attention", "result_display": "需重点关注" },
+      "report_text": {
+        "short_interpretation": "当存在多个环境激素或内分泌干扰物异常时，应优先从日常接触源进行分层排查。",
+        "advice": "建议围绕饮水、塑料、化妆品、清洁剂和药物接触建立阶段性减暴露计划，并在8-12周后复评。"
+      }
+    }
+  ]
+}

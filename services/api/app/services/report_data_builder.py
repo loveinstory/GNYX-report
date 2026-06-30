@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 import re
 from typing import Any
 
@@ -93,6 +94,71 @@ P11_TEMPLATE_VERSION = "P11-html-v0.1-initial-binding"
 P11_RULE_VERSION = "P11-rules-v0.1-draft"
 P11_PROMPT_VERSION = "P11-prompts-v0.1-a4-bound"
 P11_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼5层"
+P12_REPORT_NAME = "线粒体能量与疲劳评估健康管理报告"
+P12_ASSESSMENT_TYPE = "线粒体能量与疲劳评估"
+P12_SAMPLE_TYPE = "能量代谢相关样本"
+P12_METHOD = "CoQ10 / NAD+ 综合评估"
+P12_TEMPLATE_VERSION = "P12-html-v0.3-antioxidant-page"
+P12_RULE_VERSION = "P12-rules-v0.2-ocr-json"
+P12_PROMPT_VERSION = "P12-prompts-v0.2-ocr-json-antioxidant"
+P12_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P12_ANTIOXIDANT_CODES = {"tac", "gpx", "sod", "lpo", "gsh"}
+P13_REPORT_NAME = "年轻力精准评估健康管理报告"
+P13_ASSESSMENT_TYPE = "年轻力精准评估"
+P13_SAMPLE_TYPE = "口腔黏膜细胞"
+P13_METHOD = "荧光PCR"
+P13_TEMPLATE_VERSION = "P13-html-v0.3-template-ocr-ai-binding"
+P13_RULE_VERSION = "P13-rules-v0.3-template-ocr-ai-binding"
+P13_PROMPT_VERSION = "P13-prompts-v0.3-template-ocr-ai-binding"
+P13_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P14_REPORT_NAME = "安康御癌专项评估健康管理报告"
+P14_ASSESSMENT_TYPE = "安康御癌专项评估"
+P14_SAMPLE_TYPE = "肿瘤风险指标"
+P14_METHOD = "多维风险综合评估"
+P14_TEMPLATE_VERSION = "P14-html-v0.2-ocr-grounded"
+P14_RULE_VERSION = "P14-rules-v0.2-ocr-grounded"
+P14_PROMPT_VERSION = "P14-prompts-v0.2-ocr-grounded"
+P14_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P15_REPORT_NAME = "环境荷尔蒙评估健康管理报告"
+P15_ASSESSMENT_TYPE = "环境荷尔蒙评估"
+P15_SAMPLE_TYPE = "尿液环境激素代谢物"
+P15_METHOD = "质谱分析技术"
+P15_TEMPLATE_VERSION = "P15-html-v0.1-initial-binding"
+P15_RULE_VERSION = "P15-rules-v0.1-initial-binding"
+P15_PROMPT_VERSION = "P15-prompts-v0.1-initial-binding"
+P15_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P16_REPORT_NAME = "药物基因组学评估健康管理报告"
+P16_ASSESSMENT_TYPE = "药物基因组学评估"
+P16_SAMPLE_TYPE = "药物基因组学样本"
+P16_METHOD = "基因多态性分析"
+P16_TEMPLATE_VERSION = "P16-html-v0.1-initial-binding"
+P16_RULE_VERSION = "P16-rules-v0.1-initial-binding"
+P16_PROMPT_VERSION = "P16-prompts-v0.1-initial-binding"
+P16_ORGANIZATION_ADDRESS = "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层"
+P15_RESULT_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "ee2": {"name": "17α-乙炔基雌二醇", "short_name": "EE2", "reference": "< 0.10", "unit": "μg/L", "keywords": ["17α-乙炔基雌二醇", "EE2", "17alpha-ethinyl estradiol"]},
+    "des": {"name": "己烯雌酚", "short_name": "DES", "reference": "< 0.10", "unit": "μg/L", "keywords": ["己烯雌酚", "DES", "diethylstilbestrol"]},
+    "methylparaben": {"name": "对羟基苯甲酸甲酯", "short_name": "甲酯", "reference": "< 1.00", "unit": "μg/L", "keywords": ["对羟基苯甲酸甲酯", "甲基对羟基苯甲酸酯", "methylparaben"]},
+    "ethylparaben": {"name": "对羟基苯甲酸乙酯", "short_name": "乙酯", "reference": "< 1.00", "unit": "μg/L", "keywords": ["对羟基苯甲酸乙酯", "ethylparaben"]},
+    "propylparaben": {"name": "对羟基苯甲酸丙酯", "short_name": "丙酯", "reference": "< 1.00", "unit": "μg/L", "keywords": ["对羟基苯甲酸丙酯", "propylparaben"]},
+    "butylparaben": {"name": "对羟基苯甲酸丁酯", "short_name": "丁酯", "reference": "< 1.00", "unit": "μg/L", "keywords": ["对羟基苯甲酸丁酯", "butylparaben"]},
+    "mep": {"name": "邻苯二甲酸单乙基酯", "short_name": "MEP", "reference": "< 0.20", "unit": "μg/L", "keywords": ["邻苯二甲酸单乙基酯", "MEP"]},
+    "mbp": {"name": "邻苯二甲酸单丁基酯", "short_name": "MBP", "reference": "< 1.50", "unit": "μg/L", "keywords": ["邻苯二甲酸单丁基酯", "MBP"]},
+    "mbzp": {"name": "邻苯二甲酸单苄基酯", "short_name": "MBzP", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["邻苯二甲酸单苄基酯", "MBzP", "MBZP"]},
+    "mehp": {"name": "邻苯二甲酸单乙基己酯", "short_name": "MEHP", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["邻苯二甲酸单乙基己酯", "MEHP"]},
+    "bpa": {"name": "双酚A", "short_name": "BPA", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["双酚A", "BPA"]},
+    "bpb": {"name": "双酚B", "short_name": "BPB", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["双酚B", "BPB"]},
+    "nonylphenol": {"name": "壬基苯酚", "short_name": "NP", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["壬基苯酚", "NP", "nonylphenol"]},
+    "octylphenol": {"name": "辛基苯酚", "short_name": "OP", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["辛基苯酚", "OP", "octylphenol"]},
+    "mmp": {"name": "邻苯二甲酸单甲基酯", "short_name": "MMP", "reference": "≤ 1.00", "unit": "μg/L", "keywords": ["邻苯二甲酸单甲基酯", "MMP"]},
+}
+P14_RESULT_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "cda": {"name": "CDA", "short_name": "CDA", "reference": "0 - 50.00 U/mL", "unit": "U/mL", "keywords": ["CDA", "癌症分化分析", "cancer differentiation analysis"]},
+    "ptf": {"name": "PTF", "short_name": "PTF", "reference": "0 - 30.00 pg/mL", "unit": "pg/mL", "keywords": ["PTF"]},
+    "ctf": {"name": "CTF", "short_name": "CTF", "reference": "0 - 120.00 ng/mL", "unit": "ng/mL", "keywords": ["CTF"]},
+    "methylation": {"name": "五癌甲基化", "short_name": "五癌甲基化", "reference": "—", "unit": "", "keywords": ["五癌甲基化", "甲基化", "methylation"]},
+    "ctc": {"name": "CTC计数", "short_name": "CTC", "reference": "—", "unit": "个", "keywords": ["CTC计数", "CTC", "循环肿瘤细胞"]},
+}
 P08_CARDIOVASCULAR_DEFINITIONS: dict[str, dict[str, Any]] = {
     "nt_probnp": {
         "name": "N端脑利钠肽前体",
@@ -251,6 +317,24 @@ P09_INDICATOR_DEFINITIONS: dict[str, dict[str, Any]] = {
         "method": "化学发光法",
         "group": "immune_allergy",
         "keywords": ["总IgE", "总 IgE", "Total IgE", "IgE"],
+    },
+}
+P12_INDICATOR_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "coq10": {
+        "name": "辅酶Q10",
+        "short_name": "CoQ10",
+        "reference": "0.37-2.20",
+        "unit": "ug/mL",
+        "method": "LC-MS/MS",
+        "keywords": ["辅酶Q10", "CoQ10", "Coenzyme Q10"],
+    },
+    "nad": {
+        "name": "NAD+",
+        "short_name": "NAD+",
+        "reference": "",
+        "unit": "µmol/L",
+        "method": "NAD+细胞活力营养评估",
+        "keywords": ["NAD+", "NAD＋", "NAO+", "NAO＋", "烟酰胺腺嘌呤二核苷酸"],
     },
 }
 P07_LIVER_FUNCTION_DEFINITIONS: dict[str, dict[str, Any]] = {
@@ -610,6 +694,16 @@ def build_report_data_from_ocr_result(package_code: str, ocr_result: dict[str, A
         return _build_p08_report_data(ocr_result)
     if package_code == "P09":
         return _build_p09_report_data(ocr_result)
+    if package_code == "P12":
+        return _build_p12_report_data(ocr_result)
+    if package_code == "P13":
+        return _build_p13_report_data(ocr_result)
+    if package_code == "P14":
+        return _build_p14_report_data(ocr_result)
+    if package_code == "P15":
+        return _build_p15_report_data(ocr_result)
+    if package_code == "P16":
+        return _build_p16_report_data(ocr_result)
     if package_code == "P10":
         return _build_p10_report_data(ocr_result)
     if package_code == "P11":
@@ -743,6 +837,16 @@ def _build_p06_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
     patient_info = structured.get("patient_info", {})
     additional_info = structured.get("additional_info", {})
     tests = structured.get("tests", [])
+    p16_report = structured.get("p16_extracted_report", {}) if isinstance(structured.get("p16_extracted_report"), dict) else {}
+    normalized = p16_report.get("normalized", {}) if isinstance(p16_report.get("normalized"), dict) else {}
+    summary_cards = normalized.get("summary_cards", {}) if isinstance(normalized.get("summary_cards"), dict) else {}
+    sections = normalized.get("sections", {}) if isinstance(normalized.get("sections"), dict) else {}
+    management = normalized.get("management", {}) if isinstance(normalized.get("management"), dict) else {}
+    p16_report = structured.get("p16_extracted_report", {}) if isinstance(structured.get("p16_extracted_report"), dict) else {}
+    normalized = p16_report.get("normalized", {}) if isinstance(p16_report.get("normalized"), dict) else {}
+    summary_cards = normalized.get("summary_cards", {}) if isinstance(normalized.get("summary_cards"), dict) else {}
+    sections = normalized.get("sections", {}) if isinstance(normalized.get("sections"), dict) else {}
+    management = normalized.get("management", {}) if isinstance(normalized.get("management"), dict) else {}
 
     report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
     assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
@@ -1901,6 +2005,1937 @@ def _build_p09_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _build_p12_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    source_file = str(ocr_result.get("source_file") or "").strip()
+    source_stem = Path(source_file).stem if source_file else ""
+    case_suffix = source_stem or report_id or "p12"
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or P12_SAMPLE_TYPE
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+    indicators = {
+        code: _p12_indicator(tests, code, definition)
+        for code, definition in P12_INDICATOR_DEFINITIONS.items()
+    }
+    antioxidant = _p12_antioxidant_panel(tests)
+    priorities = _p12_priorities(indicators, antioxidant)
+    assessment_date = _date_display(assessment_date_raw)
+
+    return {
+        "case_id": f"case_p12_{case_suffix}",
+        "package_code": "P12",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": submitting_unit or "—",
+            "symptoms": _p12_clinical_diagnosis_display(patient_info.get("clinical_diagnosis")),
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "",
+        },
+        "report": {
+            "report_id": report_id,
+            "assessment_type": P12_ASSESSMENT_TYPE,
+            "method": P12_METHOD,
+            "assessment_date": assessment_date,
+            "report_date_display": f"报告日期：{assessment_date or '待补充'}",
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+            "generated_at": f"报告生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P12_ORGANIZATION_ADDRESS,
+        },
+        "p12": {
+            "management_focus": report_id or "—",
+            "indicators": indicators,
+            "antioxidant": antioxidant,
+            "priorities": priorities,
+            "overall_summary": _p12_overall_summary(indicators, antioxidant),
+            "nad_chart_note": _p12_nad_chart_note(indicators["nad"], patient_info),
+            "nad_chart_age_label": _p12_nad_chart_age_label(patient_info),
+            "nad_chart_marker": indicators["nad"].get("result_display") or "未识别",
+            "followup_advice": _p12_followup_advice(indicators, antioxidant),
+            "disclaimer": "本报告仅供健康管理参考，不作为临床诊断依据。",
+            "review_note": _p12_review_note(indicators, antioxidant),
+            "page_note": "本报告仅供健康管理参考，非疾病诊断依据。如有不适或疑问，请及时咨询专业医生。",
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P12 OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P12_TEMPLATE_VERSION,
+            "rule_version": P12_RULE_VERSION,
+            "prompt_version": P12_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _build_p13_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+    p13_report = structured.get("p13_extracted_report", {}) if isinstance(structured.get("p13_extracted_report"), dict) else {}
+    normalized = p13_report.get("normalized", {}) if isinstance(p13_report.get("normalized"), dict) else {}
+    recommendations = p13_report.get("recommendations", {}) if isinstance(p13_report.get("recommendations"), dict) else {}
+    education = p13_report.get("educational_content", {}) if isinstance(p13_report.get("educational_content"), dict) else {}
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    source_file = str(ocr_result.get("source_file") or "").strip()
+    source_stem = Path(source_file).stem if source_file else ""
+    case_suffix = source_stem or report_id or "p13"
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    assessment_date = _date_display(assessment_date_raw)
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or P13_SAMPLE_TYPE
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+
+    telomere_age = _p13_normalized_value(normalized, "telomere_age", _find_test_by_code(tests, "telomere_age").get("result"))
+    actual_age = _p13_normalized_value(normalized, "actual_age", patient_info.get("age"))
+    relative_length = _p13_normalized_value(normalized, "relative_telomere_length", _find_test_by_code(tests, "telomere_relative_length").get("result"))
+    telomere_ct = _p13_normalized_value(normalized, "telomere_ct_value", _find_test_by_code(tests, "telomere_ct").get("result"))
+    reference_ct = _p13_normalized_value(normalized, "internal_reference_ct_value", _find_test_by_code(tests, "reference_ct").get("result"))
+    percentile_display = _p13_normalized_value(normalized, "percentile_display", _p13_percentile_display_from_tests(tests))
+    percentile_summary = _p13_normalized_value(normalized, "percentile_summary", "")
+    percentile_note = _p13_normalized_value(
+        normalized,
+        "percentile_note",
+        "百分位越高，代表端粒长度越长，细胞修复能力越强，生物年龄相对越年轻。",
+    )
+    telomere_interpretation = _p13_normalized_value(normalized, "telomere_interpretation", _find_test_by_code(tests, "telomere_relative_length").get("interpretation"))
+    overall_summary = _p13_normalized_value(normalized, "overall_summary", structured.get("notes"))
+    followup_advice = _p13_normalized_value(normalized, "followup_advice", "")
+    disclaimer = _p13_normalized_value(normalized, "disclaimer", "本报告仅供健康管理参考，不作为临床诊断依据。")
+    review_note = _p13_normalized_value(normalized, "review_note", "")
+    education_data = _p13_education_data(education)
+    management_data = _p13_management_data(recommendations)
+    risk_factor_data = _p13_risk_factor_data(recommendations, telomere_age, actual_age)
+
+    return {
+        "case_id": f"case_p13_{case_suffix}",
+        "package_code": "P13",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "/",
+            "symptoms": patient_info.get("clinical_diagnosis") or "/",
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "/",
+        },
+        "report": {
+            "report_id": report_id,
+            "assessment_type": P13_ASSESSMENT_TYPE,
+            "method": P13_METHOD,
+            "assessment_date": assessment_date,
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+            "generated_at": f"报告生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "/",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P13_ORGANIZATION_ADDRESS,
+        },
+        "p13": {
+            "report_title": P13_REPORT_NAME,
+            "actual_age": actual_age or "待复核",
+            "telomere_age": telomere_age or "待复核",
+            "overall_summary": overall_summary or "当前已根据端粒长度检测结果生成初步健康管理摘要，导出前请结合原始报告人工复核。",
+            "telomere": {
+                "relative_length": relative_length or "待复核",
+                "ct_value": telomere_ct or "待复核",
+                "interpretation": telomere_interpretation or "端粒相对长度用于反映端粒长度情况，比值越大通常代表端粒长度越长；请结合人群百分位与复评趋势综合判断。",
+            },
+            "reference": {
+                "ct_value": reference_ct or "待复核",
+            },
+            "percentile": {
+                "display": percentile_display or "待复核",
+                "value": _p13_percentile_value_display(_p13_normalized_value(normalized, "percentile_value", "")),
+                "summary": percentile_summary or "当前百分位结果已从原始报告提取，建议结合实际年龄、人群数据库和复评趋势人工复核。",
+                "note": percentile_note,
+            },
+            "education": education_data,
+            "risk_factors": risk_factor_data,
+            "management": management_data,
+            "followup_advice": followup_advice or "建议围绕饮食、运动、睡眠、压力和阶段复评建立12周健康管理计划，并由健康管理师结合症状和生活方式记录人工复核。",
+            "disclaimer": disclaimer,
+            "review_note": review_note or "报告导出前请由健康管理专家结合原始检测报告进行人工复核。",
+            "page_note": "本报告仅供健康管理参考，不作为临床诊断依据。如有不适，请及时咨询专业医生。",
+            "extracted_report": p13_report,
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P13端粒OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P13_TEMPLATE_VERSION,
+            "rule_version": P13_RULE_VERSION,
+            "prompt_version": P13_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _build_p14_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+    p14_report = structured.get("p14_extracted_report", {}) if isinstance(structured.get("p14_extracted_report"), dict) else {}
+    normalized = p14_report.get("normalized", {}) if isinstance(p14_report.get("normalized"), dict) else {}
+    reports = p14_report.get("reports", {}) if isinstance(p14_report.get("reports"), dict) else {}
+    risk_report = reports.get("risk_assessment", {}) if isinstance(reports.get("risk_assessment"), dict) else {}
+    methylation_report = reports.get("methylation", {}) if isinstance(reports.get("methylation"), dict) else {}
+    ctc_report = reports.get("ctc", {}) if isinstance(reports.get("ctc"), dict) else {}
+    risk_recommendations = risk_report.get("recommendations", {}) if isinstance(risk_report.get("recommendations"), dict) else {}
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    source_file = str(ocr_result.get("source_file") or "").strip()
+    source_stem = Path(source_file).stem if source_file else ""
+    case_suffix = source_stem or report_id or "p14"
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or P14_SAMPLE_TYPE
+
+    cda = _p14_indicator(tests, "cda", P14_RESULT_DEFINITIONS["cda"])
+    ptf = _p14_indicator(tests, "ptf", P14_RESULT_DEFINITIONS["ptf"])
+    ctf = _p14_indicator(tests, "ctf", P14_RESULT_DEFINITIONS["ctf"])
+    methylation = _p14_text_indicator(tests, "methylation", P14_RESULT_DEFINITIONS["methylation"])
+    ctc = _p14_indicator(tests, "ctc", P14_RESULT_DEFINITIONS["ctc"])
+    trend_points = _p14_trend_points(structured, ocr_result)
+    risk_level = _first_text(normalized.get("overall_risk"), normalized.get("overall_status"), _p14_risk_level(cda, methylation, ctc))
+    management_items = normalized.get("management_items") if isinstance(normalized.get("management_items"), list) else []
+    ctc_status = _first_text(
+        f"{normalized.get('ctc_total')}{normalized.get('ctc_unit')}".strip() if normalized.get("ctc_total") else "",
+        _p14_overview_ctc_status(ctc),
+    )
+    clinical_note = _first_text(normalized.get("clinical_diagnosis"), patient_info.get("clinical_diagnosis"))
+    if clinical_note in {"/", "-", "—"}:
+        clinical_note = ""
+    overview_summary = _p14_overview_summary(
+        risk_level=risk_level,
+        methylation_status=_first_text(normalized.get("methylation_result"), methylation.get("status")),
+        ctc_status=ctc_status,
+        clinical_note=clinical_note,
+    )
+    trend_alert = _p14_trend_alert_from_ocr(
+        trend_points=trend_points,
+        mixed_count=_first_text(normalized.get("ctc_mixed")),
+        followup_advice=_first_text(normalized.get("ctc_followup_advice")),
+    )
+    risk_factor_1 = _first_text(normalized.get("metabolic_advice"), risk_recommendations.get("metabolic"))
+    risk_factor_3 = _p14_join_sentences(
+        normalized.get("environmental_advice"),
+        normalized.get("infectious_advice"),
+        risk_recommendations.get("environmental"),
+        risk_recommendations.get("infectious"),
+    )
+    plan_1_text = _p14_management_plan_1(_first_text(normalized.get("behavioral_advice"), risk_recommendations.get("behavioral")))
+    plan_2_text = _p14_management_plan_2(_first_text(normalized.get("dietary_advice"), risk_recommendations.get("dietary")))
+    plan_3_text = _p14_management_plan_3(
+        _first_text(normalized.get("ctc_followup_advice"), normalized.get("methylation_advice"), ctc_report.get("further_testing_advice"), methylation_report.get("advice"))
+    )
+    score_text = cda.get("result_display") or "—"
+    summary_text = _p14_summary_ai_text(
+        risk_level=risk_level,
+        cda_value=score_text,
+        cda_status=_first_text(cda.get("indicator"), cda.get("status")),
+        ptf_value=ptf.get("result_display"),
+        ctf_value=ctf.get("result_display"),
+        methylation_status=_first_text(normalized.get("methylation_result"), methylation.get("status")),
+        ctc_status=ctc_status,
+    )
+
+    return {
+        "case_id": f"case_p14_{case_suffix}",
+        "package_code": "P14",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "—",
+            "symptoms": patient_info.get("clinical_diagnosis") or patient_info.get("symptoms") or "—",
+        },
+        "report": {
+            "report_id": report_id,
+            "report_title": P14_REPORT_NAME,
+            "subtitle": "基于肿瘤风险指标与早筛线索的精准健康管理评估",
+            "assessment_type": P14_ASSESSMENT_TYPE,
+            "method": _first_text(additional_info.get("method"), P14_METHOD),
+            "assessment_date": _date_display(str(additional_info.get("report_date") or additional_info.get("sample_date") or "")),
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P14_ORGANIZATION_ADDRESS,
+        },
+        "p14": {
+            "summary": {
+                "score": score_text,
+                "risk_level": risk_level,
+                "ai_diagnosis": summary_text,
+                "foot_note": "* 本报告仅供健康管理参考，具体请结合临床资料及医生建议。",
+            },
+            "results": {
+                "cda": cda,
+                "ptf": ptf,
+                "ctf": ctf,
+                "ai_summary": _p14_compact_text(
+                    f"CDA {score_text}{'处于需关注区间' if str(cda.get('status') or '') == '需关注' else ''}；PTF {ptf.get('result_display') or '—'}、CTF {ctf.get('result_display') or '—'}未见明显超标，提示当前风险评估更依赖综合分层与联合检测判断。",
+                    115,
+                ),
+                "note": _first_text(
+                    ctc_report.get("remarks"),
+                    risk_report.get("disclaimer"),
+                    "提示：以上结果仅供健康管理参考，请结合临床信息与人工复核综合判断。",
+                ),
+            },
+            "overview": {
+                "methylation": {
+                    "title": methylation.get("name") or P14_RESULT_DEFINITIONS["methylation"]["name"],
+                    "status": _first_text(normalized.get("methylation_result"), methylation.get("status"), "待补录"),
+                },
+                "ctc": {
+                    "title": ctc.get("name") or P14_RESULT_DEFINITIONS["ctc"]["name"],
+                    "status": ctc_status,
+                },
+                "ai_diagnosis": overview_summary,
+            },
+            "trend": {
+                "points": trend_points,
+                "alert": trend_alert,
+            },
+            "deep_dive": {
+                "ai_intro": _p14_compact_text(
+                    _p14_join_sentences(
+                        f"本次CDA综合评分为{score_text}",
+                        str(cda.get("status") or "") and f"当前判定为{cda.get('status')}",
+                        "应与疾病风险分层和联合检测结果一并解读。",
+                    ),
+                    95,
+                ),
+                "ai_detail": _p14_compact_text(
+                    _p14_join_sentences(
+                        f"本次CDA {score_text}，提示{_first_text(cda.get('status'), '待复核')}；",
+                        f"PTF {ptf.get('result_display') or '—'}、CTF {ctf.get('result_display') or '—'}未见明显超标，",
+                        f"五癌甲基化为{_first_text(normalized.get('methylation_result'), methylation.get('status')) or '待补录'}。",
+                        "结合CTC动态结果，更适合归入持续随访而非单项高危预警。",
+                    ),
+                    138,
+                ),
+                "ai_note": _p14_compact_text(
+                    "AI提示：请把CDA与甲基化筛查、CTC趋势及既往病史联合判断，避免单看某一数值。",
+                    78,
+                ),
+            },
+            "risk_factors": {
+                "factor_1": {
+                    "title": "代谢相关风险",
+                    "body": _p14_compact_text(_first_text(risk_factor_1, "建议结合代谢相关检查做综合复核。"), 66),
+                },
+                "factor_2": {
+                    "title": "既往病史关注",
+                    "body": _p14_compact_text(
+                        clinical_note and f"{clinical_note}病史提示需结合治疗后随访背景综合评估。"
+                        or "既往病史、家族肿瘤史及相关治疗经历，可能影响本次风险判断边界。",
+                        62,
+                    ),
+                },
+                "factor_3": {
+                    "title": "环境与感染管理",
+                    "body": _p14_compact_text(
+                        _first_text(risk_factor_3, "环境暴露、感染因素和生活方式可能共同影响风险指标表现。"),
+                        76,
+                    ),
+                },
+                "ai_diagnosis": _p14_compact_text(
+                    _p14_join_sentences(
+                        clinical_note and f"当前风险需重点结合{clinical_note}背景复核",
+                        normalized.get("overall_status") and f"疾病风险评估状态为{normalized.get('overall_status')}",
+                        normalized.get("ctc_total") and f"CTC总数为{normalized.get('ctc_total')}{normalized.get('ctc_unit') or ''}",
+                    ),
+                    76,
+                ),
+            },
+            "management": {
+                "plan_1": _first_text(plan_1_text, management_items[0] if len(management_items) > 0 else "", "戒烟限酒并控制体重"),
+                "plan_2": _first_text(plan_2_text, management_items[1] if len(management_items) > 1 else "", "优化膳食结构"),
+                "plan_3": _first_text(plan_3_text, management_items[2] if len(management_items) > 2 else "", "按节点复查CTC"),
+                "ai_summary": _p14_compact_text(
+                    _p14_join_sentences(
+                        "管理重点应聚焦控体重、限烟酒、优化膳食和按治疗节点复查CTC。",
+                        clinical_note and f"结合{clinical_note}背景持续观察风险信号变化。",
+                    ),
+                    82,
+                ),
+            },
+            "followup_advice": _first_text(normalized.get("followup_advice"), "建议结合当前核心指标、既往病史与症状，在8至12周内完成生活方式调整并安排阶段性复评。"),
+            "disclaimer": _first_text(normalized.get("disclaimer"), "本报告仅供健康管理参考，不作为临床诊断依据。"),
+            "review_note": _first_text(normalized.get("review_note"), "健康管理专家可结合临床资料、症状和医学指标进行综合判断。"),
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P14 OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P14_TEMPLATE_VERSION,
+            "rule_version": P14_RULE_VERSION,
+            "prompt_version": P14_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _p14_indicator(tests: list[dict[str, Any]], code: str, definition: dict[str, Any]) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    result = str(test.get("result") or "").strip() if test else ""
+    unit = str(test.get("unit") or definition["unit"]).strip() if test else str(definition["unit"])
+    reference = str(test.get("reference_range") or definition["reference"]).strip() if test else str(definition["reference"])
+    raw_value = _safe_float(result or test.get("result_display")) if test else None
+    indicator_text = str(test.get("indicator") or "").strip() if test else ""
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "result": result or "未识别",
+        "raw_value": raw_value,
+        "indicator": indicator_text,
+        "unit": unit or "—",
+        "result_display": _numeric_display(raw_value, result or "未识别"),
+        "reference_range": reference or "—",
+        "status": _p14_indicator_status(test, raw_value, indicator_text, reference),
+    }
+
+
+def _p14_text_indicator(tests: list[dict[str, Any]], code: str, definition: dict[str, Any]) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    if not test:
+        return {"code": code, "name": definition["name"], "short_name": definition["short_name"], "status": "待补录"}
+    result_text = _first_text(test.get("result"), test.get("result_display"), test.get("indicator"))
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "status": _p14_text_status(result_text),
+    }
+
+
+def _p14_indicator_status(test: dict[str, Any] | None, raw_value: float | None, indicator: str, reference: str) -> str:
+    if not test:
+        return "待补录"
+    signal = f"{indicator} {test.get('result', '')} {test.get('result_display', '')}"
+    indicator_text = str(indicator or "").strip()
+    if any(token in signal for token in ("↑", "升高", "偏高", "异常", "阳性", "高风险", "需关注")):
+        return "需关注"
+    if indicator_text and any(token in signal for token in ("正常", "阴性", "未见异常", "低风险", "未超标")):
+        return indicator_text
+    if any(token in signal for token in ("正常", "阴性", "未见异常", "低风险", "未超标")):
+        return "在参考范围内"
+    bounds = _p14_parse_reference(reference)
+    if raw_value is None or bounds is None:
+        return "待复核"
+    lower, upper = bounds
+    if (upper is not None and raw_value > upper) or (lower is not None and raw_value < lower):
+        return "需关注"
+    return "在参考范围内"
+
+
+def _p14_parse_reference(reference: str) -> tuple[float | None, float | None] | None:
+    text = str(reference or "").replace("≤", "<=").replace("≥", ">=").strip()
+    if not text or text == "—":
+        return None
+    match = re.search(r"<=?\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (None, float(match.group(1)))
+    match = re.search(r">=?\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (float(match.group(1)), None)
+    match = re.search(r"(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (float(match.group(1)), float(match.group(2)))
+    return None
+
+
+def _p14_text_status(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return "待补录"
+    if any(token in text for token in ("阳性", "高风险", "异常", "需关注")):
+        return "需关注"
+    if any(token in text for token in ("阴性", "低风险", "正常", "未见异常")):
+        return "低风险"
+    return text
+
+
+def _p14_overview_ctc_status(ctc: dict[str, Any]) -> str:
+    display = str(ctc.get("result_display") or "").strip()
+    if display in {"", "未识别", "—"}:
+        return "待补录"
+    unit = str(ctc.get("unit") or "").strip()
+    return f"{display}{unit}" if unit and unit not in display else display
+
+
+def _p14_risk_level(cda: dict[str, Any], methylation: dict[str, Any], ctc: dict[str, Any]) -> str:
+    methylation_status = str(methylation.get("status") or "")
+    ctc_value = ctc.get("raw_value")
+    cda_status = str(cda.get("status") or "")
+    if any(token in methylation_status for token in ("需关注", "阳性", "高风险")) or (ctc_value is not None and ctc_value >= 20):
+        return "重点随访"
+    if cda_status == "需关注" or (ctc_value is not None and ctc_value > 0):
+        return "建议随访"
+    if str(cda.get("result_display") or "") not in {"", "未识别", "—"} or methylation_status not in {"", "待补录", "待复核"}:
+        return "相对平稳"
+    return "待复核"
+
+
+def _p14_trend_points(structured: dict[str, Any], ocr_result: dict[str, Any]) -> dict[str, dict[str, str]]:
+    point_list: list[dict[str, Any]] = []
+    for candidate in [
+        structured.get("trend_points"),
+        structured.get("history_points"),
+        structured.get("additional_info", {}).get("trend_points") if isinstance(structured.get("additional_info"), dict) else None,
+        ocr_result.get("p14_extracted_report", {}).get("trend_points") if isinstance(ocr_result.get("p14_extracted_report"), dict) else None,
+    ]:
+        if isinstance(candidate, list) and candidate:
+            point_list = [item for item in candidate if isinstance(item, dict)]
+            break
+
+    points: dict[str, dict[str, str]] = {}
+    for index in range(4):
+        item = point_list[index] if index < len(point_list) else {}
+        value = _first_text(item.get("value"), item.get("result"), "—") if isinstance(item, dict) else "—"
+        date_text = _first_text(item.get("date"), item.get("report_date"), "待补录") if isinstance(item, dict) else "待补录"
+        points[f"point_{index + 1}"] = {"value": value or "—", "date": date_text or "待补录"}
+    return points
+
+
+def _p14_trend_alert(points: dict[str, dict[str, str]]) -> str:
+    values = [str((points.get(f"point_{index}") or {}).get("value") or "").strip() for index in range(1, 5)]
+    if any(value not in {"", "—", "未识别"} for value in values):
+        return "已导入连续复测数据，请结合波动幅度、复测间隔和临床背景人工复核趋势意义。"
+    return "当前趋势图需基于连续复测数据联动生成；若暂无历史结果，请以本次单次检测与人工复核结论为准。"
+
+
+def _p14_summary_ai_text(
+    *,
+    risk_level: str,
+    cda_value: str,
+    cda_status: str,
+    ptf_value: str,
+    ctf_value: str,
+    methylation_status: str,
+    ctc_status: str,
+) -> str:
+    parts = [f"本次疾病风险评估为{risk_level}"]
+    if cda_value:
+        parts.append(f"CDA {cda_value}{'，' + cda_status if cda_status else ''}")
+    if ptf_value:
+        parts.append(f"PTF {ptf_value}")
+    if ctf_value:
+        parts.append(f"CTF {ctf_value}")
+    if methylation_status:
+        parts.append(f"五癌甲基化{methylation_status}")
+    if ctc_status:
+        parts.append(f"CTC {ctc_status}")
+    parts.append("建议结合既往病史与连续复测结果人工复核。")
+    return _p14_compact_text("；".join(parts), 120)
+
+
+def _p14_overview_summary(*, risk_level: str, methylation_status: str, ctc_status: str, clinical_note: str) -> str:
+    parts = []
+    if methylation_status:
+        parts.append(f"甲基化结果为{methylation_status}")
+    if ctc_status:
+        parts.append(f"CTC为{ctc_status}")
+    if clinical_note:
+        parts.append(f"结合{clinical_note}")
+    if risk_level:
+        parts.append(f"整体提示{risk_level}")
+    parts.append("建议持续随访。")
+    return _p14_compact_text("，".join(parts), 100)
+
+
+def _p14_trend_alert_from_ocr(*, trend_points: dict[str, dict[str, str]], mixed_count: str, followup_advice: str) -> str:
+    values: list[float] = []
+    for index in range(1, 5):
+        text = str((trend_points.get(f"point_{index}") or {}).get("value") or "").strip()
+        parsed = _safe_float(text)
+        if parsed is not None:
+            values.append(parsed)
+    if len(values) >= 4:
+        trend_text = "近期CTC总数呈波动下降趋势" if values[-1] <= max(values[:-1]) else "近期CTC总数仍存在波动"
+        mixed_text = f"，当前混合型CTC {mixed_count}个" if str(mixed_count or "").strip() else ""
+        return _p14_compact_text(f"{trend_text}{mixed_text}，仍建议结合治疗进程和复测节奏持续监测微转移相关风险。", 78)
+    return _first_text(followup_advice, _p14_trend_alert(trend_points))
+
+
+def _p14_compact_text(value: Any, limit: int = 120) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(limit - 1, 0)].rstrip("，。；;、 ") + "…"
+
+
+def _p14_join_sentences(*values: Any) -> str:
+    parts: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in parts:
+            parts.append(text)
+    return " ".join(parts)
+
+
+def _p14_management_plan_1(source_text: str) -> str:
+    if str(source_text or "").strip():
+        return "戒烟限酒并控制体重"
+    return ""
+
+
+def _p14_management_plan_2(source_text: str) -> str:
+    if str(source_text or "").strip():
+        return "减少红肉及高盐高糖高脂摄入"
+    return ""
+
+
+def _p14_management_plan_3(source_text: str) -> str:
+    if str(source_text or "").strip():
+        return "按治疗节点定期复查CTC"
+    return ""
+
+
+def _build_p15_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
+    patient_info = structured.get("patient_info", {}) if isinstance(structured.get("patient_info"), dict) else {}
+    additional_info = structured.get("additional_info", {}) if isinstance(structured.get("additional_info"), dict) else {}
+    tests = structured.get("tests", []) if isinstance(structured.get("tests"), list) else []
+    extracted_report = ocr_result.get("p15_extracted_report", {}) if isinstance(ocr_result.get("p15_extracted_report"), dict) else {}
+    report_info = extracted_report.get("report_info", {}) if isinstance(extracted_report.get("report_info"), dict) else {}
+    test_details = extracted_report.get("test_details", {}) if isinstance(extracted_report.get("test_details"), dict) else {}
+    report_notes = extracted_report.get("report_notes", []) if isinstance(extracted_report.get("report_notes"), list) else []
+    contact_info = extracted_report.get("contact_info", {}) if isinstance(extracted_report.get("contact_info"), dict) else {}
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    source_file = str(ocr_result.get("source_file") or "").strip()
+    source_stem = Path(source_file).stem if source_file else ""
+    case_suffix = source_stem or report_id or "p15"
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+    assessment_date = _date_display(assessment_date_raw)
+
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or P15_SAMPLE_TYPE
+    submitting_unit = str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "").strip()
+
+    results = {
+        code: _p15_indicator(tests, code, definition)
+        for code, definition in P15_RESULT_DEFINITIONS.items()
+    }
+    abnormal_items = [item for item in results.values() if str(item.get("status")) in {"升高", "偏高", "异常"}]
+    exposure_index = _p15_exposure_index(results)
+    focus_indicator = _p15_focus_indicator(results)
+    focus_materials = _p15_focus_materials(results)
+    primary_family, secondary_family = _p15_focus_families(results)
+    primary_profile = _p15_family_profile(primary_family)
+    secondary_profile = _p15_family_profile(secondary_family)
+    notes_text = str(structured.get("notes") or "").strip()
+    reference_note = str(test_details.get("reference_range_note") or "").strip()
+    deep_dive_note = _p15_deep_dive_note(reference_note, report_notes)
+    source_cards = _p15_source_cards(primary_profile, secondary_profile, report_notes)
+    material_cards = _p15_material_cards(results, primary_family, secondary_family, reference_note)
+    disclaimer = _p15_disclaimer(report_notes)
+    review_note = _p15_review_note(report_notes, report_info)
+
+    return {
+        "case_id": f"case_p15_{case_suffix}",
+        "package_code": "P15",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "—",
+            "symptoms": patient_info.get("clinical_diagnosis") or "—",
+            "hospital": submitting_unit,
+            "submitting_unit": submitting_unit,
+            "specimen_condition": patient_info.get("specimen_condition") or "",
+        },
+        "report": {
+            "report_id": report_id,
+            "report_title": P15_REPORT_NAME,
+            "subtitle": "基于内分泌干扰物暴露数据的精准健康管理评估",
+            "assessment_type": P15_ASSESSMENT_TYPE,
+            "method": _p15_method_from_tests(tests),
+            "method_display": f"检测方法：{_p15_method_from_tests(tests)}",
+            "assessment_date": assessment_date,
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": str(contact_info.get("phone") or "400-158-1959"),
+            "email": "service@anweikang.com",
+            "website": str(contact_info.get("website") or "www.anweikang.com"),
+            "address": str(contact_info.get("address") or P15_ORGANIZATION_ADDRESS),
+        },
+        "p15": {
+            "exposure_index": exposure_index,
+            "findings": _p15_findings(results, abnormal_items),
+            "results": results,
+            "table_note": _p15_table_note(tests, notes_text, reference_note),
+            "deep_dive": {
+                "focus_title": _p15_focus_title(focus_indicator),
+                "focus_intro": _p15_focus_intro(focus_indicator),
+                "focus_indicator": f"本次重点关注指标：{focus_indicator}",
+                "focus_indicator_summary": _p15_focus_indicator_summary(results),
+                "sources": {
+                    "source_1": primary_profile["sources"][0],
+                    "source_2": primary_profile["sources"][1],
+                },
+                "effects": {
+                    "effect_1": primary_profile["effects"][0],
+                    "effect_2": primary_profile["effects"][1],
+                    "effect_3": primary_profile["effects"][2],
+                    "effect_4": primary_profile["effects"][3],
+                },
+                "advice": {
+                    "advice_1": primary_profile["advice"][0],
+                    "advice_2": primary_profile["advice"][1],
+                    "advice_3": primary_profile["advice"][2],
+                    "advice_4": primary_profile["advice"][3],
+                },
+                "note": "本报告仅供健康管理参考，不能替代专业医疗诊断。如有健康问题，请及时就医。",
+                "note": deep_dive_note,
+            },
+            "risk_factors": {
+                "summary": _p15_risk_factor_summary(abnormal_items),
+                "tip": _p15_risk_factor_tip(focus_materials, abnormal_items),
+                "sources": source_cards,
+                "materials": material_cards,
+                "impacts": _p15_impact_cards(primary_family, secondary_family),
+                "measures": _p15_measure_items(primary_family, secondary_family),
+            },
+            "followup_advice": _p15_followup_advice(abnormal_items),
+            "disclaimer": "本报告仅供健康管理参考，不作为临床诊断依据。",
+            "review_note": "健康管理专家应结合原始报告、症状和临床资料进行人工复核。",
+            "disclaimer": disclaimer,
+            "review_note": review_note,
+        },
+        "ai_outputs": {
+            "status": "pending",
+            "note": "当前已基于P15 OCR结构化结果生成报告预览；AI解读完成后将覆盖对应健康管理洞察字段。",
+        },
+        "ocr_snapshot": {
+            "source_file": ocr_result.get("source_file", ""),
+            "strategy_version": ocr_result.get("strategy_version", ""),
+            "provider": ocr_result.get("provider", ""),
+            "warnings": ocr_result.get("warnings", []),
+        },
+        "version_lock": {
+            "template_version": P15_TEMPLATE_VERSION,
+            "rule_version": P15_RULE_VERSION,
+            "prompt_version": P15_PROMPT_VERSION,
+            "ai_model": "deepseek-v4-flash",
+            "ocr_strategy_version": ocr_result.get("strategy_version", ""),
+            "ocr_provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _p15_indicator(tests: list[dict[str, Any]], code: str, definition: dict[str, Any]) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    result = str(test.get("result") or "").strip() if test else ""
+    indicator = str(test.get("indicator") or "").strip() if test else ""
+    unit = str(test.get("unit") or definition["unit"]).strip() if test else str(definition["unit"])
+    reference = str(test.get("reference_range") or definition["reference"]).strip() if test else str(definition["reference"])
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "result": result or "未识别",
+        "raw_value": _p15_safe_number(result),
+        "indicator": indicator,
+        "unit": unit or "—",
+        "result_display": _p15_value_with_unit(result, unit) if result else "未识别",
+        "reference_range": reference or "—",
+        "method": str(test.get("method") or P15_METHOD).strip() if test else P15_METHOD,
+        "status": _p15_indicator_status(test, result, indicator, reference),
+    }
+
+
+def _p15_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return f"{text} {unit}".strip() if unit else text
+
+
+def _p15_indicator_status(test: dict[str, Any] | None, result: str, indicator: str, reference: str) -> str:
+    if not test:
+        return "待补录"
+    indicator_text = str(indicator or "").strip()
+    if indicator_text:
+        if any(word in indicator_text for word in ("升高", "偏高", "异常", "↑")):
+            return "升高"
+        if any(word in indicator_text for word in ("正常", "阴性", "未见异常")):
+            return "正常"
+    numeric = _p15_safe_number(result)
+    bounds = _p15_parse_reference(reference)
+    if numeric is None or not bounds:
+        return "待复核"
+    lower, upper = bounds
+    if upper is not None and numeric > upper:
+        return "升高"
+    if lower is not None and numeric < lower:
+        return "偏低"
+    return "正常"
+
+
+def _p15_parse_reference(reference: str) -> tuple[float | None, float | None] | None:
+    text = str(reference or "").replace("≤", "<=").replace("≥", ">=").strip()
+    if not text:
+        return None
+    match = re.search(r"<=?\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (None, float(match.group(1)))
+    match = re.search(r">=?\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (float(match.group(1)), None)
+    match = re.search(r"(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        return (float(match.group(1)), float(match.group(2)))
+    return None
+
+
+def _p15_safe_number(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    match = re.search(r"\d+(?:\.\d+)?", str(value).replace(",", ""))
+    if not match:
+        return None
+    try:
+        return float(match.group(0))
+    except ValueError:
+        return None
+
+
+def _p15_exposure_index(results: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    abnormal = [item for item in results.values() if str(item.get("status")) in {"升高", "偏高", "异常"}]
+    if len(abnormal) >= 3:
+        return {"level": "中度预警", "summary": "存在多项环境激素或内分泌干扰物异常，建议尽快梳理主要暴露来源并开展阶段性干预。"}
+    if len(abnormal) >= 1:
+        return {"level": "轻度预警", "summary": "当前检测提示存在需要关注的环境激素暴露信号，建议优先减少高频接触源并定期复评。"}
+    return {"level": "相对平稳", "summary": "当前未见明确多项异常暴露信号，建议继续保持低暴露生活方式并定期监测。"}
+
+
+def _p15_findings(results: dict[str, dict[str, Any]], abnormal_items: list[dict[str, Any]]) -> dict[str, Any]:
+    focus = abnormal_items[0]["name"] if abnormal_items else _p15_focus_indicator(results)
+    exposure_level = _p15_exposure_index(results)["level"]
+    exposure_text = _p15_abnormal_result_text(abnormal_items)
+    return {
+        "overall": {"title": "1. 整体评估", "body": f"本次环境荷尔蒙检测整体提示{exposure_level}状态，{exposure_text}。"},
+        "core_risk": {"title": "2. 核心风险", "body": f"当前最需关注的暴露方向为{focus}相关信号。"},
+        "metabolic_pressure": {"title": "3. 代谢压力", "body": _p15_metabolic_pressure_text(abnormal_items)},
+    }
+
+
+def _p15_focus_indicator_summary(results: dict[str, dict[str, Any]]) -> str:
+    focus = _p15_focus_indicator(results)
+    focus_code = _p15_focus_indicator_code(results)
+    item = results.get(focus_code, {}) if focus_code else {}
+    status = str(item.get("status") or "待复核")
+    display = str(item.get("result_display") or "未识别")
+    if status in {"升高", "偏高", "异常"}:
+        return f"本次{focus}结果为{display}，提示该类环境激素暴露需要重点管理，建议优先排查对应接触来源并结合生活方式进行干预。"
+    return f"本次{focus}结果为{display}，当前未见明显超出参考范围，建议结合整体暴露谱继续维持低暴露生活方式。"
+
+
+def _p15_risk_factor_summary(abnormal_items: list[dict[str, Any]]) -> str:
+    if not abnormal_items:
+        return "当前未见明确异常项目，建议继续保持低塑化材料接触、规范饮水与审慎个护产品选择。"
+    names = "、".join(item["name"] for item in abnormal_items[:4])
+    return f"本次异常信号主要集中在{names}，建议围绕饮水、塑料接触、个护产品和药物使用史进行针对性排查。"
+
+
+def _p15_followup_advice(abnormal_items: list[dict[str, Any]]) -> str:
+    if abnormal_items:
+        return "建议按8-12周管理周期落实减暴露计划，重点记录饮水来源、塑料接触、个护产品和用药变化，并安排阶段性复评。"
+    return "建议继续保持低暴露生活方式，定期复评环境激素相关项目，并持续记录生活习惯变化。"
+
+
+def _p15_method_from_tests(tests: list[dict[str, Any]]) -> str:
+    methods: list[str] = []
+    for test in tests:
+        method = str(test.get("method") or "").strip()
+        if method and method not in methods:
+            methods.append(method)
+    return "、".join(methods) or P15_METHOD
+
+
+def _p15_table_note(tests: list[dict[str, Any]], notes_text: str, reference_note: str = "") -> str:
+    units = []
+    for test in tests:
+        unit = str(test.get("unit") or "").strip()
+        if unit and unit not in units:
+            units.append(unit)
+    unit_text = "、".join(units) or "ng/mL"
+    if "参考范围" in notes_text:
+        return f"说明：本页结果单位主要为{unit_text}；参考范围以原始OCR报告说明为准；状态根据结果值、箭头标记与参考值综合判断。"
+    return f"说明：本页结果单位主要为{unit_text}；参考值与异常标记来自原始报告OCR结果；状态根据结果值、箭头标记与参考值综合判断。"
+
+
+def _p15_table_note(tests: list[dict[str, Any]], notes_text: str, reference_note: str = "") -> str:
+    units: list[str] = []
+    for test in tests:
+        unit = str(test.get("unit") or "").strip()
+        if unit and unit not in units:
+            units.append(unit)
+    unit_text = "、".join(units) or "ng/mL"
+    if reference_note:
+        return f"说明：本页结果单位主要为{unit_text}；{reference_note}"
+    if "参考范围" in notes_text:
+        return f"说明：本页结果单位主要为{unit_text}；参考范围以原始OCR报告说明为准；状态根据结果值、箭头标记与参考值综合判断。"
+    return f"说明：本页结果单位主要为{unit_text}；参考值与异常标记来自原始报告OCR结果；状态根据结果值、箭头标记与参考值综合判断。"
+
+
+def _p15_deep_dive_note(reference_note: str, report_notes: list[Any]) -> str:
+    notes = [str(item).strip() for item in report_notes if str(item).strip()]
+    parts: list[str] = []
+    if reference_note:
+        parts.append(reference_note)
+    if notes:
+        parts.append(notes[0])
+    if len(notes) > 1:
+        parts.append(notes[1])
+    if not parts:
+        return "本报告仅供健康管理参考，不能替代专业医疗诊断。如有健康问题，请及时就医。"
+    return " ".join(parts[:3])
+
+
+def _p15_disclaimer(report_notes: list[Any]) -> str:
+    notes = [str(item).strip() for item in report_notes if str(item).strip()]
+    if notes:
+        return notes[0]
+    return "本报告仅供健康管理参考，不作为临床诊断依据。"
+
+
+def _p15_review_note(report_notes: list[Any], report_info: dict[str, Any]) -> str:
+    notes = [str(item).strip() for item in report_notes if str(item).strip()]
+    parts: list[str] = []
+    if len(notes) > 1:
+        parts.append(notes[1])
+    report_time = str(report_info.get("report_time") or "").strip()
+    if report_time:
+        parts.append(f"报告时间：{report_time}")
+    if not parts:
+        return "健康管理专家应结合原始报告、症状和临床资料进行人工复核。"
+    return " ".join(parts)
+
+
+def _p15_source_cards(primary_profile: dict[str, Any], secondary_profile: dict[str, Any], report_notes: list[Any]) -> dict[str, dict[str, str]]:
+    notes = [str(item).strip() for item in report_notes if str(item).strip()]
+    source_4_body = notes[2] if len(notes) > 2 else (notes[1] if len(notes) > 1 else "建议保留原始检测报告与阶段记录，便于复评时核对暴露变化。")
+    return {
+        "source_1": primary_profile["sources"][0],
+        "source_2": primary_profile["sources"][1],
+        "source_3": secondary_profile["sources"][0],
+        "source_4": {"title": "报告复核提示", "body": source_4_body},
+    }
+
+
+def _p15_material_cards(
+    results: dict[str, dict[str, Any]],
+    primary_family: str,
+    secondary_family: str,
+    reference_note: str,
+) -> dict[str, dict[str, str]]:
+    primary = dict(_p15_family_profile(primary_family)["material"])
+    secondary = dict(_p15_family_profile(secondary_family)["material"])
+    primary["value_1"] = _p15_family_result_summary(results, primary_family)
+    secondary["value_1"] = _p15_family_result_summary(results, secondary_family)
+    if reference_note:
+        primary["value_3"] = _p15_short_text(reference_note, 42)
+        secondary["value_3"] = _p15_short_text(reference_note, 42)
+    return {"primary": primary, "secondary": secondary}
+
+
+def _p15_family_result_summary(results: dict[str, dict[str, Any]], family: str) -> str:
+    family_codes = {
+        "synthetic_estrogens": ["ee2", "des"],
+        "phthalates": ["mep", "mbp", "mbzp", "mehp", "mmp"],
+        "parabens": ["methylparaben", "ethylparaben", "propylparaben", "butylparaben"],
+        "phenols": ["bpa", "bpb", "nonylphenol", "octylphenol"],
+    }
+    items: list[str] = []
+    for code in family_codes.get(family, []):
+        item = results.get(code, {})
+        name = str(item.get("name") or "").strip()
+        display = str(item.get("result_display") or "").strip()
+        status = str(item.get("status") or "").strip()
+        if name and display:
+            items.append(f"{name}{display}（{status or '待复核'}）")
+    return "；".join(items[:4]) or "当前未识别到可用结果"
+
+
+def _p15_short_text(text: str, limit: int) -> str:
+    value = str(text or "").strip()
+    if len(value) <= limit:
+        return value
+    return value[:limit].rstrip("，；、,; ") + "…"
+
+
+def _p15_focus_indicator(results: dict[str, dict[str, Any]]) -> str:
+    code = _p15_focus_indicator_code(results)
+    if code and isinstance(results.get(code), dict):
+        return str(results[code].get("name") or "环境荷尔蒙重点指标")
+    return "环境荷尔蒙重点指标"
+
+
+def _p15_focus_indicator_code(results: dict[str, dict[str, Any]]) -> str:
+    preferred = ["ee2", "bpa", "bpb", "nonylphenol", "octylphenol", "mep", "mbp", "mbzp", "mehp", "mmp"]
+    for code in preferred:
+        item = results.get(code, {})
+        if str(item.get("status") or "") in {"升高", "偏高", "异常"}:
+            return code
+    return "ee2" if "ee2" in results else (next(iter(results.keys()), ""))
+
+
+def _p15_focus_title(indicator_name: str) -> str:
+    if any(word in indicator_name for word in ("双酚", "壬基苯酚", "辛基酚")):
+        return "酚类环境激素（Phenolic EDCs）"
+    if "邻苯二甲酸" in indicator_name:
+        return "邻苯二甲酸酯代谢物（Phthalates）"
+    return "合成雌激素（Synthetic Estrogens）"
+
+
+def _p15_focus_intro(indicator_name: str) -> str:
+    if any(word in indicator_name for word in ("双酚", "壬基苯酚", "辛基酚")):
+        return "酚类环境激素常见于塑料制品、涂层和工业化学品中，长期暴露可能通过雌激素样作用干扰内分泌平衡。"
+    if "邻苯二甲酸" in indicator_name:
+        return "邻苯二甲酸酯类物质多见于增塑剂、软塑包装和个护产品中，长期接触可能增加内分泌与代谢负担。"
+    return "合成雌激素是人工合成或环境中存在的类雌激素化学物质，可干扰体内激素平衡，对女性健康产生多方面影响。"
+
+
+def _p15_abnormal_result_text(abnormal_items: list[dict[str, Any]]) -> str:
+    if not abnormal_items:
+        return "当前未见明确超出参考范围的核心项目"
+    top = abnormal_items[0]
+    return f"其中{top.get('name')}{top.get('result_display')}，为当前最突出的关注点"
+
+
+def _p15_metabolic_pressure_text(abnormal_items: list[dict[str, Any]]) -> str:
+    if abnormal_items:
+        return "已识别异常项目提示机体暴露管理与代谢清除压力需要同步关注，建议结合饮水、塑料与个护接触情况开展减暴露干预。"
+    return "当前结果整体较平稳，但仍建议关注肝脏代谢、排毒负荷与长期低剂量暴露的累积影响。"
+
+
+def _p15_focus_materials(results: dict[str, dict[str, Any]]) -> list[str]:
+    materials: list[str] = []
+    abnormal_codes = [code for code, item in results.items() if str(item.get("status") or "") in {"升高", "偏高", "异常"}]
+    if any(code in abnormal_codes for code in {"ee2", "des"}):
+        materials.append("药物与饮水相关外源性激素")
+    if any(code in abnormal_codes for code in {"mep", "mbp", "mbzp", "mehp", "mmp"}):
+        materials.append("塑料包装与增塑剂接触")
+    if any(code in abnormal_codes for code in {"methylparaben", "ethylparaben", "propylparaben", "butylparaben"}):
+        materials.append("个护产品与防腐剂暴露")
+    if any(code in abnormal_codes for code in {"bpa", "bpb", "nonylphenol", "octylphenol"}):
+        materials.append("塑料容器与酚类化学物接触")
+    return materials
+
+
+def _p15_risk_factor_tip(focus_materials: list[str], abnormal_items: list[dict[str, Any]]) -> str:
+    if not abnormal_items:
+        return "温馨提示：环境激素暴露具有累积性和长期性，建议从日常生活细节入手持续减少暴露。"
+    material_text = "、".join(focus_materials[:3]) if focus_materials else "高频日常接触源"
+    return f"温馨提示：建议优先从{material_text}入手减少暴露，并持续记录调整后的症状与生活方式变化。"
+
+
+def _p15_focus_families(results: dict[str, dict[str, Any]]) -> tuple[str, str]:
+    families = {
+        "synthetic_estrogens": {"ee2", "des"},
+        "phthalates": {"mep", "mbp", "mbzp", "mehp", "mmp"},
+        "parabens": {"methylparaben", "ethylparaben", "propylparaben", "butylparaben"},
+        "phenols": {"bpa", "bpb", "nonylphenol", "octylphenol"},
+    }
+    scored: list[tuple[str, float]] = []
+    for family, codes in families.items():
+        score = 0.0
+        for code in codes:
+            item = results.get(code, {})
+            raw = item.get("raw_value")
+            if not isinstance(raw, (int, float)):
+                continue
+            bounds = _p15_parse_reference(str(item.get("reference_range") or ""))
+            upper = bounds[1] if bounds else None
+            if upper and upper > 0:
+                score += float(raw) / upper
+        scored.append((family, score))
+    scored.sort(key=lambda item: item[1], reverse=True)
+    primary = scored[0][0] if scored else "synthetic_estrogens"
+    secondary = next((name for name, _score in scored if name != primary), "phthalates")
+    if any(str(results.get(code, {}).get("status") or "") in {"升高", "偏高", "异常"} for code in {"ee2", "des"}):
+        primary = "synthetic_estrogens"
+        secondary = next((name for name, _score in scored if name not in {primary}), secondary)
+    return primary, secondary
+
+
+def _p15_family_profile(family: str) -> dict[str, Any]:
+    profiles: dict[str, dict[str, Any]] = {
+        "synthetic_estrogens": {
+            "sources": [
+                {"title": "药物与医用接触", "body": "如含激素药物、部分生殖健康相关治疗产品和特定医疗接触场景，可能增加外源性合成雌激素暴露。"},
+                {"title": "饮水与环境回流", "body": "污水处理回流、受污染水源和反复加热的塑料容器，均可能成为低剂量长期接触路径。"},
+            ],
+            "effects": [
+                {"title": "干扰激素轴调节", "body": "可能影响下丘脑-垂体-性腺轴的节律平衡，增加内分泌波动风险。"},
+                {"title": "增加生殖系统负担", "body": "长期暴露可能与月经周期波动、排卵节律紊乱等问题相关。"},
+                {"title": "提升乳腺敏感性", "body": "雌激素样作用增强时，乳腺组织对外界刺激的敏感性也可能上升。"},
+                {"title": "加重代谢清除压力", "body": "外源性激素负担增加后，肝脏代谢、胆汁排泄和炎症调节压力可能同步上升。"},
+            ],
+            "advice": [
+                "优先梳理近期激素类药物、保健品及特殊医用接触史。",
+                "关注饮水来源与盛装容器，减少可疑外源性激素输入。",
+                "避免高频塑料加热和长时间储存高温液体。",
+                "结合8到12周复评观察重点指标变化趋势。",
+            ],
+            "material": {
+                "name": "合成雌激素",
+                "subtitle": "(Synthetic Estrogens)",
+                "label_1": "典型来源",
+                "value_1": "激素类药物、受污染饮水、环境回流暴露",
+                "label_2": "重点场景",
+                "value_2": "长期用药、反复塑料接触、饮水来源不稳定",
+                "label_3": "关注原因",
+                "value_3": "具雌激素样作用，易干扰内分泌平衡与生殖节律",
+            },
+        },
+        "phthalates": {
+            "sources": [
+                {"title": "塑料包装与软塑材料", "body": "外卖餐盒、保鲜膜、塑料袋、PVC软塑制品和一次性用品是常见接触来源。"},
+                {"title": "个护与家居场景", "body": "香氛、指甲油、地板材料和部分家居软装也可能带来持续低剂量暴露。"},
+            ],
+            "effects": [
+                {"title": "增加内分泌干扰", "body": "邻苯二甲酸酯可影响激素合成、运输与受体结合，增加内分泌波动风险。"},
+                {"title": "影响生殖健康", "body": "长期接触可能与生殖功能、卵巢储备和发育节律改变相关。"},
+                {"title": "提升代谢负担", "body": "塑化剂暴露可能与慢性炎症、脂代谢紊乱和肝脏解毒压力增大有关。"},
+                {"title": "强化长期累积效应", "body": "该类物质常存在多途径反复接触，容易形成低剂量但持续的累积暴露。"},
+            ],
+            "advice": [
+                "减少软塑包装、保鲜膜和一次性塑料用品的高频接触。",
+                "避免高温加热塑料容器，优先改用玻璃或不锈钢材质。",
+                "关注香氛、指甲油和家居软装中的增塑剂暴露。",
+                "结合生活记录评估工作与家庭场景中的重复接触源。",
+            ],
+            "material": {
+                "name": "邻苯二甲酸酯",
+                "subtitle": "(Phthalates)",
+                "label_1": "常见类型",
+                "value_1": "MEP、MBP、MBzP、MEHP、MMP 等代谢物",
+                "label_2": "主要场景",
+                "value_2": "外卖包装、软塑制品、香氛个护和PVC材质接触",
+                "label_3": "关注原因",
+                "value_3": "增塑剂迁移性较强，容易形成多途径持续暴露",
+            },
+        },
+        "parabens": {
+            "sources": [
+                {"title": "个护与化妆品", "body": "护肤品、洗发水、香水、湿巾和局部护理产品是常见对羟基苯甲酸酯接触来源。"},
+                {"title": "食品与包装防腐", "body": "部分加工食品、药品辅料和包装防腐体系也可能带来低剂量暴露。"},
+            ],
+            "effects": [
+                {"title": "雌激素样作用", "body": "对羟基苯甲酸酯具有一定雌激素样活性，可能增加内分泌调节负担。"},
+                {"title": "皮肤吸收暴露", "body": "经皮反复接触时更容易形成日常高频输入。"},
+                {"title": "影响激素平衡", "body": "长期叠加接触可能与激素波动、皮肤敏感和生殖健康压力相关。"},
+                {"title": "增加复合暴露风险", "body": "若同时存在塑化剂或酚类暴露，可能形成叠加型环境激素负担。"},
+            ],
+            "advice": [
+                "复核日常个护产品成分表，尽量减少多种防腐剂叠加暴露。",
+                "优先选择成分简洁、无强香精和低防腐添加的个护产品。",
+                "关注药品辅料和加工食品中的长期防腐剂接触。",
+                "在8到12周内记录产品替换后的皮肤与周期变化。",
+            ],
+            "material": {
+                "name": "对羟基苯甲酸酯",
+                "subtitle": "(Parabens)",
+                "label_1": "常见来源",
+                "value_1": "护肤品、洗发水、香水、湿巾及部分药品辅料",
+                "label_2": "暴露特点",
+                "value_2": "经皮吸收和日常重复使用频率高",
+                "label_3": "关注原因",
+                "value_3": "具有一定雌激素样活性，易与其他环境激素形成复合负担",
+            },
+        },
+        "phenols": {
+            "sources": [
+                {"title": "塑料容器与内壁涂层", "body": "聚碳酸酯塑料、环氧树脂涂层、食品容器和热敏材料是酚类环境激素的重要来源。"},
+                {"title": "工作与家居环境", "body": "热敏票据、工业材料、可重复使用塑料器皿和清洁用品场景也需关注。"},
+            ],
+            "effects": [
+                {"title": "模拟雌激素效应", "body": "双酚类和烷基酚可模拟雌激素样作用，影响激素受体信号。"},
+                {"title": "增加代谢压力", "body": "长期接触可能加重肝脏代谢、解毒和抗氧化系统负担。"},
+                {"title": "影响神经行为调节", "body": "部分研究提示酚类暴露与认知、情绪及行为调节相关。"},
+                {"title": "增强长期累积性", "body": "该类暴露常分布于饮水、餐饮与家居用品中，日常累积性较强。"},
+            ],
+            "advice": [
+                "减少高温塑料容器使用，尤其避免热饮和热食长时间接触塑料。",
+                "优先使用玻璃、不锈钢和食品接触级安全材料。",
+                "减少热敏票据和可疑工业材料的无防护直接接触。",
+                "定期复评并结合饮水、餐具与家居用品更换情况观察变化。",
+            ],
+            "material": {
+                "name": "酚类环境激素",
+                "subtitle": "(Phenolic EDCs)",
+                "label_1": "常见项目",
+                "value_1": "双酚A、双酚B、壬基苯酚、辛基酚",
+                "label_2": "主要场景",
+                "value_2": "塑料容器、内壁涂层、热敏材料和家居接触",
+                "label_3": "关注原因",
+                "value_3": "具雌激素样作用且日常接触频率高，易形成累积暴露",
+            },
+        },
+    }
+    return profiles.get(family, profiles["synthetic_estrogens"])
+
+
+def _p15_impact_cards(primary_family: str, secondary_family: str) -> dict[str, dict[str, str]]:
+    primary_name = _p15_family_profile(primary_family)["material"]["name"]
+    secondary_name = _p15_family_profile(secondary_family)["material"]["name"]
+    return {
+        "impact_1": {"title": "激素平衡干扰", "body": f"{primary_name}相关暴露可能影响激素合成、分泌与受体结合，增加内分泌波动风险。"},
+        "impact_2": {"title": "生殖系统影响", "body": "长期环境激素接触可能与月经周期、卵巢功能和生殖节律调节相关。"},
+        "impact_3": {"title": "肝脏代谢负担", "body": "暴露物的清除依赖肝脏代谢与排泄通路，若长期接触可能增加解毒和抗氧化压力。"},
+        "impact_4": {"title": "复合暴露效应", "body": f"{primary_name}与{secondary_name}若同时接触，可能形成低剂量但持续的复合暴露负荷。"},
+        "impact_5": {"title": "长期累积风险", "body": "环境激素多来自日常反复接触场景，单次剂量不高也可能在长期中累积影响。"},
+        "impact_6": {"title": "生活方式联动", "body": "饮水、餐饮包装、个护用品和工作环境都会影响总体暴露水平，应综合排查。"},
+    }
+
+
+def _p15_measure_items(primary_family: str, secondary_family: str) -> dict[str, str]:
+    primary_name = _p15_family_profile(primary_family)["material"]["name"]
+    secondary_name = _p15_family_profile(secondary_family)["material"]["name"]
+    return {
+        "measure_1": "避免高温加热塑料容器，减少环境激素迁移释放。",
+        "measure_2": f"优先排查与{primary_name}相关的高频接触场景，并做阶段性替换。",
+        "measure_3": "饮水尽量选择稳定合规来源，必要时配合净水设备降低持续输入。",
+        "measure_4": f"同时关注{secondary_name}相关日用品、个护或包装材料接触。",
+        "measure_5": "以8到12周为观察周期记录调整效果，并结合复评判断干预收益。",
+    }
+
+
+def _p13_normalized_value(normalized: dict[str, Any], key: str, fallback: Any = "") -> str:
+    value = normalized.get(key)
+    if value in (None, ""):
+        value = fallback
+    if value in (None, ""):
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    return str(value).strip()
+
+
+def _p13_percentile_display_from_tests(tests: list[dict[str, Any]]) -> str:
+    percentile = _find_test_by_code(tests, "percentile")
+    result = str(percentile.get("result") or "").strip()
+    if not result:
+        return ""
+    if "%" in result or "超过" in result:
+        return result
+    return f"超过 {result}% 同龄人"
+
+
+def _p13_percentile_value_display(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return text if "%" in text else f"{text}%"
+
+
+def _p13_education_data(education: dict[str, Any]) -> dict[str, Any]:
+    telomeres_and_aging = education.get("telomeres_and_aging", {}) if isinstance(education.get("telomeres_and_aging"), dict) else {}
+    hallmarks = telomeres_and_aging.get("hallmarks_of_aging_2025")
+    if not isinstance(hallmarks, list):
+        hallmarks = [
+            "基因组不稳定",
+            "端粒损耗",
+            "表观遗传改变",
+            "蛋白质稳态丧失",
+            "大自噬失能",
+            "营养感应失调",
+            "线粒体功能障碍",
+            "细胞衰老",
+            "干细胞耗竭",
+            "细胞间通讯改变",
+            "慢性炎症",
+            "生态失调",
+            "细胞外基质变化",
+            "社会心理隔离",
+        ]
+    mapped_hallmarks = {
+        str(index): str(value).strip()
+        for index, value in enumerate(hallmarks[:14], start=1)
+        if str(value).strip()
+    }
+    return {
+        "telomere_definition": _p13_short_text(
+            education.get("telomere_definition"),
+            170,
+            "端粒是真核生物线性基因组DNA末端的特殊结构，可保护染色体完整性并参与细胞分裂周期调控。",
+        ),
+        "telomere_analogy": _p13_short_text(
+            education.get("telomere_analogy"),
+            110,
+            "端粒可类比为鞋带两端防止磨损的塑料套，帮助保护染色体末端并维持基因组稳定。",
+        ),
+        "aging_hallmarks_intro": "衰老是多种生物学过程共同作用的结果，原始报告列出以下14个衰老相关标志：",
+        "hallmarks": mapped_hallmarks,
+        "aging_mechanism": _p13_short_text(
+            telomeres_and_aging.get("mechanism"),
+            120,
+            "端粒损耗会触发细胞衰老相关反应，衰老细胞累积后可能进一步影响组织与器官状态。",
+        ),
+    }
+
+
+def _p13_management_data(recommendations: dict[str, Any]) -> dict[str, Any]:
+    diet = recommendations.get("diet", {}) if isinstance(recommendations.get("diet"), dict) else {}
+    lifestyle = recommendations.get("lifestyle", {}) if isinstance(recommendations.get("lifestyle"), dict) else {}
+    exercise = recommendations.get("exercise", {}) if isinstance(recommendations.get("exercise"), dict) else {}
+    stress = recommendations.get("stress_management", {}) if isinstance(recommendations.get("stress_management"), dict) else {}
+    positive_foods = _p13_list(diet.get("positive_foods"))
+    negative_foods = _p13_list(diet.get("negative_foods"))
+    nutrients = _p13_list(diet.get("nutrients"))
+    patterns = _p13_list(diet.get("dietary_patterns"))
+    exercises = _p13_list(exercise.get("recommended_exercises"))
+    positive_text = "、".join(positive_foods[:6]) or "豆类、坚果、海藻、水果、乳制品、膳食纤维"
+    negative_text = "、".join(negative_foods[:2]) or "红肉或加工肉类、含糖饮料"
+    nutrients_text = "、".join(nutrients[:7]) or "维生素A、维生素D、维生素C、叶酸、锌、多酚类物质、Omega-3脂肪酸"
+    patterns_text = "、".join(patterns[:2]) or "地中海膳食模式（MD）、能量限制模式（CR）"
+    exercises_text = "、".join(exercises[:4]) or "散步、慢跑、游泳、跳绳"
+    return {
+        "diet": {
+            "summary": f"原始报告建议关注{patterns_text}，并增加与端粒长度正相关的食物摄入。",
+            "pyramid": {
+                "occasionally": f"减少摄入{negative_text}",
+                "weekly_moderate": "适量搭配乳制品、优质蛋白和全谷物",
+                "weekly_often": "规律安排鱼类、海鲜、豆类等优质蛋白来源",
+                "daily": f"每日优先选择{positive_text}",
+                "foundation": "保持规律运动、良好作息、充足饮水与压力管理",
+            },
+            "advice": {
+                "1": f"重点补充与端粒维护相关的营养素：{nutrients_text}。",
+                "2": f"增加{positive_text}等食物，作为日常膳食的基础。",
+                "3": f"减少{negative_text}，降低氧化应激和炎症负担。",
+                "4": f"整体膳食结构可参考{patterns_text}，比单一营养素更重要。",
+                "5": "如存在慢性病、特殊饮食禁忌或用药情况，饮食调整需由专业人员复核。",
+                "6": "建议记录12周饮食、运动、睡眠和压力变化，用于下次复评对照。",
+            },
+        },
+        "exercise": {
+            "summary": _p13_short_text(
+                exercise.get("benefits"),
+                120,
+                "运动可通过降低氧化应激与炎症、提高端粒酶活性等机制帮助延缓端粒磨损。",
+            ),
+            "options": f"可优先选择{exercises_text}等有氧活动；如体能允许，再循序渐进尝试HIIT。",
+            "notes": {
+                "1": "运动前充分热身，运动后拉伸放松，避免突然提高强度。",
+                "2": "从低到中等强度开始，结合心率、疲劳和睡眠恢复情况调整频率。",
+                "3": "存在心血管疾病、骨关节问题或其他慢性病者，请先咨询专业医生。",
+            },
+        },
+        "synergy": "健康饮食、规律运动、睡眠管理和压力调节可协同降低氧化应激与炎症负担，帮助维护端粒长度和细胞更新潜力。",
+        "note": "本方案基于本次OCR识别的端粒报告与健康管理建议生成，仅供健康管理参考，导出前需人工复核。",
+        "lifestyle": {
+            "smoking": _p13_short_text(lifestyle.get("smoking"), 110, "建议避免主动吸烟和二手烟暴露，以减少氧化应激和炎症负担。"),
+            "alcohol": _p13_short_text(lifestyle.get("alcohol"), 110, "建议减少饮酒或停止饮酒，避免端粒过早缩短相关风险。"),
+            "sleep": _p13_short_text(lifestyle.get("sleep"), 110, "建议维持约7小时规律睡眠，避免过短或过长睡眠影响端粒维护。"),
+        },
+        "stress": {
+            "description": _p13_short_text(stress.get("description"), 120, "长期负面情绪和反复压力反应可能影响端粒长度。"),
+            "advice": _p13_short_text(stress.get("advice"), 120, "不要长期处于高压状态，如存在抑郁、焦虑等情况，请及时缓解或寻求专业帮助。"),
+        },
+    }
+
+
+def _p13_risk_factor_data(recommendations: dict[str, Any], telomere_age: str, actual_age: str) -> dict[str, Any]:
+    management = _p13_management_data(recommendations)
+    lifestyle = management.get("lifestyle", {}) if isinstance(management.get("lifestyle"), dict) else {}
+    stress = management.get("stress", {}) if isinstance(management.get("stress"), dict) else {}
+    summary = "本次结果提示需要关注端粒维护相关生活方式因素，建议结合饮食、运动、睡眠、压力和烟酒暴露进行综合管理。"
+    if telomere_age and actual_age and telomere_age != "待复核":
+        summary = f"本次端粒年龄约{telomere_age}岁，实际年龄约{actual_age}岁；建议优先排查并改善可能加速端粒磨损的生活方式因素。"
+    return {
+        "summary": summary,
+        "oxidative_stress": {
+            "title": "氧化应激与营养不足",
+            "body": "原始报告提示维生素A/D/C、叶酸、锌、多酚和Omega-3等营养素与端粒维护相关，饮食不足或氧化负担升高时需重点管理。",
+        },
+        "inflammation": {
+            "title": "炎症与不良饮食",
+            "body": "红肉或加工肉类、含糖饮料摄入过多可能与端粒长度负相关，建议减少炎症负担并优化整体膳食模式。",
+        },
+        "stress": {
+            "title": "长期压力与负面情绪",
+            "body": stress.get("description") or "长期压力、悲观预期和反复纠结可能增加端粒维护压力，建议建立情绪减压和支持系统。",
+        },
+        "sleep": {
+            "title": "睡眠节律不稳定",
+            "body": lifestyle.get("sleep") or "睡眠过短或过长都可能影响端粒维护，建议保持约7小时规律睡眠并持续记录睡眠质量。",
+        },
+        "tip": "温馨提示：以上因素可单独或共同作用影响端粒长度。改善生活方式有助于延缓端粒缩短，维护细胞健康。",
+    }
+
+
+def _p13_list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    text = str(value or "").strip()
+    return [text] if text else []
+
+
+def _p13_short_text(value: Any, limit: int, fallback: str) -> str:
+    text = re.sub(r"\s+", " ", str(value or "").strip())
+    if not text:
+        return fallback
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip("，。；;、 ") + "…"
+
+
+def _p12_indicator(tests: list[dict[str, Any]], code: str, definition: dict[str, Any]) -> dict[str, Any]:
+    test = _find_test_by_code(tests, code) or _find_test_any(tests, list(definition["keywords"]))
+    result = str(test.get("result") or "").strip() if test else ""
+    indicator = str(test.get("indicator") or "").strip() if test else ""
+    unit = str(test.get("unit") or definition["unit"]).strip() if test else str(definition["unit"])
+    reference = str(test.get("reference_range") or definition["reference"]).strip() if test else str(definition["reference"])
+    method = str(test.get("method") or definition["method"]).strip() if test else str(definition["method"])
+    status = _p12_indicator_status(test, reference, code=code)
+    result_text = _p12_result_with_indicator(result, indicator, missing_text="未识别")
+    result_display = _p12_value_with_unit(result_text, unit)
+    return {
+        "code": code,
+        "name": definition["name"],
+        "short_name": definition["short_name"],
+        "name_display": _p12_name_display(definition["name"], unit),
+        "result": result_text,
+        "raw_value": _safe_float(result),
+        "indicator": indicator,
+        "unit": unit or "—",
+        "result_display": result_display,
+        "reference_range": reference or "—",
+        "reference_display": _p12_value_with_unit(reference, unit) if reference else "参考范围：待补充",
+        "method": method,
+        "status": status,
+        "status_display": _p12_status_display(status),
+        "warning_note": _p12_warning_note(code, status, result_display),
+        "table_note": _p12_table_note(code, status),
+        "interpretation": _p12_indicator_interpretation(code, result_display, status),
+        "significance": _p12_indicator_significance(code, status),
+    }
+
+
+def _p12_indicator_status(test: dict[str, Any] | None, reference: str, *, code: str) -> str:
+    if not test:
+        return "待补录"
+    indicator = str(test.get("indicator") or "").strip()
+    if indicator:
+        if indicator in {"↑", "升高", "偏高"}:
+            return "偏高"
+        if indicator in {"↓", "降低", "偏低"}:
+            return "偏低"
+        if "严重不足" in indicator:
+            return "严重不足"
+        if "耗竭" in indicator:
+            return "中度耗竭"
+        if "失衡" in indicator:
+            return "轻度失衡"
+        if any(word in indicator for word in ("正常", "良好", "平衡", "理想")):
+            return "正常"
+        return indicator
+    value = _safe_float(test.get("result"))
+    if value is None:
+        return "待复核"
+    if code == "nad":
+        if value < 29:
+            return "严重不足"
+        if value < 38:
+            return "中度耗竭"
+        if value < 44:
+            return "轻度失衡"
+        if value < 48:
+            return "平衡状态"
+        return "理想峰值"
+    bounds = _p12_reference_bounds(reference)
+    if not bounds:
+        return "待复核"
+    lows = [lower for lower, _upper in bounds if lower is not None]
+    uppers = [upper for _lower, upper in bounds if upper is not None]
+    if lows and value < min(lows):
+        return "偏低"
+    if uppers and value > max(uppers):
+        return "偏高"
+    return "正常"
+
+
+def _p12_reference_bounds(reference: str) -> list[tuple[float | None, float | None]]:
+    text = str(reference or "")
+    bounds: list[tuple[float | None, float | None]] = []
+    for match in re.finditer(r"([0-9]+(?:\.[0-9]+)?)\s*(?:--|-|~|～|—|–)\s*([0-9]+(?:\.[0-9]+)?)", text):
+        bounds.append((float(match.group(1)), float(match.group(2))))
+    for match in re.finditer(r"(?:≤|<|＜)\s*([0-9]+(?:\.[0-9]+)?)", text):
+        bounds.append((None, float(match.group(1))))
+    for match in re.finditer(r"(?:≥|>|＞)\s*([0-9]+(?:\.[0-9]+)?)", text):
+        bounds.append((float(match.group(1)), None))
+    return bounds
+
+
+def _p12_result_with_indicator(result: str, indicator: str, *, missing_text: str) -> str:
+    text = str(result or "").strip()
+    flag = str(indicator or "").strip()
+    if not text:
+        return missing_text
+    return f"{text}{flag}" if flag in {"↑", "↓"} else text
+
+
+def _p12_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    unit_text = str(unit or "").strip()
+    if not text:
+        return "未识别"
+    if text in {"未识别", "待补录", "—"} or not unit_text or unit_text in text:
+        return text
+    return f"{text} {unit_text}"
+
+
+def _p12_name_display(name: str, unit: str) -> str:
+    unit_text = str(unit or "").strip()
+    return f"{name} ({unit_text})" if unit_text else name
+
+
+def _p12_status_display(status: str) -> str:
+    text = str(status or "").strip()
+    if any(word in text for word in ("严重不足", "中度耗竭", "偏低", "偏高", "异常", "不足", "需重点关注")):
+        return "! 需重点关注"
+    if "轻度失衡" in text:
+        return "! 建议干预"
+    if any(word in text for word in ("正常", "良好", "平衡", "理想", "整体平稳")):
+        return "✓ 水平良好"
+    return "待复核"
+
+
+def _p12_status_is_risk(status: str) -> bool:
+    return any(word in str(status or "") for word in ("严重不足", "中度耗竭", "轻度失衡", "偏低", "偏高", "异常", "待复核", "待补录"))
+
+
+def _p12_management_focus(indicators: dict[str, dict[str, Any]]) -> str:
+    if _p12_status_is_risk(str(indicators.get("nad", {}).get("status") or "")):
+        return "提升细胞能量与抗疲劳能力"
+    if _p12_status_is_risk(str(indicators.get("coq10", {}).get("status") or "")):
+        return "优化线粒体能量底物与抗氧化支持"
+    return "维持线粒体能量与抗疲劳能力"
+
+
+def _p12_priorities(indicators: dict[str, dict[str, Any]], antioxidant: dict[str, Any] | None = None) -> dict[str, dict[str, str]]:
+    coq10_status = str(indicators.get("coq10", {}).get("status") or "")
+    nad_status = str(indicators.get("nad", {}).get("status") or "")
+    antioxidant_abnormal = _p12_antioxidant_abnormal_text(antioxidant, limit=2)
+    if _p12_status_is_risk(nad_status):
+        first_title = "优先提升NAD+水平"
+        first_body = "围绕睡眠、压力、运动与营养前体支持，降低NAD+消耗并促进合成。"
+    else:
+        first_title = "维持NAD+平衡状态"
+        first_body = "继续保持规律作息、适度运动和均衡饮食，减少不必要的能量代谢负担。"
+    if _p12_status_is_risk(coq10_status):
+        third_title = "加强辅酶Q10相关营养支持"
+        third_body = "结合饮食、抗氧化营养和复评结果，支持线粒体电子传递和能量生成。"
+    else:
+        third_title = "保持辅酶Q10储备"
+        third_body = "当前辅酶Q10状态相对平稳，建议通过健康饮食和运动习惯维持。"
+    if antioxidant_abnormal:
+        second_title = "关注抗氧化防御"
+        second_body = f"抗氧化评估提示{antioxidant_abnormal}，建议同步降低氧化应激负担。"
+    else:
+        second_title = "优化生活方式减少能量消耗"
+        second_body = "规律作息、减轻压力、控制酒精和高糖高脂饮食，降低氧化应激。"
+    return {
+        "priority_1": {"title": first_title, "body": first_body},
+        "priority_2": {"title": second_title, "body": second_body},
+        "priority_3": {"title": third_title, "body": third_body},
+    }
+
+
+def _p12_overall_summary(indicators: dict[str, dict[str, Any]], antioxidant: dict[str, Any] | None = None) -> str:
+    coq10 = indicators.get("coq10", {})
+    nad = indicators.get("nad", {})
+    coq10_text = f"辅酶Q10为{coq10.get('result_display')}，状态为{coq10.get('status')}。"
+    nad_text = f"NAD+为{nad.get('result_display')}，状态为{nad.get('status')}。"
+    antioxidant_text = ""
+    antioxidant_abnormal = _p12_antioxidant_abnormal_text(antioxidant, limit=3)
+    if antioxidant_abnormal:
+        antioxidant_text = f"抗氧化评估同步提示{antioxidant_abnormal}。"
+    elif antioxidant and antioxidant.get("item_count"):
+        antioxidant_text = "抗氧化评估项目本次未见明确异常提示。"
+    if _p12_status_is_risk(str(nad.get("status") or "")):
+        advice = "建议优先围绕NAD+水平提升开展生活方式与营养管理，并结合疲劳、睡眠和运动恢复情况阶段复评。"
+    elif _p12_status_is_risk(str(coq10.get("status") or "")):
+        advice = "建议重点关注辅酶Q10相关能量底物和抗氧化支持，同时维持NAD+平衡。"
+    else:
+        advice = "当前线粒体能量相关指标整体较平稳，建议继续保持健康生活方式并定期复评。"
+    return f"基于本次检测结果，{coq10_text}{nad_text}{antioxidant_text}{advice}"
+
+
+def _p12_nad_chart_note(nad: dict[str, Any], patient_info: dict[str, Any]) -> str:
+    age = _age_display(patient_info.get("age")) or "当前年龄"
+    gender = str(patient_info.get("gender") or "受检者")
+    result = str(nad.get("result_display") or "未识别")
+    status = str(nad.get("status") or "待复核")
+    if _p12_status_is_risk(status):
+        return f"检测结果：{age}{gender}NAD+水平为 {result}，状态为{status}，提示细胞能量代谢与恢复能力可能需要重点管理，建议积极干预并阶段复评。"
+    return f"检测结果：{age}{gender}NAD+水平为 {result}，状态为{status}，建议保持规律作息、适度运动和均衡营养以维持当前水平。"
+
+
+def _p12_nad_chart_age_label(patient_info: dict[str, Any]) -> str:
+    age = _parse_age_number(patient_info.get("age"))
+    return str(age) if age is not None else "年龄"
+
+
+def _p12_warning_note(code: str, status: str, result_display: str) -> str:
+    if code == "nad":
+        if _p12_status_is_risk(status):
+            return f"{result_display}，建议结合疲劳、睡眠和运动恢复情况进行干预"
+        return "处于相对平稳水平，建议持续维护"
+    if _p12_status_is_risk(status):
+        return "低于或偏离参考范围，建议关注线粒体能量底物支持"
+    return "处于参考范围内"
+
+
+def _p12_table_note(code: str, status: str) -> str:
+    if code == "coq10":
+        if _p12_status_is_risk(status):
+            return "辅酶Q10是线粒体呼吸链中重要的脂溶性抗氧化剂，水平偏离时可能影响能量代谢和抗氧化能力。"
+        return "辅酶Q10参与线粒体电子传递和ATP生成，当前结果提示相关能量底物储备相对平稳。"
+    if _p12_status_is_risk(status):
+        return "NAD+是细胞能量代谢的关键辅酶，水平不足可能与疲劳、恢复变慢和代谢压力增加相关。"
+    return "NAD+参与能量生成、DNA修复和细胞稳态维持，当前结果提示细胞能量状态相对平稳。"
+
+
+def _p12_indicator_interpretation(code: str, result_display: str, status: str) -> str:
+    if code == "coq10":
+        return f"您的辅酶Q10水平为 {result_display}，当前状态为{status}。"
+    return f"您的NAD+水平为 {result_display}，当前状态为{status}。"
+
+
+def _p12_indicator_significance(code: str, status: str) -> str:
+    if code == "coq10":
+        if _p12_status_is_risk(status):
+            return "提示线粒体电子传递和抗氧化支持可能不足，建议结合饮食、运动恢复和营养管理进行综合改善。"
+        return "提示线粒体能量生成底物储备相对良好，有助于维持细胞抗氧化和高能耗组织能量供应。"
+    if _p12_status_is_risk(status):
+        return "提示细胞能量代谢和DNA修复相关辅酶储备不足，可能与疲劳、恢复能力下降或代谢压力增加有关。"
+    return "提示细胞能量代谢、DNA修复和抗应激能力处于相对平稳状态，建议继续保持健康生活方式。"
+
+
+def _p12_antioxidant_panel(tests: list[dict[str, Any]]) -> dict[str, Any]:
+    items: dict[str, dict[str, Any]] = {}
+    item_list: list[dict[str, Any]] = []
+    for test in tests:
+        item_code = str(test.get("item_code") or "").strip()
+        group = str(test.get("group") or "").strip()
+        if item_code not in P12_ANTIOXIDANT_CODES and group != "antioxidant":
+            continue
+        code = item_code if item_code in P12_ANTIOXIDANT_CODES else "antioxidant"
+        result = str(test.get("result") or "").strip()
+        indicator = str(test.get("indicator") or "").strip()
+        unit = str(test.get("unit") or "").strip()
+        reference = str(test.get("reference_range") or "").strip()
+        status = _p12_antioxidant_status(test, reference)
+        result_text = _p12_result_with_indicator(result, indicator, missing_text="未识别")
+        result_display = _p12_value_with_unit(result_text, unit)
+        item = {
+            "code": code,
+            "name": str(test.get("test_name") or "").strip(),
+            "result": result_text,
+            "raw_value": _safe_float(result),
+            "indicator": indicator,
+            "unit": unit,
+            "result_display": result_display,
+            "reference_range": reference or "—",
+            "status": status,
+            "status_display": _p12_status_display(status),
+            "interpretation": str(test.get("interpretation") or "").strip(),
+        }
+        items[code] = item
+        item_list.append(item)
+
+    for code, default_name in {
+        "tac": "抗氧化总容量(TAC)",
+        "gpx": "谷胱甘肽过氧化物酶(GPX)",
+        "sod": "超氧化物歧化酶(SOD)",
+        "lpo": "过氧化脂类(LPO)",
+        "gsh": "谷胱甘肽(GSH)",
+    }.items():
+        items.setdefault(
+            code,
+            {
+                "code": code,
+                "name": default_name,
+                "result": "未识别",
+                "raw_value": None,
+                "indicator": "",
+                "unit": "—",
+                "result_display": "未识别",
+                "reference_range": "—",
+                "status": "待补录",
+                "status_display": "待复核",
+                "interpretation": "",
+            },
+        )
+
+    abnormal_items = [item for item in item_list if _p12_status_is_risk(str(item.get("status") or ""))]
+    normal_items = [item for item in item_list if item not in abnormal_items]
+    overall_status = _p12_antioxidant_overall_status(item_list, abnormal_items)
+    return {
+        "item_count": len(item_list),
+        "items": items,
+        "item_list": item_list,
+        "abnormal_items": abnormal_items,
+        "normal_items": normal_items,
+        "overall_status": overall_status,
+        "overall_status_display": _p12_status_display(overall_status),
+        "summary": _p12_antioxidant_summary(items, abnormal_items),
+        "abnormal_summary": _p12_antioxidant_abnormal_text({"abnormal_items": abnormal_items}, limit=5),
+        "ai_assessment": _p12_antioxidant_ai_assessment(item_list, abnormal_items),
+        "management_advice": _p12_antioxidant_management_advice(abnormal_items),
+        "review_note": _p12_antioxidant_review_note(item_list, abnormal_items),
+    }
+
+
+def _p12_antioxidant_status(test: dict[str, Any], reference: str) -> str:
+    indicator = str(test.get("indicator") or "").strip()
+    if indicator:
+        if indicator in {"↑", "升高", "偏高"}:
+            return "偏高"
+        if indicator in {"↓", "降低", "偏低"}:
+            return "偏低"
+        if any(word in indicator for word in ("异常", "不足", "偏低", "偏高", "降低", "升高")):
+            return indicator
+        if any(word in indicator for word in ("正常", "良好", "平衡", "理想")):
+            return "正常"
+    value = _safe_float(test.get("result"))
+    if value is None:
+        return "待复核"
+    bounds = _p12_reference_bounds(reference)
+    if not bounds:
+        return "待复核"
+    lows = [lower for lower, _upper in bounds if lower is not None]
+    uppers = [upper for _lower, upper in bounds if upper is not None]
+    if lows and value < min(lows):
+        return "偏低"
+    if uppers and value > max(uppers):
+        return "偏高"
+    return "正常"
+
+
+def _p12_antioxidant_summary(items: dict[str, dict[str, Any]] | list[dict[str, Any]], abnormal_items: list[dict[str, Any]]) -> str:
+    if not items:
+        return "本次OCR未识别到抗氧化能力评估项目。"
+    item_count = len(items) if isinstance(items, list) else len([item for item in items.values() if item.get("raw_value") is not None or item.get("status") not in {"待补录", "待复核"}])
+    if abnormal_items:
+        abnormal_text = _p12_antioxidant_abnormal_text({"abnormal_items": abnormal_items}, limit=5)
+        return f"本次共识别{item_count}项抗氧化评估项目，其中{abnormal_text}，建议结合线粒体能量指标同步管理氧化应激。"
+    return f"本次共识别{item_count}项抗氧化评估项目，OCR状态均未提示明确异常，可作为线粒体能量管理的辅助参考。"
+
+
+def _p12_antioxidant_overall_status(item_list: list[dict[str, Any]], abnormal_items: list[dict[str, Any]]) -> str:
+    if not item_list:
+        return "待补录"
+    if not abnormal_items:
+        return "整体平稳"
+    if len(abnormal_items) >= 2:
+        return "需重点关注"
+    first_status = str(abnormal_items[0].get("status") or "").strip()
+    if "偏低" in first_status or "偏高" in first_status:
+        return "建议干预"
+    return "需重点关注"
+
+
+def _p12_antioxidant_abnormal_text(antioxidant: dict[str, Any] | None, *, limit: int = 3) -> str:
+    if not isinstance(antioxidant, dict):
+        return ""
+    abnormal_items = antioxidant.get("abnormal_items", [])
+    if not isinstance(abnormal_items, list) or not abnormal_items:
+        return ""
+    parts: list[str] = []
+    for item in abnormal_items[:limit]:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or item.get("code") or "抗氧化项目").strip()
+        short_name_match = re.search(r"\(([^)（）]+)\)|（([^)（）]+)）", name)
+        short_name = name
+        if short_name_match:
+            short_name = short_name_match.group(1) or short_name_match.group(2) or name
+        status = str(item.get("status") or "异常").strip()
+        result = str(item.get("result_display") or item.get("result") or "").strip()
+        display = f"{short_name}{status}"
+        if result:
+            display = f"{display}（{result}）"
+        parts.append(display)
+    if not parts:
+        return ""
+    suffix = "等" if len(abnormal_items) > limit else ""
+    return "、".join(parts) + suffix
+
+
+def _p12_followup_advice(indicators: dict[str, dict[str, Any]], antioxidant: dict[str, Any] | None = None) -> str:
+    nad = indicators.get("nad", {})
+    coq10 = indicators.get("coq10", {})
+    focus: list[str] = []
+    if _p12_status_is_risk(str(nad.get("status") or "")):
+        focus.append(f"NAD+ {nad.get('result_display')}")
+    if _p12_status_is_risk(str(coq10.get("status") or "")):
+        focus.append(f"辅酶Q10 {coq10.get('result_display')}")
+    antioxidant_abnormal = _p12_antioxidant_abnormal_text(antioxidant, limit=2)
+    if antioxidant_abnormal:
+        focus.append(f"抗氧化项目{antioxidant_abnormal}")
+    focus_text = "、".join(item for item in focus if item.strip())
+    if focus_text:
+        return f"建议围绕{focus_text}制定8-12周生活方式与营养管理计划，记录疲劳程度、睡眠质量和运动恢复，并按阶段复评。"
+    return "建议按8-12周计划维持饮食、作息、运动与阶段复评，并记录疲劳程度、睡眠质量、运动恢复和生活方式变化。"
+
+
+def _p12_antioxidant_ai_assessment(item_list: list[dict[str, Any]], abnormal_items: list[dict[str, Any]]) -> str:
+    if not item_list:
+        return "本次OCR未识别到抗氧化能力五项结果，需人工核对原始报告后再生成辅助判断。"
+    if abnormal_items:
+        abnormal_text = _p12_antioxidant_abnormal_text({"abnormal_items": abnormal_items}, limit=5)
+        return (
+            f"抗氧化能力评估提示{abnormal_text}，说明本次抗氧化储备与酶类保护环节已出现一定压力，"
+            "机体清除自由基和抵御氧化损伤的能力可能下降。"
+            "若同时伴随疲劳恢复变慢、睡眠不足、炎症暴露增加或高强度运动负荷，"
+            "建议结合辅酶Q10、NAD+和近期生活方式变化进行综合判断，并作为阶段干预与复评的依据。"
+        )
+    return (
+        "抗氧化能力五项OCR状态未提示明确异常，说明本次抗氧化储备、保护性酶类和氧化损伤相关指标整体较平稳。"
+        "这通常提示机体在当前状态下仍具备一定自由基清除与抗氧化防御能力，"
+        "但仍需结合辅酶Q10、NAD+、疲劳表现和近期生活方式共同评估，避免仅凭单次结果放松管理。"
+    )
+
+
+def _p12_antioxidant_management_advice(abnormal_items: list[dict[str, Any]]) -> str:
+    if abnormal_items:
+        return (
+            "建议优先减少熬夜、过量运动、烟酒、高糖高脂饮食和长期精神紧张等氧化应激来源，"
+            "同时增加深色蔬果、优质蛋白、规律恢复和适度有氧运动。"
+            "若近期存在炎症、恢复变慢或补充剂调整，也建议同步记录并在8-12周后复评异常项目，观察抗氧化防御能力是否改善。"
+        )
+    return (
+        "建议继续维持规律作息、适量运动、均衡饮食和抗氧化营养摄入，"
+        "并把睡眠质量、压力负荷、运动恢复和饮食结构作为长期观察重点。"
+        "结合辅酶Q10、NAD+结果按阶段复评，有助于更早发现氧化应激上升趋势。"
+    )
+
+
+def _p12_antioxidant_review_note(item_list: list[dict[str, Any]], abnormal_items: list[dict[str, Any]]) -> str:
+    if not item_list:
+        return "抗氧化能力评估结果未识别完整，请人工核对原始报告。"
+    if abnormal_items:
+        return "抗氧化能力评估存在异常或偏离项目，需结合原始报告参考值、近期生活方式、炎症/压力暴露和症状进行人工复核。"
+    return "抗氧化能力评估为健康管理辅助参考，需结合辅酶Q10、NAD+及受检者实际情况综合判断。"
+
+
+def _p12_review_note(indicators: dict[str, dict[str, Any]], antioxidant: dict[str, Any] | None = None) -> str:
+    key_points = [
+        f"辅酶Q10 {indicators.get('coq10', {}).get('result_display')}",
+        f"NAD+ {indicators.get('nad', {}).get('result_display')}",
+    ]
+    antioxidant_abnormal = _p12_antioxidant_abnormal_text(antioxidant, limit=2)
+    if antioxidant_abnormal:
+        key_points.append(f"抗氧化异常项{antioxidant_abnormal}")
+    joined = "、".join(point for point in key_points if point.strip())
+    return f"健康管理专家应结合{joined}、症状、年龄、运动与睡眠情况进行综合判断。"
+
+
+def _p12_clinical_diagnosis_display(value: Any) -> str:
+    text = str(value or "").strip()
+    compact = "".join(text.split()).lower()
+    if not compact or compact in {"-", "—", "/"}:
+        return "-"
+    if "anweikang" in compact or "安为康" in text:
+        return "-"
+    return text
+
+
 def _build_p10_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
     ocr_result = _normalize_p10_ocr_result(ocr_result)
     structured = ocr_result.get("structured_report", {}) if isinstance(ocr_result.get("structured_report"), dict) else {}
@@ -2548,6 +4583,91 @@ def _build_placeholder_report_data(package_code: str, ocr_result: dict[str, Any]
             "source_file": ocr_result.get("source_file", ""),
             "strategy_version": ocr_result.get("strategy_version", ""),
             "provider": ocr_result.get("provider", ""),
+        },
+    }
+
+
+def _build_p16_report_data(ocr_result: dict[str, Any]) -> dict[str, Any]:
+    structured = ocr_result.get("structured_report", {})
+    patient_info = structured.get("patient_info", {})
+    additional_info = structured.get("additional_info", {})
+    tests = structured.get("tests", [])
+    p16_report = structured.get("p16_extracted_report", {}) if isinstance(structured.get("p16_extracted_report"), dict) else {}
+    normalized = p16_report.get("normalized", {}) if isinstance(p16_report.get("normalized"), dict) else {}
+    summary_cards = normalized.get("summary_cards", {}) if isinstance(normalized.get("summary_cards"), dict) else {}
+    sections = normalized.get("sections", {}) if isinstance(normalized.get("sections"), dict) else {}
+    management = normalized.get("management", {}) if isinstance(normalized.get("management"), dict) else {}
+
+    report_id = str(structured.get("report_id") or ocr_result.get("source_file") or "")
+    source_stem = Path(str(ocr_result.get("source_file") or report_id or "p16")).stem
+    assessment_date_raw = str(additional_info.get("report_date") or additional_info.get("sample_date") or "")
+
+    sample_types = patient_info.get("specimen_types") or []
+    if not isinstance(sample_types, list):
+        sample_types = [str(sample_types)]
+    sample_type_display = "、".join(str(item) for item in sample_types if str(item).strip()) or P16_SAMPLE_TYPE
+
+    return {
+        "case_id": f"case_p16_{source_stem}",
+        "package_code": "P16",
+        "patient": {
+            "name": patient_info.get("name") or "",
+            "gender": patient_info.get("gender") or "",
+            "age": _age_display(patient_info.get("age")),
+            "phone": patient_info.get("phone") or "—",
+            "symptoms": patient_info.get("clinical_diagnosis") or "—",
+        },
+        "report": {
+            "report_id": report_id,
+            "report_title": P16_REPORT_NAME,
+            "subtitle": "基于药物基因组学数据的精准健康管理评估",
+            "assessment_type": P16_ASSESSMENT_TYPE,
+            "method": str(additional_info.get("method") or P16_METHOD),
+            "assessment_date": _date_display(assessment_date_raw),
+            "sample_date": additional_info.get("sample_date") or "",
+            "receive_date": additional_info.get("receive_date") or "",
+            "report_date": additional_info.get("report_date") or "",
+        },
+        "sample": {
+            "type": sample_type_display,
+            "condition": patient_info.get("specimen_condition") or "—",
+        },
+        "lab_results": [_lab_result(test) for test in tests],
+        "organization": {
+            "phone": "400-158-1959",
+            "email": "service@anweikang.com",
+            "website": "www.anweikang.com",
+            "address": P16_ORGANIZATION_ADDRESS,
+        },
+        "p16": {
+            "summary": {
+                "hypertension": summary_cards.get("hypertension", {"title": "高血压用药", "status": "待复核"}),
+                "dpp4": summary_cards.get("dpp4", {"title": "降糖药（DPP-4抑制剂）", "status": "待复核"}),
+                "sulfonylurea": summary_cards.get("sulfonylurea", {"title": "降糖药（磺脲类）", "status": "待复核"}),
+                "antiplatelet": summary_cards.get("antiplatelet", {"title": "阿司匹林", "status": "待复核"}),
+                "ppi": summary_cards.get("ppi", {"title": "CYP2C19", "status": "待复核"}),
+                "statin": summary_cards.get("statin", {"title": "他汀类药物", "status": "待复核"}),
+                "anticoagulant": summary_cards.get("anticoagulant", {"title": "静脉血栓风险", "status": "待复核"}),
+                "evaluation_summary": str(normalized.get("evaluation_summary") or ""),
+            },
+            "sections": {
+                "antihypertensive": sections.get("antihypertensive", {}),
+                "statin": sections.get("statin", {}),
+                "cyp2c19": sections.get("cyp2c19", {}),
+                "aspirin": sections.get("aspirin", {}),
+                "clopidogrel": sections.get("clopidogrel", {}),
+                "hypoglycemic": sections.get("hypoglycemic", {}),
+                "thrombosis": sections.get("thrombosis", {}),
+            },
+            "management": {
+                "priority_1": management.get("priority_1", {}),
+                "priority_2": management.get("priority_2", {}),
+                "priority_3": management.get("priority_3", {}),
+                "note": str(management.get("note") or ""),
+            },
+            "followup_advice": str(normalized.get("followup_advice") or ""),
+            "disclaimer": str(normalized.get("disclaimer") or ""),
+            "review_note": str(normalized.get("review_note") or ""),
         },
     }
 

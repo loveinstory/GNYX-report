@@ -1,0 +1,49 @@
+{
+  "package_code": "P13",
+  "version": "P13-rules-v0.3-template-ocr-ai-binding",
+  "status": "development",
+  "description": "P13 年轻力精准评估健康管理报告规则 v0.3。当前围绕端粒年龄、实际年龄、端粒相对长度、人群百分位和 Ct 值建立 OCR 结构化、规则兜底与 AI 字段边界，并将模板中的端粒科普、异常因素、饮食运动建议等占位内容绑定到 OCR/规则/AI 字段。",
+  "method": "荧光PCR端粒长度与细胞年轻力综合评估",
+  "principles": [
+    "优先读取原始检测报告中的端粒相对长度、端粒年龄、人群百分位、端粒 Ct 值和内参 Ct 值。",
+    "当原始报告给出明确年龄差、百分位或风险提示时，优先采用原始报告结论。",
+    "不得编造未识别的检测项目、数值、参考范围、疾病诊断、治疗方案或药物剂量。",
+    "健康管理建议定位为生活方式优化、饮食运动管理、睡眠压力调节和阶段复评提醒。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "indicator_groups": {
+    "telomere": ["telomere_relative_length", "telomere_age", "actual_age", "percentile", "telomere_ct", "reference_ct"]
+  },
+  "reference_defaults": {
+    "telomere_relative_length": "以原始报告同龄人群模型为准",
+    "percentile": "百分位越高代表端粒长度相对越长",
+    "telomere_age_gap": "端粒年龄高于实际年龄时建议关注生活方式干预"
+  },
+  "ocr_json_sources": {
+    "report_info": ["report_title", "report_date", "barcode", "patient_name"],
+    "patient_info": ["name", "gender", "age", "sample_type", "test_technology", "submission_date", "receipt_date", "submitting_institution"],
+    "test_results": ["telomere_age_assessment", "telomere_length_and_trend", "population_percentile"],
+    "recommendations": ["diet", "lifestyle", "exercise", "stress_management"],
+    "signature": ["primary_reviewer", "approver", "laboratory"]
+  },
+  "derived_fields": {
+    "p13.telomere_age": "actual_age + telomere_age_assessment 中的大/小年龄差",
+    "p13.percentile.display": "population_percentile.description 中的百分比，展示为“超过 X% 同龄人”",
+    "p13.overall_summary": "端粒年龄、实际年龄与年龄差的规则摘要，可被 AI 输出覆盖"
+  },
+  "ai_field_mapping": {
+    "overall_summary": "p13.overall_summary",
+    "indicator_interpretations.telomere": "p13.telomere.interpretation",
+    "indicator_interpretations.percentile_summary": "p13.percentile.summary",
+    "recommendations.followup_advice": "p13.followup_advice",
+    "recommendations.diet_summary": "p13.management.diet.summary",
+    "recommendations.exercise_summary": "p13.management.exercise.summary",
+    "risk_factors.summary": "p13.risk_factors.summary",
+    "safety.disclaimer": "p13.disclaimer",
+    "review_note": "p13.review_note"
+  },
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  }
+}

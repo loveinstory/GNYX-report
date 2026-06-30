@@ -1,0 +1,10 @@
+{
+  "package_code": "P15",
+  "strategy_version": "P15-ocr-strategy-v0.2-environment-hormone-json-pdf",
+  "status": "development",
+  "provider": "pdf-text-extractor+p15-environment-hormone-json-adapter",
+  "fallback_provider": "manual-review",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P15",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P15 OCR 策略 v0.2：支持环境荷尔蒙检测报告 JSON OCR 输入，适配 report_info + patient_info + test_details + results + report_notes + contact_info 结构，并输出统一 structured_report.tests；同时保留 PDF 文本层回退解析，待更多真实样例后继续升级文本层识别与字段置信度。"
+}

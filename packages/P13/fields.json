@@ -1,0 +1,452 @@
+{
+  "package_code": "P13",
+  "config_version": "P13-fields-v0.3-template-ocr-ai-binding",
+  "description": "P13 ????????????????? v0.3?????????????? JSON OCR ? PDF ????????????????????????????????????????????????",
+  "required_fields": [
+    "patient.name",
+    "patient.gender",
+    "patient.age",
+    "report.assessment_type",
+    "sample.type",
+    "report.method",
+    "report.assessment_date",
+    "p13.telomere_age",
+    "p13.actual_age",
+    "p13.telomere.relative_length",
+    "p13.percentile.display",
+    "p13.overall_summary",
+    "p13.followup_advice"
+  ],
+  "optional_fields": [
+    "patient.phone",
+    "patient.symptoms",
+    "p13.telomere.ct_value",
+    "p13.reference.ct_value",
+    "p13.telomere.interpretation",
+    "p13.percentile.summary",
+    "p13.percentile.note",
+    "p13.disclaimer",
+    "p13.review_note",
+    "organization.phone",
+    "organization.email",
+    "organization.website",
+    "organization.address",
+    "p13.percentile.value",
+    "p13.education.telomere_definition",
+    "p13.education.telomere_analogy",
+    "p13.education.aging_hallmarks_intro",
+    "p13.education.aging_mechanism",
+    "p13.risk_factors.summary",
+    "p13.risk_factors.oxidative_stress.body",
+    "p13.risk_factors.inflammation.body",
+    "p13.risk_factors.stress.body",
+    "p13.risk_factors.sleep.body",
+    "p13.management.diet.summary",
+    "p13.management.diet.advice.1",
+    "p13.management.diet.advice.2",
+    "p13.management.diet.advice.3",
+    "p13.management.diet.advice.4",
+    "p13.management.diet.advice.5",
+    "p13.management.diet.advice.6",
+    "p13.management.exercise.summary",
+    "p13.management.exercise.options",
+    "p13.management.synergy",
+    "p13.management.note",
+    "p13.page_note"
+  ],
+  "field_mapping": [
+    {
+      "key": "patient.name",
+      "label": "姓名",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.name",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.gender",
+      "label": "性别",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.gender",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.age",
+      "label": "年龄",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.age",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.phone",
+      "label": "联系电话",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.phone",
+      "fill_type": "ocr_or_manual",
+      "status": "mapped"
+    },
+    {
+      "key": "patient.symptoms",
+      "label": "相关症状",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.clinical_diagnosis",
+      "fill_type": "ocr_or_manual",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_type",
+      "label": "评估类型",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "system.fixed.年轻力精准评估",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "sample.type",
+      "label": "样本信息",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.specimen_types or patient_info.sample_type",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "report.method",
+      "label": "评估方法",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.patient_info.test_technology or system.fixed.荧光PCR",
+      "fill_type": "ocr_or_system",
+      "status": "mapped"
+    },
+    {
+      "key": "report.assessment_date",
+      "label": "评估日期",
+      "pages": [
+        "page-01.html"
+      ],
+      "source": "structured_report.additional_info.report_date or sample_date",
+      "fill_type": "ocr_or_manual",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.telomere_age",
+      "label": "端粒年龄",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "structured_report.tests[item_code=telomere_age].result or rules",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.actual_age",
+      "label": "实际年龄",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "patient.age numeric display",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.overall_summary",
+      "label": "AI辅助诊断",
+      "pages": [
+        "page-02.html"
+      ],
+      "source": "p13_extracted_report.normalized.overall_summary, DeepSeek.overall_summary with rules fallback",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.telomere.relative_length",
+      "label": "端粒相对长度",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "structured_report.tests[item_code=telomere_relative_length].result",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.percentile.display",
+      "label": "人群百分位展示",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "structured_report.tests[item_code=percentile].result + rules",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.telomere.ct_value",
+      "label": "端粒Ct值",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "structured_report.tests[item_code=telomere_ct].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.reference.ct_value",
+      "label": "内参Ct值",
+      "pages": [
+        "page-03.html"
+      ],
+      "source": "structured_report.tests[item_code=reference_ct].result",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.telomere.interpretation",
+      "label": "端粒长度深度解读",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "test_results.telomere_age_assessment.interpretation or DeepSeek.indicator_interpretations.telomere",
+      "fill_type": "ocr_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.percentile.summary",
+      "label": "百分位曲线摘要",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "p13_extracted_report.normalized.percentile_summary or DeepSeek.indicator_interpretations.percentile_summary",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.percentile.note",
+      "label": "百分位说明",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "rules.fixed.percentile_note",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.followup_advice",
+      "label": "后续行动",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "recommendations diet/lifestyle/exercise/stress_management or DeepSeek.recommendations.followup_advice",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.disclaimer",
+      "label": "免责声明",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "disclaimer[2] or DeepSeek.safety.disclaimer",
+      "fill_type": "ocr_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.review_note",
+      "label": "审核信息",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "signature.primary_reviewer / signature.approver / signature.laboratory / report_info.report_date",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.phone",
+      "label": "联系电话",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "system.organization.phone",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.email",
+      "label": "电子邮箱",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "system.organization.email",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.website",
+      "label": "官方网站",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "system.organization.website",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "organization.address",
+      "label": "公司地址",
+      "pages": [
+        "page-10.html"
+      ],
+      "source": "system.organization.address",
+      "fill_type": "system",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.percentile.value",
+      "label": "?????",
+      "pages": [
+        "page-04.html"
+      ],
+      "source": "p13_extracted_report.normalized.percentile_value",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.education.telomere_definition",
+      "label": "????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "educational_content.telomere_definition",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.education.telomere_analogy",
+      "label": "????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "educational_content.telomere_analogy",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.education.aging_hallmarks_intro",
+      "label": "??????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "educational_content.telomeres_and_aging.hallmarks_of_aging_2025",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.education.aging_mechanism",
+      "label": "???????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "educational_content.telomeres_and_aging.mechanism",
+      "fill_type": "ocr",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.risk_factors.summary",
+      "label": "??????",
+      "pages": [
+        "page-06.html"
+      ],
+      "source": "recommendations + p13_extracted_report.normalized",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.management.diet.summary",
+      "label": "??????",
+      "pages": [
+        "page-07.html"
+      ],
+      "source": "recommendations.diet",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.management.exercise.summary",
+      "label": "??????",
+      "pages": [
+        "page-07.html"
+      ],
+      "source": "recommendations.exercise",
+      "fill_type": "ocr_rules_ai",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.management.synergy",
+      "label": "????",
+      "pages": [
+        "page-07.html"
+      ],
+      "source": "recommendations diet/exercise/stress",
+      "fill_type": "ocr_rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.management.note",
+      "label": "????",
+      "pages": [
+        "page-07.html"
+      ],
+      "source": "rules.fixed.management_note",
+      "fill_type": "rules",
+      "status": "mapped"
+    },
+    {
+      "key": "p13.page_note",
+      "label": "??????",
+      "pages": [
+        "page-05.html"
+      ],
+      "source": "rules.fixed.page_note",
+      "fill_type": "rules",
+      "status": "mapped"
+    }
+  ],
+  "result_table_fields": [
+    "p13.telomere.relative_length",
+    "p13.percentile.display",
+    "p13.telomere.ct_value",
+    "p13.reference.ct_value"
+  ],
+  "ai_connected_fields": [
+    "p13.overall_summary",
+    "p13.telomere.interpretation",
+    "p13.percentile.summary",
+    "p13.followup_advice",
+    "p13.disclaimer",
+    "p13.review_note",
+    "p13.management.diet.summary",
+    "p13.management.exercise.summary",
+    "p13.risk_factors.summary"
+  ],
+  "notes": [
+    "模板来源：D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P13",
+    "第07页已调用 assets/images/p07-food-pyramid.png 作为地中海饮食金字塔图片。",
+    "P13 v0.2 已基于样例 260601_WTFY_1012_20260601185401505.pdf 及其 JSON OCR 输出校准字段映射。",
+    "P13 v0.3 ?? page 05-07 ????????? education?risk_factors?management ?????page 08/09 ?????????????????"
+  ]
+}

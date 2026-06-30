@@ -1,0 +1,51 @@
+{
+  "package_code": "P16",
+  "strategy_version": "P16-ocr-strategy-v0.2-pgx-multireport-json-pdf",
+  "status": "development",
+  "provider": "pdf-text-extractor+p16-pgx-multireport-json-adapter",
+  "fallback_provider": "manual-review",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P16",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P16 OCR 策略 v0.2：支持药物基因组学多报告聚合 JSON 输入，适配 reports[] 结构中的高血压、他汀、CYP2C19、阿司匹林、替格瑞洛、高血糖和静脉血栓子报告；当解析 PDF 时，若同目录存在 OCR.txt / .json 结构化结果，会优先作为 P16 OCR sidecar 导入。",
+  "target_sections": [
+    { "code": "cover_info", "name": "封面与患者基础信息" },
+    { "code": "summary", "name": "综合评估结论" },
+    { "code": "antihypertensive", "name": "高血压个性化用药" },
+    { "code": "statin", "name": "他汀类药物用药" },
+    { "code": "cyp2c19", "name": "CYP2C19 基因多态性" },
+    { "code": "aspirin", "name": "阿司匹林用药" },
+    { "code": "clopidogrel", "name": "替格瑞洛用药" },
+    { "code": "hypoglycemic", "name": "高血糖个性化用药" },
+    { "code": "thrombosis", "name": "静脉血栓个性化用药" }
+  ],
+  "quality_gate": {
+    "expected_report_count": 10,
+    "minimum_without_warning": 7,
+    "required_report_types": [
+      "高血压个性化用药基因检测报告",
+      "他汀类药物用药基因检测报告",
+      "CYP2C19基因多态性检测报告",
+      "阿司匹林个体化用药基因检测报告",
+      "替格瑞洛个体化用药基因检测报告",
+      "高血糖个体化用药基因检测报告",
+      "静脉血栓个体化用药基因检测报告"
+    ],
+    "required_test_codes": [
+      "adrb1",
+      "slco1b1",
+      "apoe",
+      "cyp2c19",
+      "gp1ba",
+      "pear1",
+      "cdkal1_rs7756992",
+      "cyp2c9_sulfonylurea",
+      "mthfr",
+      "pai1"
+    ]
+  },
+  "notes": [
+    "结构化 OCR 样例基于 D:\\AWK-OCR\\功能医学检测报告模板（2026.4.3）\\P16\\OCR.txt。",
+    "测试 PDF 为 D:\\AWK-OCR\\功能医学检测报告模板（2026.4.3）\\P16\\hebing44831.pdf；若同目录存在 OCR.txt，则 PDF 解析优先走 sidecar OCR JSON 适配链路。",
+    "后续可继续补纯 PDF 文本层的专项表格解析，但当前 v0.2 已可稳定利用结构化 OCR 结果驱动 P16 报告生成。"
+  ]
+}

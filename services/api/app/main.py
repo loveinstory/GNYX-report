@@ -376,9 +376,8 @@ def _dedupe_latest_ocr_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     deduped: list[dict[str, Any]] = []
     seen: set[str] = set()
     for log in logs:
-        structured = log.get("result_json", {}).get("structured_report", {})
-        report_id = str(structured.get("report_id") or "")
-        key = f"{log.get('package_code', '')}:{report_id or log.get('source_file', '')}"
+        source_file = str(log.get("source_file") or "").strip()
+        key = f"{log.get('package_code', '')}:{source_file or log.get('log_id', '')}"
         if key in seen:
             continue
         seen.add(key)

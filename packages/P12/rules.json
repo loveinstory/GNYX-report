@@ -1,0 +1,43 @@
+{
+  "package_code": "P12",
+  "version": "P12-rules-v0.2-ocr-json",
+  "status": "draft",
+  "description": "P12 线粒体能量与疲劳评估报告规则，围绕辅酶Q10、NAD+和JSON OCR中的抗氧化评估结果生成健康管理提示。",
+  "method": "CoQ10 / NAD+ 综合评估",
+  "principles": [
+    "优先读取原始检验报告或OCR JSON中的结果、单位、参考范围和异常提示。",
+    "辅酶Q10与NAD+结论必须基于已识别检测结果，不得编造未识别项目或数值。",
+    "当OCR JSON包含抗氧化能力评估项目时，应保留至structured_report.tests，当前报告模板仍以辅酶Q10与NAD+为核心展示。",
+    "当结果、单位或参考范围缺失时，报告应明确提示需要人工复核或补录。",
+    "健康管理建议聚焦作息、运动、饮食、营养支持、压力管理和阶段复评，不输出临床诊断或药物治疗方案。",
+    "所有报告导出前必须经过人工复核。"
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "abnormal_items_need_manual_review": true
+  },
+  "rules": [
+    {
+      "rule_id": "p12_coq10_low",
+      "item_code": "coq10",
+      "item_name": "辅酶Q10",
+      "condition": { "status": "偏低" },
+      "classification": { "risk_level": "attention", "result_display": "偏低" },
+      "report_text": {
+        "short_interpretation": "辅酶Q10偏低时，可能提示线粒体电子传递、能量生成和抗氧化支持不足。",
+        "advice": "建议结合饮食结构、疲劳表现、用药史和心血管相关情况进行人工复核，并在专业指导下制定营养支持方案。"
+      }
+    },
+    {
+      "rule_id": "p12_nad_low",
+      "item_code": "nad",
+      "item_name": "NAD+",
+      "condition": { "status": "偏低" },
+      "classification": { "risk_level": "attention", "result_display": "偏低" },
+      "report_text": {
+        "short_interpretation": "NAD+偏低可能与细胞能量代谢效率下降、疲劳恢复能力变弱或慢性压力消耗增加相关。",
+        "advice": "建议优先优化睡眠节律、压力管理和运动恢复，并结合专业评估考虑营养干预及阶段复评。"
+      }
+    }
+  ]
+}

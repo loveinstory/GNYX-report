@@ -1,0 +1,36 @@
+{
+  "package_code": "P16",
+  "package_name": "药物基因组学评估健康管理报告",
+  "status": "development",
+  "version": "0.1.0",
+  "template_version": "P16-html-v0.1-initial-binding",
+  "rule_version": "P16-rules-v0.1-initial-binding",
+  "prompt_version": "P16-prompts-v0.1-initial-binding",
+  "default_ai_model": "deepseek-v4-flash",
+  "pages": [
+    { "page": "page-01.html", "title": "封面", "enabled": true },
+    { "page": "page-02.html", "title": "综合评估结论", "enabled": true },
+    { "page": "page-03.html", "title": "检测结果概览（1/7）", "enabled": true },
+    { "page": "page-04.html", "title": "检测结果概览（2/7）", "enabled": true },
+    { "page": "page-05.html", "title": "检测结果概览（3/7）", "enabled": true },
+    { "page": "page-06.html", "title": "检测结果概览（4/7）", "enabled": true },
+    { "page": "page-07.html", "title": "检测结果概览（5/7）", "enabled": true },
+    { "page": "page-08.html", "title": "检测结果概览（6/7）", "enabled": true },
+    { "page": "page-09.html", "title": "检测结果概览（7/7）", "enabled": true },
+    { "page": "page-10.html", "title": "核心指标深度解读", "enabled": true },
+    { "page": "page-11.html", "title": "异常原因分析", "enabled": true },
+    { "page": "page-12.html", "title": "个性化健康管理方案", "enabled": true },
+    { "page": "page-13.html", "title": "个性化健康管理方案（续）", "enabled": true },
+    { "page": "page-14.html", "title": "营养补充与长期健康维护", "enabled": true },
+    { "page": "page-15.html", "title": "相关知识科普", "enabled": true },
+    { "page": "page-16.html", "title": "长期健康管理建议与免责声明", "enabled": true }
+  ],
+  "review_policy": {
+    "requires_human_review_before_export": true,
+    "roles_allowed_to_approve": ["admin", "inspector"]
+  },
+  "export": {
+    "formats": ["pdf", "html", "json"],
+    "variable_page_count": true
+  }
+}

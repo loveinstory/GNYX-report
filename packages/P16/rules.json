@@ -1,0 +1,58 @@
+{
+  "package_code": "P16",
+  "config_version": "P16-rules-v0.1-initial-binding",
+  "description": "P16 药物基因组学评估健康管理报告规则初版。当前围绕七类药物基因结果页、AI 辅助解读边界、用药风险沟通和健康管理建议建立结构化兜底。",
+  "evaluation_dimensions": [
+    {
+      "code": "antihypertensive",
+      "name": "高血压个性化用药",
+      "focus": ["ADRB1", "CYP3A5"],
+      "allowed_output": ["敏感性提示", "代谢特征提示", "健康管理沟通建议"]
+    },
+    {
+      "code": "statin",
+      "name": "他汀类药物用药",
+      "focus": ["SLCO1B1", "APOE"],
+      "allowed_output": ["疗效提示", "肌病风险提示", "随访建议"]
+    },
+    {
+      "code": "cyp2c19",
+      "name": "CYP2C19 基因多态性",
+      "focus": ["CYP2C19"],
+      "allowed_output": ["代谢表型解释", "药物活化提示", "常规剂量或复核建议"]
+    },
+    {
+      "code": "aspirin",
+      "name": "阿司匹林用药",
+      "focus": ["GP1BA", "LTC4S"],
+      "allowed_output": ["疗效提示", "毒副风险提示", "健康管理沟通建议"]
+    },
+    {
+      "code": "clopidogrel",
+      "name": "氯吡格雷用药",
+      "focus": ["PEAR1", "CYP3A4"],
+      "allowed_output": ["活化/代谢提示", "疗效提示", "剂量沟通建议"]
+    },
+    {
+      "code": "hypoglycemic",
+      "name": "降糖药个性化用药",
+      "focus": ["CDKAL1", "CYP2C9*3"],
+      "allowed_output": ["疗效提示", "低血糖或毒副风险提示", "替代方案沟通建议"]
+    },
+    {
+      "code": "thrombosis",
+      "name": "静脉血栓个性化用药",
+      "focus": ["MTHFR", "PAI-1"],
+      "allowed_output": ["血栓风险趋势提示", "生活方式管理建议", "人工复核提示"]
+    }
+  ],
+  "ai_output_constraints": {
+    "must_reference_detected_results_only": true,
+    "must_not_generate_diagnosis_or_prescription": true,
+    "must_require_human_review_before_export": true
+  },
+  "notes": [
+    "当前版本先锁定稳定字段键名和报告分区，不做临床处方级输出。",
+    "后续在获得真实 P16 OCR 样例后，再补充专项基因位点、证据等级和药物反应分级规则。"
+  ]
+}

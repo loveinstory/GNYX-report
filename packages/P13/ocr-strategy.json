@@ -1,0 +1,29 @@
+{
+  "package_code": "P13",
+  "strategy_version": "P13-ocr-strategy-v0.2-telomere-json-pdf",
+  "status": "development",
+  "provider": "p13-telomere-json-adapter",
+  "fallback_provider": "pdf-text-extractor",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P13",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P13 OCR 策略 v0.2：支持端粒长度基因检测报告 JSON OCR 结构，并可从同版 PDF 文本层提取基础信息、端粒年龄差、端粒相对长度、Ct 值和同龄人群百分位。",
+  "target_indicators": [
+    { "code": "telomere_relative_length", "name": "端粒相对长度", "source_names": ["端粒相对长度", "相对端粒长度", "RTL", "T/S"] },
+    { "code": "telomere_age", "name": "端粒年龄", "source_names": ["端粒年龄", "生物年龄", "细胞年龄"] },
+    { "code": "actual_age", "name": "实际年龄", "source_names": ["实际年龄", "年龄"] },
+    { "code": "percentile", "name": "人群百分位", "source_names": ["人群百分位", "百分位", "同龄人群百分位"] },
+    { "code": "telomere_ct", "name": "端粒Ct值", "source_names": ["端粒Ct值", "端粒 Ct", "Telomere Ct"] },
+    { "code": "reference_ct", "name": "内参Ct值", "source_names": ["内参Ct值", "内参 Ct", "Single copy gene Ct"] }
+  ],
+  "quality_gate": {
+    "expected_source_test_count": 6,
+    "minimum_without_warning": 5,
+    "required_report_codes": ["actual_age", "telomere_age", "telomere_relative_length", "percentile", "telomere_ct", "reference_ct"],
+    "manual_review_required_when_missing": ["telomere_age", "telomere_relative_length", "percentile", "telomere_ct", "reference_ct"]
+  },
+  "notes": [
+    "JSON 入口识别 report_info / patient_info / test_results / recommendations / educational_content / signature 结构。",
+    "PDF 入口优先读取文本层；当前样例可识别 page 2 基础信息、page 3 端粒年龄与 Ct 值、page 4 人群百分位。",
+    "recommendations、educational_content、disclaimer、signature 会保留在 p13_extracted_report 中，供 AI 解读和人工复核使用。"
+  ]
+}

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>P15 - 综合评估结论</title>
+    <link rel="stylesheet" href="../assets/css/report.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="report-page content-page page-02" aria-label="第02页 综合评估结论">
+        <header class="report-header">
+          <img class="header-logo" src="../assets/images/logo-awK.png" width="147" height="60" alt="安为康医学检验" />
+          <p class="editable page-label" contenteditable="true" spellcheck="false">环境荷尔蒙评估健康管理报告&nbsp;&nbsp;|&nbsp;&nbsp;<strong>02</strong>/10</p>
+        </header>
+        <section class="section-title">
+          <h1 class="editable" contenteditable="true" spellcheck="false">一、综合评估结论</h1>
+          <span class="title-accent" aria-hidden="true"></span>
+        </section>
+        <section class="exposure-panel panel" aria-label="综合暴露指数">
+          <h2 class="editable meter-title" contenteditable="true" spellcheck="false">综合暴露指数</h2>
+          <svg class="risk-gauge" viewBox="0 0 760 360" role="img" aria-label="综合暴露指数">
+            <defs>
+              <linearGradient id="p15Gauge" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2879d7" />
+                <stop offset="28%" stop-color="#31b7c0" />
+                <stop offset="52%" stop-color="#8fcf5d" />
+                <stop offset="72%" stop-color="#ffb13b" />
+                <stop offset="100%" stop-color="#ef4d3f" />
+              </linearGradient>
+              <filter id="needleShadow" x="-40%" y="-40%" width="180%" height="180%">
+                <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#31536f" flood-opacity="0.2" />
+              </filter>
+            </defs>
+            <path d="M110 300 A270 270 0 0 1 650 300" fill="none" stroke="url(#p15Gauge)" stroke-width="58" stroke-linecap="round" />
+            <g stroke="#fff" stroke-width="3" stroke-linecap="round">
+              <line x1="161" y1="168" x2="137" y2="149" />
+              <line x1="259" y1="79" x2="247" y2="50" />
+              <line x1="381" y1="48" x2="381" y2="18" />
+              <line x1="503" y1="80" x2="517" y2="51" />
+              <line x1="602" y1="169" x2="627" y2="149" />
+            </g>
+            <g fill="#5d6b7f" font-size="18" font-weight="900">
+              <text x="57" y="305">低风险</text>
+              <text x="150" y="114" fill="#31a2b3">较低风险</text>
+              <text x="333" y="40" fill="#43a057">中等风险</text>
+              <text x="543" y="116" fill="#ef8a1d">较高风险</text>
+              <text x="668" y="305" fill="#e64d3f">高风险</text>
+            </g>
+            <g class="gauge-needle" filter="url(#needleShadow)" transform="rotate(-34 380 300)">
+              <path d="M380 300 L398 115 L364 300 Z" fill="#47a953" />
+              <circle cx="380" cy="300" r="24" fill="#47a953" />
+              <circle cx="380" cy="300" r="12" fill="#fff" />
+            </g>
+            <circle cx="380" cy="152" r="38" fill="#e8f6ea" />
+            <text class="gauge-icon" x="380" y="165" text-anchor="middle" fill="#43a057" font-size="38">!</text>
+          </svg>
+          <div class="risk-summary">
+            <strong class="editable" contenteditable="true" spellcheck="false" data-field="p15.exposure_index.level">轻度预警</strong>
+            <span class="editable" contenteditable="true" spellcheck="false" data-field="p15.exposure_index.summary">风险处于可关注范围，建议加强日常暴露管理与阶段性复评。</span>
+          </div>
+        </section>
+        <section class="finding-cards">
+          <article class="finding-card soft-card">
+            <span class="icon-orb">总</span>
+            <div>
+              <h2 class="editable" contenteditable="true" spellcheck="false" data-field="p15.findings.overall.title">1. 整体评估</h2>
+              <p class="editable" contenteditable="true" spellcheck="false" data-field="p15.findings.overall.body">内分泌干扰物整体暴露处于轻度预警状态。</p>
+            </div>
+          </article>
+          <article class="finding-card soft-card green-card">
+            <span class="icon-orb">核</span>
+            <div>
+              <h2 class="editable green" contenteditable="true" spellcheck="false" data-field="p15.findings.core_risk.title">2. 核心风险</h2>
+              <p class="editable" contenteditable="true" spellcheck="false" data-field="p15.findings.core_risk.body">合成雌激素相关指标提示需要重点关注。</p>
+            </div>
+          </article>
+          <article class="finding-card soft-card orange-card">
+            <span class="icon-orb">代</span>
+            <div>
+              <h2 class="editable orange" contenteditable="true" spellcheck="false" data-field="p15.findings.metabolic_pressure.title">3. 代谢压力</h2>
+              <p class="editable" contenteditable="true" spellcheck="false" data-field="p15.findings.metabolic_pressure.body">肝脏代谢与排毒负荷存在一定增加趋势。</p>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

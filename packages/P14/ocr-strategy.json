@@ -1,0 +1,10 @@
+{
+  "package_code": "P14",
+  "strategy_version": "P14-ocr-strategy-v0.2-cancer-multireport-json-pdf",
+  "status": "development",
+  "provider": "pdf-text-extractor+p14-cancer-multireport-json-adapter",
+  "fallback_provider": "manual-review",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P14",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P14 OCR 策略 v0.2：基于 hebing10788.pdf 对应的多报告聚合 JSON OCR 结构升级，支持 reports[] 中的疾病风险评估、五癌游离DNA甲基化检测和 CTC 计数分型三类子报告统一适配，归一 CDA/PTF/CTF、五癌甲基化、CTC 总数与历史趋势，并保留 PDF 文本层回退解析。"
+}

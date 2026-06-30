@@ -186,6 +186,7 @@ def _run_ai_report_job(job: dict[str, Any]) -> None:
     )
     from app.services.report_data_builder import build_report_data_from_ocr_result
     from app.services.report_renderer import render_report
+    from app.services.report_review import sync_existing_case_reports
 
     payload = job.get("payload") or {}
     log_ids = payload.get("ocr_log_ids")
@@ -251,6 +252,7 @@ def _run_ai_report_job(job: dict[str, Any]) -> None:
 
     if consumed_log_ids:
         mark_ocr_logs_consumed(consumed_log_ids)
+    sync_existing_case_reports()
     completed_documents = mark_package_documents_completed(job["package_code"]) if failed == 0 else 0
     update_job(
         job["job_id"],

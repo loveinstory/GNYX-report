@@ -151,6 +151,84 @@ LAYOUT_FIELD_LIMITS: dict[str, dict[str, int]] = {
         "recommendations.management_tip": 46,
         "recommendations.followup_advice": 110,
     },
+    "P12": {
+        "overall_summary": 180,
+        "indicator_interpretations.coq10_interpretation": 90,
+        "indicator_interpretations.coq10_significance": 120,
+        "indicator_interpretations.nad_interpretation": 90,
+        "indicator_interpretations.nad_significance": 130,
+        "recommendations.management_priorities": 140,
+        "recommendations.followup_advice": 120,
+        "review_note": 90,
+    },
+    "P13": {
+        "overall_summary": 160,
+        "indicator_interpretations.telomere": 150,
+        "indicator_interpretations.percentile_summary": 120,
+        "risk_factors.summary": 120,
+        "recommendations.diet_summary": 100,
+        "recommendations.exercise_summary": 120,
+        "recommendations.followup_advice": 130,
+        "safety.disclaimer": 90,
+        "review_note": 90,
+    },
+    "P14": {
+        "overall_summary": 120,
+        "risk_assessment": 90,
+        "indicator_interpretations.result_summary": 110,
+        "indicator_interpretations.overview_diagnosis": 95,
+        "indicator_interpretations.deep_dive_intro": 95,
+        "indicator_interpretations.deep_dive_detail": 145,
+        "indicator_interpretations.deep_dive_note": 75,
+        "indicator_interpretations.trend_summary": 80,
+        "indicator_interpretations.factor_1_body": 72,
+        "indicator_interpretations.factor_2_body": 64,
+        "indicator_interpretations.factor_3_body": 78,
+        "indicator_interpretations.management_summary": 95,
+        "recommendations.factor_1_title": 24,
+        "recommendations.factor_2_title": 24,
+        "recommendations.factor_3_title": 24,
+        "recommendations.management_items": 90,
+        "recommendations.followup_advice": 120,
+        "safety.disclaimer": 70,
+        "review_note": 70
+    },
+    "P15": {
+        "overall_summary": 110,
+        "risk_assessment": 150,
+        "indicator_interpretations.focus_indicator_summary": 120,
+        "indicator_interpretations.risk_factor_summary": 130,
+        "recommendations.overall_title": 24,
+        "recommendations.overall_body": 60,
+        "recommendations.core_risk_title": 24,
+        "recommendations.core_risk_body": 60,
+        "recommendations.metabolic_title": 24,
+        "recommendations.metabolic_body": 60,
+        "recommendations.followup_advice": 120,
+        "safety.disclaimer": 90,
+        "review_note": 90
+    },
+    "P16": {
+        "overall_summary": 120,
+        "indicator_interpretations.antihypertensive": 80,
+        "indicator_interpretations.statin": 80,
+        "indicator_interpretations.cyp2c19": 80,
+        "indicator_interpretations.aspirin": 80,
+        "indicator_interpretations.clopidogrel": 80,
+        "indicator_interpretations.hypoglycemic": 80,
+        "indicator_interpretations.thrombosis": 80,
+        "recommendations.antihypertensive_advice": 56,
+        "recommendations.statin_advice": 56,
+        "recommendations.cyp2c19_advice": 56,
+        "recommendations.aspirin_advice": 56,
+        "recommendations.clopidogrel_advice": 56,
+        "recommendations.hypoglycemic_advice": 56,
+        "recommendations.thrombosis_advice": 56,
+        "recommendations.management_priorities": 180,
+        "recommendations.followup_advice": 120,
+        "safety.disclaimer": 90,
+        "review_note": 90
+    },
     "P17": {
         "overall_summary": 210,
         "hpv_detail_summary": 150,
@@ -344,6 +422,36 @@ def merge_ai_output_into_report_data(report_data: dict[str, Any], ai_output: dic
 
     if package_code == "P09":
         _merge_p09_ai_output(merged, ai_output)
+        merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
+        merged.setdefault("version_lock", {})["ai_model"] = model
+        return merged
+
+    if package_code == "P12":
+        _merge_p12_ai_output(merged, ai_output)
+        merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
+        merged.setdefault("version_lock", {})["ai_model"] = model
+        return merged
+
+    if package_code == "P13":
+        _merge_p13_ai_output(merged, ai_output)
+        merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
+        merged.setdefault("version_lock", {})["ai_model"] = model
+        return merged
+
+    if package_code == "P14":
+        _merge_p14_ai_output(merged, ai_output)
+        merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
+        merged.setdefault("version_lock", {})["ai_model"] = model
+        return merged
+
+    if package_code == "P15":
+        _merge_p15_ai_output(merged, ai_output)
+        merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
+        merged.setdefault("version_lock", {})["ai_model"] = model
+        return merged
+
+    if package_code == "P16":
+        _merge_p16_ai_output(merged, ai_output)
         merged["ai_outputs"] = _ai_output_meta(package_code, model, ai_output)
         merged.setdefault("version_lock", {})["ai_model"] = model
         return merged
@@ -1218,6 +1326,330 @@ def _merge_p10_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> N
         p10["review_note"] = _safe_report_text(review_note)
 
 
+def _merge_p12_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
+    p12 = merged.setdefault("p12", {})
+    indicator_interpretations = ai_output.get("indicator_interpretations", {}) if isinstance(ai_output.get("indicator_interpretations"), dict) else {}
+    recommendations = ai_output.get("recommendations", {}) if isinstance(ai_output.get("recommendations"), dict) else {}
+
+    overall_summary = _pick_text(ai_output, ["overall_summary"])
+    if overall_summary:
+        p12["overall_summary"] = _safe_report_text(overall_summary)
+
+    indicators = p12.setdefault("indicators", {})
+    if isinstance(indicators, dict):
+        for code, interpretation_keys, significance_keys in [
+            ("coq10", ["coq10_interpretation", "coq10", "CoQ10", "辅酶Q10"], ["coq10_significance", "coq10_health_significance", "辅酶Q10意义"]),
+            ("nad", ["nad_interpretation", "nad", "NAD+", "NAD"], ["nad_significance", "nad_health_significance", "NAD意义"]),
+        ]:
+            target = indicators.setdefault(code, {})
+            if not isinstance(target, dict):
+                continue
+            interpretation = _pick_text(indicator_interpretations, interpretation_keys)
+            if interpretation:
+                target["interpretation"] = _safe_report_text(interpretation)
+            significance = _pick_text(indicator_interpretations, significance_keys)
+            if significance:
+                target["significance"] = _safe_report_text(significance)
+
+    priorities = recommendations.get("management_priorities")
+    if isinstance(priorities, list):
+        target = p12.setdefault("priorities", {})
+        if isinstance(target, dict):
+            for index, item in enumerate(priorities[:3], start=1):
+                if isinstance(item, dict):
+                    title = _pick_text(item, ["title", "name", "priority", "标题"])
+                    body = _pick_text(item, ["body", "description", "advice", "text", "正文"])
+                else:
+                    title = _stringify_text(item)
+                    body = ""
+                bucket = target.setdefault(f"priority_{index}", {})
+                if isinstance(bucket, dict):
+                    if title:
+                        bucket["title"] = _safe_report_text(title)
+                    if body:
+                        bucket["body"] = _safe_report_text(body)
+
+    followup = _pick_text(recommendations, ["followup_advice", "followup", "review_plan", "health_management", "随访"])
+    if followup:
+        p12["followup_advice"] = _safe_report_text(followup)
+
+    antioxidant = p12.setdefault("antioxidant", {})
+    if isinstance(antioxidant, dict):
+        antioxidant_ai = _pick_text(indicator_interpretations, ["antioxidant_assessment", "antioxidant", "oxidative_stress", "抗氧化能力", "氧化应激"])
+        if antioxidant_ai:
+            antioxidant["ai_assessment"] = _safe_report_text(antioxidant_ai)
+        antioxidant_advice = _pick_text(recommendations, ["antioxidant_management_advice", "antioxidant_advice", "oxidative_stress_advice", "抗氧化管理"])
+        if antioxidant_advice:
+            antioxidant["management_advice"] = _safe_report_text(antioxidant_advice)
+        antioxidant_review = _pick_text(ai_output, ["antioxidant_review_note"])
+        if antioxidant_review:
+            antioxidant["review_note"] = _safe_report_text(antioxidant_review)
+
+    lifestyle = _pick_text(recommendations, ["lifestyle_advice", "lifestyle", "diet_advice", "生活方式"])
+    if lifestyle and not p12.get("management_focus"):
+        p12["management_focus"] = _safe_report_text(lifestyle)
+
+    safety = ai_output.get("safety", {}) if isinstance(ai_output.get("safety"), dict) else {}
+    disclaimer = _pick_text(safety, ["disclaimer", "statement"])
+    if disclaimer:
+        p12["disclaimer"] = _safe_report_text(disclaimer)
+
+    review_note = _pick_text(ai_output, ["review_note"])
+    if review_note:
+        p12["review_note"] = _safe_report_text(review_note)
+
+
+def _merge_p13_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
+    p13 = merged.setdefault("p13", {})
+    indicator_interpretations = ai_output.get("indicator_interpretations", {}) if isinstance(ai_output.get("indicator_interpretations"), dict) else {}
+    recommendations = ai_output.get("recommendations", {}) if isinstance(ai_output.get("recommendations"), dict) else {}
+    safety = ai_output.get("safety", {}) if isinstance(ai_output.get("safety"), dict) else {}
+
+    overall_summary = _pick_text(ai_output, ["overall_summary"])
+    if overall_summary:
+        p13["overall_summary"] = _safe_report_text(overall_summary)
+
+    telomere_text = _pick_text(indicator_interpretations, ["telomere", "telomere_interpretation", "端粒", "端粒长度"])
+    if telomere_text:
+        p13.setdefault("telomere", {})["interpretation"] = _safe_report_text(telomere_text)
+
+    percentile_text = _pick_text(indicator_interpretations, ["percentile_summary", "percentile", "人群百分位", "百分位"])
+    if percentile_text:
+        p13.setdefault("percentile", {})["summary"] = _safe_report_text(percentile_text)
+
+    followup_advice = _pick_text(recommendations, ["followup_advice", "review_advice", "management_advice", "后续行动", "复评建议"])
+    if followup_advice:
+        p13["followup_advice"] = _safe_report_text(followup_advice)
+
+    risk_factors = ai_output.get("risk_factors", {}) if isinstance(ai_output.get("risk_factors"), dict) else {}
+    risk_summary = _pick_text(risk_factors, ["summary", "overall", "异常原因摘要"])
+    if risk_summary:
+        p13.setdefault("risk_factors", {})["summary"] = _safe_report_text(risk_summary)
+
+    diet_summary = _pick_text(recommendations, ["diet_summary", "diet_advice", "diet", "饮食建议"])
+    if diet_summary:
+        p13.setdefault("management", {}).setdefault("diet", {})["summary"] = _safe_report_text(diet_summary)
+
+    exercise_summary = _pick_text(recommendations, ["exercise_summary", "exercise_advice", "exercise", "运动建议"])
+    if exercise_summary:
+        p13.setdefault("management", {}).setdefault("exercise", {})["summary"] = _safe_report_text(exercise_summary)
+
+    disclaimer = _pick_text(safety, ["disclaimer", "免责声明"])
+    if disclaimer:
+        p13["disclaimer"] = _safe_report_text(disclaimer)
+
+    review_note = _pick_text(ai_output, ["review_note", "human_review_note", "人工复核"])
+    if review_note:
+        p13["review_note"] = _safe_report_text(review_note)
+
+
+def _merge_p14_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
+    p14 = merged.setdefault("p14", {})
+    summary = p14.setdefault("summary", {})
+    results = p14.setdefault("results", {})
+    overview = p14.setdefault("overview", {})
+    deep_dive = p14.setdefault("deep_dive", {})
+    trend = p14.setdefault("trend", {})
+    risk_factors = p14.setdefault("risk_factors", {})
+    management = p14.setdefault("management", {})
+    indicator_interpretations = ai_output.get("indicator_interpretations", {}) if isinstance(ai_output.get("indicator_interpretations"), dict) else {}
+    recommendations = ai_output.get("recommendations", {}) if isinstance(ai_output.get("recommendations"), dict) else {}
+    safety = ai_output.get("safety", {}) if isinstance(ai_output.get("safety"), dict) else {}
+
+    overall_summary = _pick_text(ai_output, ["overall_summary", "summary"])
+    if overall_summary and isinstance(summary, dict):
+        summary["ai_diagnosis"] = _safe_report_text(overall_summary)
+
+    result_summary = _pick_text(indicator_interpretations, ["result_summary", "page3_summary", "core_results_summary"])
+    if result_summary and isinstance(results, dict):
+        results["ai_summary"] = _safe_report_text(result_summary)
+
+    overview_diagnosis = _pick_text(indicator_interpretations, ["overview_diagnosis", "overview_summary"])
+    if overview_diagnosis and isinstance(overview, dict):
+        overview["ai_diagnosis"] = _safe_report_text(overview_diagnosis)
+
+    deep_dive_intro = _pick_text(indicator_interpretations, ["deep_dive_intro", "cda_intro"])
+    if deep_dive_intro and isinstance(deep_dive, dict):
+        deep_dive["ai_intro"] = _safe_report_text(deep_dive_intro)
+    deep_dive_detail = _pick_text(indicator_interpretations, ["deep_dive_detail", "cda_detail", "cda_deep_dive"])
+    if deep_dive_detail and isinstance(deep_dive, dict):
+        deep_dive["ai_detail"] = _safe_report_text(deep_dive_detail)
+    deep_dive_note = _pick_text(indicator_interpretations, ["deep_dive_note", "cda_note"])
+    if deep_dive_note and isinstance(deep_dive, dict):
+        deep_dive["ai_note"] = _safe_report_text(deep_dive_note)
+
+    trend_summary = _pick_text(indicator_interpretations, ["trend_summary", "trend", "followup_trend"])
+    if trend_summary and isinstance(trend, dict):
+        trend["alert"] = _safe_report_text(trend_summary)
+
+    for index in range(1, 4):
+        bucket = risk_factors.setdefault(f"factor_{index}", {})
+        if not isinstance(bucket, dict):
+            continue
+        title = _pick_text(recommendations, [f"factor_{index}_title"])
+        body = _pick_text(indicator_interpretations, [f"factor_{index}_body", f"factor_{index}_summary"])
+        if title:
+            bucket["title"] = _safe_report_text(title)
+        if body:
+            bucket["body"] = _safe_report_text(body)
+
+    risk_assessment = _pick_text(ai_output, ["risk_assessment"])
+    if risk_assessment and isinstance(risk_factors, dict):
+        risk_factors["ai_diagnosis"] = _safe_report_text(risk_assessment)
+
+    management_items = recommendations.get("management_items")
+    if isinstance(management_items, list):
+        for index, item in enumerate(management_items[:3], start=1):
+            text = _stringify_text(item)
+            if text:
+                management[f"plan_{index}"] = _safe_report_text(text)
+    management_summary = _pick_text(indicator_interpretations, ["management_summary", "management_focus", "management_overview"])
+    if management_summary and isinstance(management, dict):
+        management["ai_summary"] = _safe_report_text(management_summary)
+
+    followup_advice = _pick_text(recommendations, ["followup_advice", "followup", "health_management"])
+    if followup_advice:
+        p14["followup_advice"] = _safe_report_text(followup_advice)
+
+    disclaimer = _pick_text(safety, ["disclaimer", "statement"])
+    if disclaimer:
+        p14["disclaimer"] = _safe_report_text(disclaimer)
+
+    review_note = _pick_text(ai_output, ["review_note"])
+    if review_note:
+        p14["review_note"] = _safe_report_text(review_note)
+
+
+def _merge_p15_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
+    p15 = merged.setdefault("p15", {})
+    indicator_interpretations = ai_output.get("indicator_interpretations", {}) if isinstance(ai_output.get("indicator_interpretations"), dict) else {}
+    recommendations = ai_output.get("recommendations", {}) if isinstance(ai_output.get("recommendations"), dict) else {}
+    safety = ai_output.get("safety", {}) if isinstance(ai_output.get("safety"), dict) else {}
+
+    exposure_level = _pick_text(recommendations, ["exposure_level", "level"])
+    if exposure_level:
+        p15.setdefault("exposure_index", {})["level"] = _safe_report_text(exposure_level)
+
+    overall_summary = _pick_text(ai_output, ["overall_summary"])
+    if overall_summary:
+        p15.setdefault("exposure_index", {})["summary"] = _safe_report_text(overall_summary)
+
+    findings = p15.setdefault("findings", {})
+    if isinstance(findings, dict):
+        for target, title_keys, body_keys in [
+            ("overall", ["overall_title"], ["overall_body"]),
+            ("core_risk", ["core_risk_title"], ["core_risk_body"]),
+            ("metabolic_pressure", ["metabolic_title"], ["metabolic_body"]),
+        ]:
+            bucket = findings.setdefault(target, {})
+            if not isinstance(bucket, dict):
+                continue
+            title = _pick_text(recommendations, title_keys)
+            body = _pick_text(recommendations, body_keys)
+            if title:
+                bucket["title"] = _safe_report_text(title)
+            if body:
+                bucket["body"] = _safe_report_text(body)
+
+    deep_dive = p15.setdefault("deep_dive", {})
+    if isinstance(deep_dive, dict):
+        focus_text = _pick_text(indicator_interpretations, ["focus_indicator_summary", "focus", "indicator_summary"])
+        if focus_text:
+            deep_dive["focus_indicator_summary"] = _safe_report_text(focus_text)
+        focus_indicator = _pick_text(recommendations, ["focus_indicator", "focus_item"])
+        if focus_indicator:
+            deep_dive["focus_indicator"] = _safe_report_text(focus_indicator)
+        focus_title = _pick_text(recommendations, ["focus_title"])
+        if focus_title:
+            deep_dive["focus_title"] = _safe_report_text(focus_title)
+        focus_intro = _pick_text(indicator_interpretations, ["focus_intro"])
+        if focus_intro:
+            deep_dive["focus_intro"] = _safe_report_text(focus_intro)
+
+    risk_factors = p15.setdefault("risk_factors", {})
+    if isinstance(risk_factors, dict):
+        risk_summary = _pick_text(indicator_interpretations, ["risk_factor_summary", "risk_factors", "risk_summary"])
+        if risk_summary:
+            risk_factors["summary"] = _safe_report_text(risk_summary)
+        risk_tip = _pick_text(recommendations, ["risk_factor_tip", "tip"])
+        if risk_tip:
+            risk_factors["tip"] = _safe_report_text(risk_tip)
+
+    followup_advice = _pick_text(recommendations, ["followup_advice", "followup", "health_management"])
+    if followup_advice:
+        p15["followup_advice"] = _safe_report_text(followup_advice)
+
+    disclaimer = _pick_text(safety, ["disclaimer", "statement"])
+    if disclaimer:
+        p15["disclaimer"] = _safe_report_text(disclaimer)
+
+    review_note = _pick_text(ai_output, ["review_note"])
+    if review_note:
+        p15["review_note"] = _safe_report_text(review_note)
+
+
+def _merge_p16_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
+    p16 = merged.setdefault("p16", {})
+    summary = p16.setdefault("summary", {})
+    sections = p16.setdefault("sections", {})
+    management = p16.setdefault("management", {})
+    indicator_interpretations = ai_output.get("indicator_interpretations", {}) if isinstance(ai_output.get("indicator_interpretations"), dict) else {}
+    recommendations = ai_output.get("recommendations", {}) if isinstance(ai_output.get("recommendations"), dict) else {}
+    safety = ai_output.get("safety", {}) if isinstance(ai_output.get("safety"), dict) else {}
+
+    overall_summary = _pick_text(ai_output, ["overall_summary", "summary"])
+    if overall_summary and isinstance(summary, dict):
+        summary["evaluation_summary"] = _safe_report_text(overall_summary)
+
+    section_candidates = {
+        "antihypertensive": ["antihypertensive", "hypertension", "blood_pressure"],
+        "statin": ["statin", "statins", "lipid"],
+        "cyp2c19": ["cyp2c19", "ppi", "clopidogrel_activation"],
+        "aspirin": ["aspirin"],
+        "clopidogrel": ["clopidogrel", "ticagrelor", "antiplatelet"],
+        "hypoglycemic": ["hypoglycemic", "antidiabetic", "glucose"],
+        "thrombosis": ["thrombosis", "venous_thrombosis", "coagulation"],
+    }
+    for code, candidates in section_candidates.items():
+        bucket = sections.setdefault(code, {})
+        if not isinstance(bucket, dict):
+            continue
+        analysis = _pick_text(indicator_interpretations, candidates)
+        if analysis:
+            bucket["analysis"] = _safe_report_text(analysis)
+        advice = _pick_text(recommendations, [f"{code}_advice", f"{code}_recommendation", *candidates])
+        if advice:
+            bucket["medication_advice"] = _safe_report_text(advice)
+
+    priorities = recommendations.get("management_priorities")
+    if isinstance(priorities, list) and isinstance(management, dict):
+        for index, item in enumerate(priorities[:3], start=1):
+            if isinstance(item, dict):
+                title = _pick_text(item, ["title", "name", "priority"])
+                body = _pick_text(item, ["body", "description", "advice", "text"])
+            else:
+                title = _stringify_text(item)
+                body = ""
+            bucket = management.setdefault(f"priority_{index}", {})
+            if isinstance(bucket, dict):
+                if title:
+                    bucket["title"] = _safe_report_text(title)
+                if body:
+                    bucket["body"] = _safe_report_text(body)
+
+    followup = _pick_text(recommendations, ["followup_advice", "followup", "health_management"])
+    if followup:
+        p16["followup_advice"] = _safe_report_text(followup)
+
+    disclaimer = _pick_text(safety, ["disclaimer", "statement"])
+    if disclaimer:
+        p16["disclaimer"] = _safe_report_text(disclaimer)
+
+    review_note = _pick_text(ai_output, ["review_note"])
+    if review_note:
+        p16["review_note"] = _safe_report_text(review_note)
+
+
 def _merge_p17_ai_output(merged: dict[str, Any], ai_output: dict[str, Any]) -> None:
     p17 = merged.setdefault("p17", {})
     indicator_interpretations = ai_output.get("indicator_interpretations", {})
@@ -1337,6 +1769,22 @@ def _build_messages(package_code: str, ocr_result: dict[str, Any], report_data: 
     if package_code == "P09":
         user_payload["generation_requirements"].append(
             "P09必须以原始报告项目为准：仅围绕雌二醇、促黄体生成素、促卵泡刺激素、孕酮、睾酮、皮质醇、SHBG、AMH、泌乳素和总IgE生成健康管理解读；不得编造月经周期阶段、妊娠/哺乳状态、疾病诊断或治疗建议。"
+        )
+    if package_code == "P12":
+        user_payload["generation_requirements"].append(
+            "P12必须以原始报告项目为准：核心展示仅围绕辅酶Q10和NAD+生成线粒体能量、疲劳恢复和健康管理解读；如OCR JSON包含抗氧化评估项目，可作为氧化应激辅助依据写入overall_summary和管理优先级；不得编造未识别项目、疾病诊断、治疗方案或药物处方。"
+        )
+    if package_code == "P13":
+        user_payload["generation_requirements"].append(
+            "P13必须以原始端粒报告为准：仅围绕端粒年龄、实际年龄、端粒相对长度、人群百分位、端粒Ct值和内参Ct值生成年轻力健康管理解读；可引用OCR中的饮食、运动、睡眠、戒烟限酒和压力管理建议，不得编造疾病诊断、治疗方案、药物处方或未识别检测项目。"
+        )
+    if package_code == "P14":
+        user_payload["generation_requirements"].append(
+            "P14必须以原始肿瘤风险评估结果为准：仅围绕 CDA、PTF、CTF、五癌甲基化、CTC、既往病史、症状和连续复测信息生成健康管理解读；不得编造癌症诊断、治疗方案、药物处方、影像结论或未识别项目。"
+        )
+    if package_code == "P16":
+        user_payload["generation_requirements"].append(
+            "P16必须以原始药物基因组学结果为准，只围绕高血压用药、他汀类、CYP2C19、阿司匹林、氯吡格雷、降糖药和静脉血栓七类结果生成健康管理解读；不得编造新的基因位点、药物剂量、临床诊断或处方方案。"
         )
     return [
         {"role": "system", "content": system_prompt},
@@ -1568,6 +2016,148 @@ def _sanitize_report_data_for_ai(report_data: dict[str, Any]) -> dict[str, Any]:
                         bucket[key] = ""
             if "tip" in management:
                 management["tip"] = ""
+
+    p12 = sanitized.get("p12")
+    if isinstance(p12, dict):
+        for key in ["overall_summary", "followup_advice", "disclaimer", "review_note"]:
+            if key in p12:
+                p12[key] = ""
+        antioxidant = p12.get("antioxidant")
+        if isinstance(antioxidant, dict):
+            for key in ["ai_assessment", "management_advice", "review_note"]:
+                if key in antioxidant:
+                    antioxidant[key] = ""
+        indicators = p12.get("indicators")
+        if isinstance(indicators, dict):
+            for item in indicators.values():
+                if isinstance(item, dict):
+                    for key in ["interpretation", "significance"]:
+                        if key in item:
+                            item[key] = ""
+        priorities = p12.get("priorities")
+        if isinstance(priorities, dict):
+            for item in priorities.values():
+                if isinstance(item, dict):
+                    for key in ["title", "body"]:
+                        if key in item:
+                            item[key] = ""
+
+    p13 = sanitized.get("p13")
+    if isinstance(p13, dict):
+        for key in ["overall_summary", "followup_advice", "disclaimer", "review_note"]:
+            if key in p13:
+                p13[key] = ""
+        telomere = p13.get("telomere")
+        if isinstance(telomere, dict):
+            telomere["interpretation"] = ""
+        percentile = p13.get("percentile")
+        if isinstance(percentile, dict):
+            percentile["summary"] = ""
+        risk_factors = p13.get("risk_factors")
+        if isinstance(risk_factors, dict):
+            risk_factors["summary"] = ""
+        management = p13.get("management")
+        if isinstance(management, dict):
+            diet = management.get("diet")
+            if isinstance(diet, dict):
+                diet["summary"] = ""
+            exercise = management.get("exercise")
+            if isinstance(exercise, dict):
+                exercise["summary"] = ""
+
+    p14 = sanitized.get("p14")
+    if isinstance(p14, dict):
+        for key in ["followup_advice", "disclaimer", "review_note"]:
+            if key in p14:
+                p14[key] = ""
+        summary = p14.get("summary")
+        if isinstance(summary, dict) and "ai_diagnosis" in summary:
+            summary["ai_diagnosis"] = ""
+        results = p14.get("results")
+        if isinstance(results, dict) and "ai_summary" in results:
+            results["ai_summary"] = ""
+        overview = p14.get("overview")
+        if isinstance(overview, dict) and "ai_diagnosis" in overview:
+            overview["ai_diagnosis"] = ""
+        deep_dive = p14.get("deep_dive")
+        if isinstance(deep_dive, dict):
+            for key in ["ai_intro", "ai_detail", "ai_note"]:
+                if key in deep_dive:
+                    deep_dive[key] = ""
+        trend = p14.get("trend")
+        if isinstance(trend, dict) and "alert" in trend:
+            trend["alert"] = ""
+        risk_factors = p14.get("risk_factors")
+        if isinstance(risk_factors, dict):
+            if "ai_diagnosis" in risk_factors:
+                risk_factors["ai_diagnosis"] = ""
+            for name in ["factor_1", "factor_2", "factor_3"]:
+                bucket = risk_factors.get(name)
+                if isinstance(bucket, dict):
+                    for key in ["title", "body"]:
+                        if key in bucket:
+                            bucket[key] = ""
+        management = p14.get("management")
+        if isinstance(management, dict):
+            for key in ["plan_1", "plan_2", "plan_3"]:
+                if key in management:
+                    management[key] = ""
+            if "ai_summary" in management:
+                management["ai_summary"] = ""
+
+    p15 = sanitized.get("p15")
+    if isinstance(p15, dict):
+        for key in ["followup_advice", "disclaimer", "review_note"]:
+            if key in p15:
+                p15[key] = ""
+        exposure_index = p15.get("exposure_index")
+        if isinstance(exposure_index, dict):
+            for key in ["level", "summary"]:
+                if key in exposure_index:
+                    exposure_index[key] = ""
+        findings = p15.get("findings")
+        if isinstance(findings, dict):
+            for item in findings.values():
+                if isinstance(item, dict):
+                    for key in ["title", "body"]:
+                        if key in item:
+                            item[key] = ""
+        deep_dive = p15.get("deep_dive")
+        if isinstance(deep_dive, dict):
+            for key in ["focus_indicator_summary"]:
+                if key in deep_dive:
+                    deep_dive[key] = ""
+        risk_factors = p15.get("risk_factors")
+        if isinstance(risk_factors, dict):
+            for key in ["summary", "tip"]:
+                if key in risk_factors:
+                    risk_factors[key] = ""
+
+    p16 = sanitized.get("p16")
+    if isinstance(p16, dict):
+        for key in ["followup_advice", "disclaimer", "review_note"]:
+            if key in p16:
+                p16[key] = ""
+        summary = p16.get("summary")
+        if isinstance(summary, dict) and "evaluation_summary" in summary:
+            summary["evaluation_summary"] = ""
+        sections = p16.get("sections")
+        if isinstance(sections, dict):
+            for item in sections.values():
+                if isinstance(item, dict):
+                    for key in ["analysis", "medication_advice"]:
+                        if key in item:
+                            item[key] = ""
+        management = p16.get("management")
+        if isinstance(management, dict):
+            for name in ["priority_1", "priority_2", "priority_3"]:
+                bucket = management.get(name)
+                if isinstance(bucket, dict):
+                    for key in ["title", "body"]:
+                        if key in bucket:
+                            bucket[key] = ""
+            if "note" in management:
+                management["note"] = ""
 
     p02 = sanitized.get("p02")
     if isinstance(p02, dict):
@@ -1846,6 +2436,137 @@ def _output_contract(package_code: str) -> dict[str, Any]:
                 "requires_human_review": True,
             },
             "review_note": "用于p09.review_note，80字以内",
+        }
+
+    if package_code == "P12":
+        return {
+            "overall_summary": "用于第02页 p12.overall_summary，180个中文可见字符以内",
+            "indicator_interpretations": {
+                "coq10_interpretation": "用于第05页 p12.indicators.coq10.interpretation，90字以内，必须基于实际辅酶Q10结果",
+                "coq10_significance": "用于第05页 p12.indicators.coq10.significance，120字以内",
+                "nad_interpretation": "用于第05页 p12.indicators.nad.interpretation，90字以内，必须基于实际NAD+结果和状态",
+                "nad_significance": "用于第05页 p12.indicators.nad.significance，130字以内",
+                "antioxidant_assessment": "用于第04页 p12.antioxidant.ai_assessment，120字以内，必须基于TAC、GPX、SOD、LPO、GSH实际结果",
+            },
+            "recommendations": {
+                "management_priorities": "输出3条，支持对象数组：{title: 18字以内, body: 48字以内}，用于第02页管理优先级；可结合p12.antioxidant.abnormal_summary",
+                "antioxidant_management_advice": "用于第04页 p12.antioxidant.management_advice，110字以内，围绕抗氧化能力评估给出健康管理建议",
+                "followup_advice": "用于第08页 p12.followup_advice，120字以内，需点名本次需复评的OCR异常或待复核指标",
+            },
+            "safety": {
+                "disclaimer": "用于p12.disclaimer，60字以内",
+                "requires_human_review": True,
+            },
+            "antioxidant_review_note": "用于第04页 p12.antioxidant.review_note，80字以内",
+            "review_note": "用于p12.review_note，90字以内",
+        }
+
+    if package_code == "P13":
+        return {
+            "overall_summary": "用于第02页 p13.overall_summary，160个中文可见字符以内，必须基于端粒年龄、实际年龄和端粒相对长度",
+            "indicator_interpretations": {
+                "telomere": "用于第04页 p13.telomere.interpretation，150字以内，围绕端粒相对长度、端粒年龄差和Ct结果",
+                "percentile_summary": "用于第04页 p13.percentile.summary，120字以内，围绕同龄人群百分位和复评意义",
+            },
+            "recommendations": {
+                "followup_advice": "用于第10页 p13.followup_advice，130字以内，结合OCR建议中的饮食、运动、睡眠、戒烟限酒和压力管理",
+                "diet_summary": "用于第07页 p13.management.diet.summary，100字以内，必须基于OCR recommendations.diet",
+                "exercise_summary": "用于第07页 p13.management.exercise.summary，120字以内，必须基于OCR recommendations.exercise",
+            },
+            "risk_factors": {
+                "summary": "用于第06页 p13.risk_factors.summary，120字以内，围绕端粒年龄差和OCR生活方式建议总结需关注因素"
+            },
+            "safety": {
+                "disclaimer": "用于p13.disclaimer，90字以内",
+                "requires_human_review": True,
+            },
+            "review_note": "用于p13.review_note，90字以内",
+        }
+
+    if package_code == "P14":
+        return {
+            "overall_summary": "用于 p14.summary.ai_diagnosis，110字以内，概括当前整体随访优先级与人工复核重点",
+            "risk_assessment": "用于 p14.risk_factors.ai_diagnosis，100字以内",
+            "indicator_interpretations": {
+                "result_summary": "用于 p14.results.ai_summary，120字以内，围绕CDA、PTF、CTF联合解读",
+                "overview_diagnosis": "用于 p14.overview.ai_diagnosis，100字以内，围绕甲基化、CTC、既往病史与当前风险分层",
+                "deep_dive_intro": "用于 p14.deep_dive.ai_intro，110字以内，围绕CDA结果与风险定位",
+                "deep_dive_detail": "用于 p14.deep_dive.ai_detail，150字以内，围绕CDA与PTF/CTF/甲基化/CTC的联合解读",
+                "deep_dive_note": "用于 p14.deep_dive.ai_note，80字以内，给出阅读或复核提示",
+                "trend_summary": "用于 p14.trend.alert，80字以内；若有连续复测数据应概括趋势变化与混合型CTC关注点",
+                "factor_1_body": "用于 p14.risk_factors.factor_1.body，90字以内",
+                "factor_2_body": "用于 p14.risk_factors.factor_2.body，80字以内",
+                "factor_3_body": "用于 p14.risk_factors.factor_3.body，80字以内",
+                "management_summary": "用于 p14.management.ai_summary，120字以内，概括管理重点"
+            },
+            "recommendations": {
+                "factor_1_title": "用于 p14.risk_factors.factor_1.title，16字以内",
+                "factor_2_title": "用于 p14.risk_factors.factor_2.title，16字以内",
+                "factor_3_title": "用于 p14.risk_factors.factor_3.title，16字以内",
+                "management_items": "输出3条，按数组返回，每条24字以内，用于 p14.management.plan_1 至 plan_3",
+                "followup_advice": "用于 p14.followup_advice，120字以内"
+            },
+            "safety": {
+                "disclaimer": "用于 p14.disclaimer，60字以内",
+                "requires_human_review": True
+            },
+            "review_note": "用于 p14.review_note，60字以内"
+        }
+
+    if package_code == "P15":
+        return {
+            "overall_summary": "用于 p15.exposure_index.summary，80字以内，必须基于本次实际识别的环境激素结果。",
+            "risk_assessment": "用于内部审核摘要，120字以内。",
+            "indicator_interpretations": {
+                "focus_indicator_summary": "用于 p15.deep_dive.focus_indicator_summary，100字以内。",
+                "risk_factor_summary": "用于 p15.risk_factors.summary，120字以内。"
+            },
+            "recommendations": {
+                "exposure_level": "用于 p15.exposure_index.level，8字以内。",
+                "overall_title": "用于 p15.findings.overall.title，16字以内。",
+                "overall_body": "用于 p15.findings.overall.body，40字以内。",
+                "core_risk_title": "用于 p15.findings.core_risk.title，16字以内。",
+                "core_risk_body": "用于 p15.findings.core_risk.body，40字以内。",
+                "metabolic_title": "用于 p15.findings.metabolic_pressure.title，16字以内。",
+                "metabolic_body": "用于 p15.findings.metabolic_pressure.body，40字以内。",
+                "risk_factor_tip": "用于 p15.risk_factors.tip，50字以内。",
+                "followup_advice": "用于 p15.followup_advice，120字以内。"
+            },
+            "safety": {
+                "disclaimer": "用于 p15.disclaimer，50字以内。",
+                "requires_human_review": True,
+            },
+            "review_note": "用于 p15.review_note，50字以内。"
+        }
+
+    if package_code == "P16":
+        return {
+            "overall_summary": "用于 p16.summary.evaluation_summary，120字以内，概括本次药物基因组学综合风险与重点管理方向",
+            "indicator_interpretations": {
+                "antihypertensive": "用于 p16.sections.antihypertensive.analysis，70字以内",
+                "statin": "用于 p16.sections.statin.analysis，70字以内",
+                "cyp2c19": "用于 p16.sections.cyp2c19.analysis，70字以内",
+                "aspirin": "用于 p16.sections.aspirin.analysis，70字以内",
+                "clopidogrel": "用于 p16.sections.clopidogrel.analysis，70字以内",
+                "hypoglycemic": "用于 p16.sections.hypoglycemic.analysis，70字以内",
+                "thrombosis": "用于 p16.sections.thrombosis.analysis，70字以内"
+            },
+            "recommendations": {
+                "antihypertensive_advice": "用于 p16.sections.antihypertensive.medication_advice，50字以内",
+                "statin_advice": "用于 p16.sections.statin.medication_advice，50字以内",
+                "cyp2c19_advice": "用于 p16.sections.cyp2c19.medication_advice，50字以内",
+                "aspirin_advice": "用于 p16.sections.aspirin.medication_advice，50字以内",
+                "clopidogrel_advice": "用于 p16.sections.clopidogrel.medication_advice，50字以内",
+                "hypoglycemic_advice": "用于 p16.sections.hypoglycemic.medication_advice，50字以内",
+                "thrombosis_advice": "用于 p16.sections.thrombosis.medication_advice，50字以内",
+                "management_priorities": "输出3条，支持对象数组：{title: 18字以内, body: 70字以内}，用于 p16.management.priority_1 至 priority_3",
+                "followup_advice": "用于 p16.followup_advice，120字以内"
+            },
+            "safety": {
+                "disclaimer": "用于 p16.disclaimer，90字以内",
+                "requires_human_review": True
+            },
+            "review_note": "用于 p16.review_note，90字以内"
         }
 
     if package_code == "P17":

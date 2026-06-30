@@ -1,0 +1,10 @@
+{
+  "package_code": "P12",
+  "strategy_version": "P12-ocr-strategy-v0.2-json-antioxidant-nad",
+  "status": "development",
+  "provider": "pdf-text-extractor+p12-ocr-json-adapter",
+  "fallback_provider": "manual-review",
+  "source_template": "D:\\AWK-OCR\\figma-plugin-figma-openai-curated-1\\outputs\\html-report\\P12\\P12",
+  "output_schema": "shared/schemas/ocr-result.schema.json",
+  "description": "P12 OCR v0.2策略：支持PDF文本层识别辅酶Q10/NAD+，并支持上传OCR JSON格式（report_overview、test_items、antioxidant_assessment、nad_assessment）。JSON适配器会输出统一structured_report.tests，其中辅酶Q10与NAD+作为报告核心指标，抗氧化评估项目保留为antioxidant分组供后续规则扩展。"
+}

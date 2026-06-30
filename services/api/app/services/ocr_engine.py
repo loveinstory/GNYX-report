@@ -30,10 +30,31 @@ P08_STRATEGY_VERSION = "P08-ocr-strategy-v0.2-professional-json-adapter"
 P09_STRATEGY_VERSION = "P09-ocr-strategy-v0.2-structured-json-row-adapter"
 P10_STRATEGY_VERSION = "P10-ocr-strategy-v0.4-reportmeta-json-blueprint"
 P11_STRATEGY_VERSION = "P11-ocr-strategy-v0.4-food-intolerance-42-adapter"
+P12_STRATEGY_VERSION = "P12-ocr-strategy-v0.2-json-antioxidant-nad"
+P13_STRATEGY_VERSION = "P13-ocr-strategy-v0.2-telomere-json-pdf"
+P14_STRATEGY_VERSION = "P14-ocr-strategy-v0.2-cancer-multireport-json-pdf"
+P15_STRATEGY_VERSION = "P15-ocr-strategy-v0.2-environment-hormone-json-pdf"
+P16_STRATEGY_VERSION = "P16-ocr-strategy-v0.2-pgx-multireport-json-pdf"
 P17_STRATEGY_VERSION = "P17-ocr-strategy-v0.3-tail-pathogen-ct"
 PROVIDER = "pdf-text-extractor"
+P16_REPORT_NAME = "药物基因组学评估健康管理报告"
+P16_ASSESSMENT_TYPE = "药物基因组学评估"
+P16_SAMPLE_TYPE = "EDTA抗凝全血"
+P16_METHOD = "荧光PCR法"
 P10_SAMPLE_TYPE = "血清/EDTA抗凝血"
 P10_METHOD = "基因测序&化学发光&ELISA法"
+P13_REPORT_NAME = "年轻力精准评估健康管理报告"
+P13_ASSESSMENT_TYPE = "年轻力精准评估"
+P13_SAMPLE_TYPE = "口腔黏膜细胞"
+P13_METHOD = "荧光PCR"
+P14_REPORT_NAME = "安康御癌专项评估健康管理报告"
+P14_ASSESSMENT_TYPE = "安康御癌专项评估"
+P14_SAMPLE_TYPE = "肿瘤风险指标"
+P14_METHOD = "多维风险综合评估"
+P15_REPORT_NAME = "环境荷尔蒙评估健康管理报告"
+P15_ASSESSMENT_TYPE = "环境荷尔蒙评估"
+P15_SAMPLE_TYPE = "晨尿"
+P15_METHOD = "电感耦合等离子质谱法"
 
 P17_HPV_HIGH_RISK_TYPES = ["16", "18", "26", "31", "33", "35", "39", "45", "51", "52", "53", "56", "58", "59", "66", "68", "73", "82"]
 P17_HPV_LOW_RISK_TYPES = ["6", "11", "40", "42", "43", "44", "61", "81", "83"]
@@ -372,6 +393,26 @@ P09_TEST_DEFINITIONS = [
 ]
 P09_UNIT_PATTERN = r"mIU/mL|miu/ml|uIU/mL|uiu/ml|μIU/mL|µIU/mL|ng/mL|ng/ml|pg/mL|pg/ml|nmol/L|nmol/l|IU/mL|iu/ml|mIU/L|%"
 P09_METHOD_PATTERN = r"磁微粒化学发光法|化学发光法|免疫法|免疫比浊法|酶法|LC-MS/MS法|质谱法"
+P12_TEST_DEFINITIONS = [
+    ("coq10", "辅酶Q10", ("辅酶Q10", "辅酶 Q10", "CoQ10", "Coenzyme Q10"), "ug/mL", "0.37-2.20", "energy_metabolism", "LC-MS/MS"),
+    ("nad", "NAD+", ("NAD+", "NAD＋", "NAO+", "NAO＋", "烟酰胺腺嘌呤二核苷酸"), "µmol/L", "", "energy_metabolism", "NAD+细胞活力营养评估"),
+]
+P12_UNIT_PATTERN = r"µmol/L|μmol/L|umol/L|mmol/L|mmol/l|U/mL|u/mL|µg/mL|μg/mL|ug/mL|ng/mL|ng/ml|pg/mL|pg/ml|mg/L|%"
+P12_METHOD_PATTERN = r"LC-MS/MS法|LC-MS/MS|LC-MSAIS\s*法|LC-MSAIS|质谱法|NAD\+细胞活力营养评估|细胞活力营养评估"
+P12_ANTIOXIDANT_ALIASES: dict[str, tuple[str, ...]] = {
+    "tac": ("抗氧化总容量(TAC)", "抗氧化总容量", "TAC"),
+    "gpx": ("谷胱甘肽过氧化物酶(GPX)", "谷胱甘肽过氧化物酶", "GPX"),
+    "sod": ("超氧化物歧化酶(SOD)", "超氧化物歧化酶", "SOD"),
+    "lpo": ("过氧化脂类(LPO)", "过氧化脂类", "LPO"),
+    "gsh": ("谷胱甘肽(GSH)", "谷胱甘肽", "GSH"),
+}
+P12_ANTIOXIDANT_DEFAULTS: dict[str, tuple[str, str]] = {
+    "tac": ("mmol/L", "≥0.54"),
+    "gpx": ("U/mL", "110.25-145.81"),
+    "sod": ("U/mL", "85.4-123"),
+    "lpo": ("µmol/L", "≤10"),
+    "gsh": ("µmol/L", "5.26-8.30"),
+}
 
 
 def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") -> dict[str, Any]:
@@ -386,6 +427,9 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         "P09": P09_STRATEGY_VERSION,
         "P10": P10_STRATEGY_VERSION,
         "P11": P11_STRATEGY_VERSION,
+        "P12": P12_STRATEGY_VERSION,
+        "P13": P13_STRATEGY_VERSION,
+        "P16": P16_STRATEGY_VERSION,
         "P17": P17_STRATEGY_VERSION,
     }.get(package_code, STRATEGY_VERSION)
     if pdf_path.suffix.lower() == ".json":
@@ -2771,6 +2815,8 @@ def extract_structured_tests(page_texts: list[str], package_code: str = "P02") -
         return extract_p04_structured_tests(page_texts)
     if package_code == "P06":
         return extract_p06_structured_tests(page_texts)
+    if package_code == "P12":
+        return extract_p12_structured_tests(page_texts)
     if package_code == "P10":
         return extract_p10_structured_tests(page_texts)
     if package_code == "P17":
@@ -2889,9 +2935,19 @@ def parse_json_to_standard_ocr_json(
     strategy_version: str | None = None,
 ) -> dict[str, Any]:
     payload = json.loads(json_path.read_text(encoding="utf-8-sig"))
-    if package_code not in {"P10", "P11"}:
+    if package_code not in {"P10", "P11", "P12", "P13", "P14", "P15", "P16"}:
         raise ValueError(f"{package_code} 暂不支持直接导入 JSON OCR 结果。")
-    if not _is_supported_reportmeta_payload(payload, package_code=package_code):
+    if package_code == "P12" and not _is_p12_ocr_payload(payload):
+        raise ValueError("P12 JSON OCR 结果缺少 report_overview / test_items / nad_assessment 结构。")
+    if package_code == "P13" and not _is_p13_ocr_payload(payload):
+        raise ValueError("P13 JSON OCR 结果缺少 report_info / patient_info / test_results 结构。")
+    if package_code == "P14" and not _is_p14_ocr_payload(payload):
+        raise ValueError("P14 JSON OCR 结果缺少 reports[] 多报告聚合结构。")
+    if package_code == "P15" and not _is_p15_ocr_payload(payload):
+        raise ValueError("P15 JSON OCR 结果缺少 report_info / patient_info / test_details / results 结构。")
+    if package_code == "P16" and not _is_p16_ocr_payload(payload):
+        raise ValueError("P16 JSON OCR 结果缺少 reports[] 多报告聚合结构。")
+    if package_code not in {"P12", "P13", "P14", "P15", "P16"} and not _is_supported_reportmeta_payload(payload, package_code=package_code):
         raise ValueError(f"{package_code} JSON OCR 结果缺少可支持的 reportMeta 结构。")
 
     page_texts = [normalize_text(json.dumps(payload, ensure_ascii=False))]
@@ -2909,8 +2965,44 @@ def parse_json_to_standard_ocr_json(
             ],
         }
     ]
-    strategy = strategy_version or (P11_STRATEGY_VERSION if package_code == "P11" else P10_STRATEGY_VERSION)
-    if package_code == "P11":
+    strategy = strategy_version or (
+        P13_STRATEGY_VERSION
+        if package_code == "P13"
+        else (
+            P12_STRATEGY_VERSION
+            if package_code == "P12"
+            else (
+                P14_STRATEGY_VERSION
+                if package_code == "P14"
+                else (
+                P15_STRATEGY_VERSION
+                if package_code == "P15"
+                else (P16_STRATEGY_VERSION if package_code == "P16" else (P11_STRATEGY_VERSION if package_code == "P11" else P10_STRATEGY_VERSION))
+                )
+            )
+        )
+    )
+    if package_code == "P12":
+        structured_report = build_p12_structured_report_from_ocr_json(json_path.name, payload)
+        fields = extract_p12_fields(page_texts, structured_report)
+        provider = "p12-ocr-json-antioxidant-nad-adapter"
+    elif package_code == "P13":
+        structured_report = build_p13_structured_report_from_ocr_json(json_path.name, payload)
+        fields = extract_p13_fields(page_texts, structured_report)
+        provider = "p13-telomere-json-adapter"
+    elif package_code == "P14":
+        structured_report = build_p14_structured_report_from_ocr_json(json_path.name, payload)
+        fields = extract_p14_fields(page_texts, structured_report)
+        provider = "p14-cancer-multireport-json-adapter"
+    elif package_code == "P15":
+        structured_report = build_p15_structured_report_from_ocr_json(json_path.name, payload)
+        fields = extract_p15_fields(page_texts, structured_report)
+        provider = "p15-environment-hormone-json-adapter"
+    elif package_code == "P16":
+        structured_report = build_p16_structured_report_from_ocr_json(json_path.name, payload)
+        fields = extract_p16_fields(page_texts, structured_report)
+        provider = "p16-pgx-multireport-json-adapter"
+    elif package_code == "P11":
         structured_report = build_structured_report(
             json_path.name,
             page_texts[0],
@@ -2951,6 +3043,16 @@ def parse_json_to_standard_ocr_json(
     }
     if package_code == "P11":
         result["p11_extracted_report"] = structured_report.get("p11_extracted_report", {})
+    elif package_code == "P12":
+        result["p12_extracted_report"] = structured_report.get("p12_extracted_report", {"tests": structured_report.get("tests", [])})
+    elif package_code == "P13":
+        result["p13_extracted_report"] = structured_report.get("p13_extracted_report", {"tests": structured_report.get("tests", [])})
+    elif package_code == "P14":
+        result["p14_extracted_report"] = structured_report.get("p14_extracted_report", {"tests": structured_report.get("tests", [])})
+    elif package_code == "P15":
+        result["p15_extracted_report"] = structured_report.get("p15_extracted_report", {"tests": structured_report.get("tests", [])})
+    elif package_code == "P16":
+        result["p16_extracted_report"] = structured_report.get("p16_extracted_report", {"tests": structured_report.get("tests", [])})
     else:
         result["p10_extracted_report"] = structured_report.get("p10_extracted_report", {})
     return result
@@ -2971,6 +3073,50 @@ def _is_supported_reportmeta_payload(payload: Any, *, package_code: str) -> bool
     )
 
 
+def _is_p12_ocr_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("report_overview"), dict)
+        and isinstance(payload.get("test_items"), list)
+        and isinstance(payload.get("nad_assessment"), dict)
+    )
+
+
+def _is_p13_ocr_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("report_info"), dict)
+        and isinstance(payload.get("patient_info"), dict)
+        and isinstance(payload.get("test_results"), dict)
+    )
+
+
+def _is_p15_ocr_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("report_info"), dict)
+        and isinstance(payload.get("patient_info"), dict)
+        and isinstance(payload.get("test_details"), dict)
+        and isinstance(payload.get("results"), list)
+    )
+
+
+def _is_p14_ocr_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("reports"), list)
+        and any(isinstance(item, dict) and "report_type" in item for item in payload.get("reports", []))
+    )
+
+
+def _is_p16_ocr_payload(payload: Any) -> bool:
+    return (
+        isinstance(payload, dict)
+        and isinstance(payload.get("reports"), list)
+        and any(isinstance(item, dict) and "report_type" in item for item in payload.get("reports", []))
+    )
+
+
 def _is_reportmeta_sections_payload(payload: Any) -> bool:
     return (
         isinstance(payload, dict)
@@ -2980,7 +3126,7 @@ def _is_reportmeta_sections_payload(payload: Any) -> bool:
 
 
 def _looks_like_json_ocr_file(path: Path, *, package_code: str) -> bool:
-    if package_code not in {"P10", "P11"}:
+    if package_code not in {"P10", "P11", "P12", "P13", "P14", "P15", "P16"}:
         return False
     if path.suffix.lower() == ".pdf":
         return False
@@ -2989,9 +3135,49 @@ def _looks_like_json_ocr_file(path: Path, *, package_code: str) -> bool:
             prefix = handle.read(2048).lstrip()
     except (OSError, UnicodeDecodeError):
         return False
-    return prefix.startswith("{") and '"reportMeta"' in prefix and (
-        '"sections"' in prefix or (package_code == "P11" and '"foodIntoleranceResults"' in prefix)
-    )
+    if not prefix.startswith("{"):
+        return False
+    if package_code == "P12":
+        return '"report_overview"' in prefix and '"nad_assessment"' in prefix
+    if package_code == "P13":
+        return '"report_info"' in prefix and '"test_results"' in prefix and '"telomere' in prefix
+    if package_code == "P14":
+        return '"reports"' in prefix and '"report_type"' in prefix and '"疾病风险评估报告"' in prefix
+    if package_code == "P15":
+        return '"report_info"' in prefix and '"patient_info"' in prefix and '"test_details"' in prefix and '"results"' in prefix
+    if package_code == "P16":
+        return '"reports"' in prefix and '"report_type"' in prefix and '"patient_name"' in prefix
+    return '"reportMeta"' in prefix and ('"sections"' in prefix or (package_code == "P11" and '"foodIntoleranceResults"' in prefix))
+
+
+def _find_p14_sidecar_ocr_file(pdf_path: Path) -> Path | None:
+    if pdf_path.suffix.lower() != ".pdf":
+        return None
+    candidates = [
+        pdf_path.with_suffix(".json"),
+        pdf_path.with_suffix(".ocr.json"),
+        pdf_path.with_name("OCR.txt"),
+        pdf_path.with_name("ocr.txt"),
+    ]
+    for candidate in candidates:
+        if candidate.exists() and _looks_like_json_ocr_file(candidate, package_code="P14"):
+            return candidate
+    return None
+
+
+def _find_p16_sidecar_ocr_file(pdf_path: Path) -> Path | None:
+    if pdf_path.suffix.lower() != ".pdf":
+        return None
+    candidates = [
+        pdf_path.with_suffix(".json"),
+        pdf_path.with_suffix(".ocr.json"),
+        pdf_path.with_name("OCR.txt"),
+        pdf_path.with_name("ocr.txt"),
+    ]
+    for candidate in candidates:
+        if candidate.exists() and _looks_like_json_ocr_file(candidate, package_code="P16"):
+            return candidate
+    return None
 
 
 def build_p10_structured_report_from_reportmeta_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -4738,6 +4924,8 @@ def build_indicators(fields: list[dict[str, Any]]) -> dict[str, Any]:
             or key.startswith("p06.")
             or key.startswith("p07.")
             or key.startswith("p10.")
+            or key.startswith("p12.")
+            or key.startswith("p13.")
             or key.startswith("p17.")
         ):
             indicators[key] = {
@@ -4896,8 +5084,32 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         "P09": P09_STRATEGY_VERSION,
         "P10": P10_STRATEGY_VERSION,
         "P11": P11_STRATEGY_VERSION,
+        "P12": P12_STRATEGY_VERSION,
+        "P13": P13_STRATEGY_VERSION,
+        "P14": P14_STRATEGY_VERSION,
+        "P16": P16_STRATEGY_VERSION,
         "P17": P17_STRATEGY_VERSION,
     }.get(package_code, STRATEGY_VERSION)
+    if package_code == "P14":
+        sidecar = _find_p14_sidecar_ocr_file(pdf_path)
+        if sidecar:
+            result = parse_json_to_standard_ocr_json(sidecar, package_code=package_code, strategy_version=strategy_version)
+            result["source_file"] = pdf_path.name
+            debug = result.get("debug", {})
+            if isinstance(debug, dict):
+                debug["comparison_key"] = f"{package_code}:{pdf_path.name}:{strategy_version}"
+                debug["sidecar_file"] = sidecar.name
+            return result
+    if package_code == "P16":
+        sidecar = _find_p16_sidecar_ocr_file(pdf_path)
+        if sidecar:
+            result = parse_json_to_standard_ocr_json(sidecar, package_code=package_code, strategy_version=strategy_version)
+            result["source_file"] = pdf_path.name
+            debug = result.get("debug", {})
+            if isinstance(debug, dict):
+                debug["comparison_key"] = f"{package_code}:{pdf_path.name}:{strategy_version}"
+                debug["sidecar_file"] = sidecar.name
+            return result
     if pdf_path.suffix.lower() == ".json" or _looks_like_json_ocr_file(pdf_path, package_code=package_code):
         return parse_json_to_standard_ocr_json(pdf_path, package_code=package_code, strategy_version=strategy_version)
     reader = PdfReader(str(pdf_path))
@@ -4960,6 +5172,14 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         fields = extract_p08_fields(page_texts, structured_report)
     elif package_code == "P09":
         fields = extract_p09_fields(page_texts, structured_report)
+    elif package_code == "P12":
+        fields = extract_p12_fields(page_texts, structured_report)
+    elif package_code == "P13":
+        fields = extract_p13_fields(page_texts, structured_report)
+    elif package_code == "P14":
+        fields = extract_p14_fields(page_texts, structured_report)
+    elif package_code == "P16":
+        fields = extract_p16_fields(page_texts, structured_report)
     elif package_code == "P17":
         fields = extract_p17_fields(page_texts, structured_report)
     elif package_code == "P10":
@@ -5016,6 +5236,14 @@ def parse_pdf_to_standard_ocr_json(pdf_path: Path, package_code: str = "P02") ->
         result["p10_extracted_report"] = structured_report.get("p10_extracted_report", {"tests": structured_report.get("tests", [])})
     if package_code == "P11":
         result["p11_extracted_report"] = structured_report.get("p11_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P12":
+        result["p12_extracted_report"] = structured_report.get("p12_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P13":
+        result["p13_extracted_report"] = structured_report.get("p13_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P14":
+        result["p14_extracted_report"] = structured_report.get("p14_extracted_report", {"tests": structured_report.get("tests", [])})
+    if package_code == "P16":
+        result["p16_extracted_report"] = structured_report.get("p16_extracted_report", {"tests": structured_report.get("tests", [])})
     if package_code == "P17":
         result["p17_extracted_report"] = structured_report.get("p17_extracted_report", {})
     return result
@@ -5043,6 +5271,14 @@ def build_structured_report(
         return build_p08_structured_report(source_file, full_text, page_texts)
     if package_code == "P09":
         return build_p09_structured_report(source_file, full_text, page_texts)
+    if package_code == "P12":
+        return build_p12_structured_report(source_file, full_text, page_texts)
+    if package_code == "P13":
+        return build_p13_structured_report(source_file, full_text, page_texts)
+    if package_code == "P14":
+        return build_p14_structured_report(source_file, full_text, page_texts)
+    if package_code == "P16":
+        return build_p16_structured_report(source_file, full_text, page_texts)
     if package_code == "P10":
         return build_p10_structured_report(source_file, full_text, page_texts)
     if package_code == "P11":
@@ -6933,6 +7169,2549 @@ def _p09_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_p12_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    tests = extract_p12_structured_tests(page_texts)
+    sample_types = _p12_specimen_types(extract_specimen_types(page_texts), tests)
+    patient_name = _p12_extract_patient_name(page_texts, full_text) or extract_patient_name(full_text) or _p12_extract_first_person_name(page_texts)
+    specimen_condition = _p12_extract_specimen_condition(page_texts, full_text) or extract_specimen_condition(full_text)
+    submitting_unit = _p12_extract_submitting_unit(page_texts, full_text) or extract_hospital(full_text)
+    patient_info = {
+        "name": patient_name,
+        "gender": extract_gender(full_text),
+        "age": extract_age(full_text),
+        "phone": extract_patient_phone(full_text),
+        "specimen_condition": specimen_condition,
+        "specimen_types": sample_types,
+        "hospital": submitting_unit,
+        "submitting_unit": submitting_unit,
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": _p12_extract_clinical_diagnosis(full_text, page_texts),
+    }
+    additional_info = {
+        "sample_date": _p12_extract_date(page_texts, "采样日期"),
+        "receive_date": _p12_extract_date(page_texts, "接收时间") or _p12_extract_date(page_texts, "接收日期"),
+        "report_date": _p12_extract_date(page_texts, "报告时间") or _p12_extract_date(page_texts, "报告日期"),
+        "technician": extract_staff(full_text, ["检测者", "检验者"]),
+        "reviewer": extract_staff(full_text, ["审核者", "复核者"]),
+        "approver": extract_staff(full_text, ["批准人", "批准者"]),
+    }
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _p12_collect_notes(full_text),
+        "additional_info": additional_info,
+        "p12_extracted_report": {
+            "report_info": {
+                "barcode": report_id,
+                "submitting_unit": patient_info["submitting_unit"],
+                "patient_name": patient_info["name"],
+                "gender": patient_info["gender"],
+                "age": patient_info["age"],
+                "specimen_status": patient_info["specimen_condition"],
+                "specimen_type": "、".join(sample_types),
+            },
+            "pages": _p12_export_text_pages(page_texts, tests),
+            "tests": [_p12_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def extract_p12_structured_tests(page_texts: list[str]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    seen_codes: set[str] = set()
+    for page_number, text in enumerate(page_texts, start=1):
+        normalized = normalize_text(text)
+        for item_code, output_name, aliases, default_unit, default_reference, group, default_method in P12_TEST_DEFINITIONS:
+            if item_code in seen_codes:
+                continue
+            parsed = _p12_parse_nad_result(normalized) if item_code == "nad" else _p12_parse_test_after_name(
+                normalized,
+                aliases,
+                default_unit=default_unit,
+                default_reference=default_reference,
+                default_method=default_method,
+            )
+            if not parsed:
+                continue
+            tests.append(
+                _p12_make_test(
+                    page_number,
+                    group,
+                    item_code,
+                    output_name,
+                    parsed["result"],
+                    parsed["reference_range"],
+                    parsed["unit"],
+                    parsed["method"],
+                    indicator=parsed["indicator"],
+                )
+            )
+            seen_codes.add(item_code)
+        antioxidant_tests = _p12_extract_antioxidant_tests(normalized, page_number)
+        for test in antioxidant_tests:
+            item_code = str(test.get("item_code") or "")
+            if item_code in seen_codes:
+                continue
+            tests.append(test)
+            seen_codes.add(item_code)
+    return tests
+
+
+def extract_p12_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {})
+    additional_info = structured_report.get("additional_info", {})
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.88, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.86, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        age_text = f"{patient_info['age']}岁" if str(patient_info["age"]).isdigit() else str(patient_info["age"])
+        add_field(fields, "patient.age", "年龄", age_text, 0.86, find_page(page_texts, str(patient_info["age"])))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone"), 0.78, find_page(page_texts, str(patient_info.get("phone") or "")))
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis") or "-", 0.75, find_page(page_texts, str(patient_info.get("clinical_diagnosis") or "")))
+    submitting_unit = patient_info.get("submitting_unit") or patient_info.get("hospital") or ""
+    add_field(fields, "patient.submitting_unit", "送检单位", submitting_unit, 0.84, find_page(page_texts, str(submitting_unit or "")))
+    add_field(fields, "sample.type", "样本信息", "、".join(patient_info.get("specimen_types") or []) or "能量代谢相关样本", 0.9, None)
+    add_field(fields, "sample.condition", "标本情况", patient_info.get("specimen_condition"), 0.82, find_page(page_texts, str(patient_info.get("specimen_condition") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    report_date = additional_info.get("report_date") or additional_info.get("sample_date")
+    add_field(fields, "report.assessment_date", "评估日期", report_date, 0.84, find_page(page_texts, str(report_date or "")))
+    add_field(fields, "report.method", "评估方法", "CoQ10 / NAD+ 综合评估", 0.9, None)
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        if code not in {"coq10", "nad"}:
+            continue
+        prefix = f"p12.indicators.{code}"
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        result = str(test.get("result") or "")
+        indicator = str(test.get("indicator") or "")
+        unit = str(test.get("unit") or "")
+        reference = str(test.get("reference_range") or "")
+        status = _p12_status_from_test(test)
+        add_field(fields, f"{prefix}.name_display", label, _p12_name_display(label, unit), 0.88, page)
+        add_field(fields, f"{prefix}.result", label, result, 0.86, page)
+        add_field(fields, f"{prefix}.unit", label, unit, 0.84, page)
+        add_field(fields, f"{prefix}.result_display", label, _p12_value_with_unit(format_result_display(result, indicator), unit), 0.86, page)
+        add_field(fields, f"{prefix}.reference_range", label, reference, 0.82, page)
+        add_field(fields, f"{prefix}.status", label, status, 0.84, page)
+        add_field(fields, f"{prefix}.status_display", label, _p12_status_display(status), 0.84, page)
+        add_field(fields, f"{prefix}.method", label, test.get("method"), 0.82, page)
+    return fields
+
+
+def build_p13_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    payload = _p13_payload_from_text(source_file, full_text, page_texts)
+    return build_p13_structured_report_from_ocr_json(source_file, payload)
+
+
+def build_p13_structured_report_from_ocr_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    report_info = _p13_dict(payload.get("report_info"))
+    patient = _p13_dict(payload.get("patient_info"))
+    results = _p13_dict(payload.get("test_results"))
+    age_assessment = _p13_dict(results.get("telomere_age_assessment"))
+    trend = _p13_dict(results.get("telomere_length_and_trend"))
+    percentile = _p13_dict(results.get("population_percentile"))
+    recommendations = _p13_dict(payload.get("recommendations"))
+    educational_content = _p13_dict(payload.get("educational_content"))
+    signature = _p13_dict(payload.get("signature"))
+
+    report_id = _first_text(report_info.get("barcode"), Path(source_file).stem)
+    sample_type = _first_text(patient.get("sample_type"), P13_SAMPLE_TYPE)
+    method = _p13_normalize_method(_first_text(patient.get("test_technology"), P13_METHOD))
+    actual_age = _p13_result_text(patient.get("age"))
+    assessment_text = _first_text(age_assessment.get("assessment"))
+    interpretation_text = _first_text(age_assessment.get("interpretation"))
+    telomere_age = _p13_telomere_age(actual_age, assessment_text)
+    percentile_description = _first_text(percentile.get("description"))
+    percentile_value = _p13_percentile_value(percentile_description)
+    percentile_display = _p13_percentile_display(percentile_value, percentile_description)
+    tests = _p13_tests_from_payload(
+        patient=patient,
+        trend=trend,
+        actual_age=actual_age,
+        telomere_age=telomere_age,
+        percentile_value=percentile_value,
+        percentile_description=percentile_description,
+        method=method,
+        sample_type=sample_type,
+    )
+    normalized = {
+        "actual_age": actual_age,
+        "telomere_age": telomere_age,
+        "age_gap": _p13_age_gap(assessment_text),
+        "telomere_ct_value": _p13_result_text(trend.get("telomere_ct_value")),
+        "internal_reference_ct_value": _p13_result_text(trend.get("internal_reference_ct_value")),
+        "relative_telomere_length": _p13_result_text(trend.get("relative_telomere_length")),
+        "percentile_value": _p13_result_text(percentile_value),
+        "percentile_display": percentile_display,
+        "overall_summary": _p13_overall_summary(telomere_age, actual_age, assessment_text),
+        "telomere_interpretation": _first_text(interpretation_text, trend.get("note")),
+        "percentile_summary": _p13_percentile_summary(percentile_value, percentile_description),
+        "percentile_note": "百分位越高，代表端粒长度相对越长；本字段以原始报告同年龄段人群模型为准。",
+        "followup_advice": _p13_followup_advice(recommendations),
+        "disclaimer": _p13_disclaimer_text(payload.get("disclaimer")),
+        "review_note": _p13_review_note(signature, report_info),
+    }
+    patient_info = {
+        "name": _first_text(patient.get("name"), report_info.get("patient_name")),
+        "gender": _first_text(patient.get("gender")),
+        "age": actual_age,
+        "phone": _first_text(patient.get("phone")),
+        "specimen_condition": _first_text(patient.get("sample_condition")),
+        "specimen_types": [sample_type] if sample_type else [],
+        "hospital": _first_text(patient.get("submitting_institution")),
+        "submitting_unit": _first_text(patient.get("submitting_institution")),
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": _first_text(patient.get("symptoms"), patient.get("clinical_diagnosis")),
+    }
+    additional_info = {
+        "sample_date": _first_text(patient.get("submission_date")),
+        "receive_date": _first_text(patient.get("receipt_date")),
+        "report_date": _first_text(report_info.get("report_date")),
+        "technician": "",
+        "reviewer": _first_text(signature.get("primary_reviewer")),
+        "approver": _first_text(signature.get("approver")),
+        "laboratory": _first_text(signature.get("laboratory")),
+    }
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _first_text(assessment_text, trend.get("note"), percentile_description),
+        "additional_info": additional_info,
+        "p13_extracted_report": {
+            "report_info": {
+                "title": _first_text(report_info.get("report_title"), "端粒长度基因检测报告"),
+                "package_name": P13_REPORT_NAME,
+                "barcode": report_id,
+                "report_date": additional_info["report_date"],
+            },
+            "patient_info": patient_info,
+            "test_results": results,
+            "recommendations": recommendations,
+            "educational_content": educational_content,
+            "references": payload.get("references") if isinstance(payload.get("references"), list) else [],
+            "disclaimer": payload.get("disclaimer") if isinstance(payload.get("disclaimer"), dict) else {},
+            "signature": signature,
+            "normalized": normalized,
+            "tests": [_p13_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def extract_p13_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {}) if isinstance(structured_report.get("patient_info"), dict) else {}
+    additional_info = structured_report.get("additional_info", {}) if isinstance(structured_report.get("additional_info"), dict) else {}
+    p13_report = structured_report.get("p13_extracted_report", {}) if isinstance(structured_report.get("p13_extracted_report"), dict) else {}
+    normalized = p13_report.get("normalized", {}) if isinstance(p13_report.get("normalized"), dict) else {}
+    sample_types = patient_info.get("specimen_types") if isinstance(patient_info.get("specimen_types"), list) else []
+    sample_type = "、".join(str(item) for item in sample_types if str(item).strip()) or P13_SAMPLE_TYPE
+    report_date = additional_info.get("report_date") or additional_info.get("sample_date")
+
+    add_field(fields, "report.barcode", "条形码", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.9, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.88, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        add_field(fields, "patient.age", "年龄", _p13_age_display(patient_info.get("age")), 0.88, find_page(page_texts, str(patient_info.get("age") or "")))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone") or "/", 0.76, None)
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis") or "/", 0.76, None)
+    add_field(fields, "patient.submitting_unit", "送检单位", patient_info.get("submitting_unit") or patient_info.get("hospital"), 0.84, find_page(page_texts, str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "")))
+    add_field(fields, "sample.type", "样本信息", sample_type, 0.92, find_page(page_texts, sample_type))
+    add_field(fields, "report.assessment_type", "评估类型", P13_ASSESSMENT_TYPE, 0.92, None)
+    add_field(fields, "report.method", "评估方法", P13_METHOD, 0.92, find_page(page_texts, P13_METHOD))
+    add_field(fields, "report.assessment_date", "评估日期", report_date, 0.86, find_page(page_texts, str(report_date or "")))
+
+    add_field(fields, "p13.telomere_age", "端粒年龄", normalized.get("telomere_age"), 0.9, find_page(page_texts, str(normalized.get("telomere_age") or "")))
+    add_field(fields, "p13.actual_age", "实际年龄", normalized.get("actual_age"), 0.9, find_page(page_texts, str(normalized.get("actual_age") or "")))
+    add_field(fields, "p13.overall_summary", "AI辅助诊断", normalized.get("overall_summary"), 0.82, None)
+    add_field(fields, "p13.telomere.relative_length", "端粒相对长度", normalized.get("relative_telomere_length"), 0.9, find_page(page_texts, str(normalized.get("relative_telomere_length") or "")))
+    add_field(fields, "p13.percentile.display", "人群百分位", normalized.get("percentile_display"), 0.88, find_page(page_texts, str(normalized.get("percentile_value") or "")))
+    add_field(fields, "p13.telomere.ct_value", "端粒Ct值", normalized.get("telomere_ct_value"), 0.9, find_page(page_texts, str(normalized.get("telomere_ct_value") or "")))
+    add_field(fields, "p13.reference.ct_value", "内参Ct值", normalized.get("internal_reference_ct_value"), 0.9, find_page(page_texts, str(normalized.get("internal_reference_ct_value") or "")))
+    add_field(fields, "p13.telomere.interpretation", "端粒长度解读", normalized.get("telomere_interpretation"), 0.82, None)
+    add_field(fields, "p13.percentile.summary", "百分位摘要", normalized.get("percentile_summary"), 0.82, None)
+    add_field(fields, "p13.percentile.note", "百分位说明", normalized.get("percentile_note"), 0.82, None)
+    add_field(fields, "p13.followup_advice", "后续行动", normalized.get("followup_advice"), 0.8, None)
+    add_field(fields, "p13.disclaimer", "免责声明", normalized.get("disclaimer"), 0.8, None)
+    add_field(fields, "p13.review_note", "审核信息", normalized.get("review_note"), 0.8, None)
+    add_field(fields, "organization.phone", "联系电话", "400-158-1959", 0.9, None)
+    add_field(fields, "organization.email", "电子邮箱", "service@anweikang.com", 0.9, None)
+    add_field(fields, "organization.website", "官方网站", "www.anweikang.com", 0.9, None)
+    add_field(fields, "organization.address", "公司地址", "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层", 0.9, None)
+    return fields
+
+
+def build_p14_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    patient_name = extract_patient_name(full_text) or ""
+    patient_gender = extract_gender(full_text) or ""
+    patient_age = extract_age(full_text) or ""
+    sample_types = extract_specimen_types(page_texts) or [P14_SAMPLE_TYPE]
+    trend_points = [{"date": "待补录", "value": "—"} for _ in range(4)]
+    return {
+        "report_id": report_id,
+        "patient_info": {
+            "name": patient_name,
+            "gender": patient_gender,
+            "age": patient_age,
+            "phone": "",
+            "clinical_diagnosis": "",
+            "specimen_types": sample_types,
+            "specimen_condition": extract_specimen_condition(full_text) or "",
+            "submitting_unit": extract_hospital(full_text) or "",
+            "hospital": extract_hospital(full_text) or "",
+        },
+        "additional_info": {
+            "sample_date": extract_date(page_texts, "采样日期") or extract_date(page_texts, "送检日期"),
+            "receive_date": extract_date(page_texts, "接收日期") or extract_date(page_texts, "签收日期"),
+            "report_date": extract_date(page_texts, "报告日期") or extract_date(page_texts, "评估日期"),
+            "method": P14_METHOD,
+            "source_mode": "pdf-text-fallback",
+            "trend_points": trend_points,
+        },
+        "tests": [],
+        "notes": _p16_compact(full_text, 500),
+        "trend_points": trend_points,
+        "p14_extracted_report": {
+            "report_info": {
+                "report_title": P14_REPORT_NAME,
+                "assessment_type": P14_ASSESSMENT_TYPE,
+                "source_mode": "pdf-text-fallback",
+                "report_count": len(page_texts),
+            },
+            "normalized": {
+                "overall_risk": "待复核",
+                "overall_status": "待复核",
+                "management_items": [
+                    "建议补充结构化OCR",
+                    "建议人工复核核心指标",
+                    "建议结合原始报告解读",
+                ],
+                "followup_advice": "当前仅完成 PDF 文本层回退解析，建议优先补充 P14 结构化 JSON OCR 结果后再做渲染联调。",
+                "disclaimer": "本报告仅供健康管理参考，不作为临床诊断依据。",
+                "review_note": "P14 PDF 文本层回退解析未完成专项结构化校准，建议人工复核。",
+                "trend_points": trend_points,
+            },
+            "reports": {},
+            "tests": [],
+        },
+    }
+
+
+def build_p14_structured_report_from_ocr_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    reports = payload.get("reports", []) if isinstance(payload.get("reports"), list) else []
+    risk_report = _p14_find_report(reports, "疾病风险评估报告")
+    methylation_report = _p14_find_report(reports, "高发五癌游离DNA甲基化检测报告")
+    ctc_report = _p14_find_report(reports, "CTC计数分型检测报告")
+
+    risk_assessment = risk_report.get("risk_assessment", {}) if isinstance(risk_report.get("risk_assessment"), dict) else {}
+    risk_sub_items = risk_report.get("sub_items", []) if isinstance(risk_report.get("sub_items"), list) else []
+    system_assessment = risk_report.get("system_assessment", []) if isinstance(risk_report.get("system_assessment"), list) else []
+    methylation_result = methylation_report.get("result", {}) if isinstance(methylation_report.get("result"), dict) else {}
+    methylation_details = methylation_report.get("details", []) if isinstance(methylation_report.get("details"), list) else []
+    ctc_screening = ctc_report.get("screening_results", {}) if isinstance(ctc_report.get("screening_results"), dict) else {}
+    ctc_history = ctc_report.get("historical_results", []) if isinstance(ctc_report.get("historical_results"), list) else []
+
+    report_id = _first_text(
+        risk_report.get("patient_id"),
+        methylation_report.get("barcode"),
+        ctc_report.get("barcode"),
+        ctc_report.get("report_id"),
+        Path(source_file).stem,
+    )
+    sample_types = []
+    for value in [
+        P14_SAMPLE_TYPE,
+        methylation_report.get("sample_type"),
+        ctc_report.get("sample_type"),
+    ]:
+        text = _first_text(value)
+        if text and text not in sample_types:
+            sample_types.append(text)
+    methods = []
+    for value in [
+        P14_METHOD,
+        methylation_result.get("method"),
+        "CTC计数分型检测",
+    ]:
+        text = _first_text(value)
+        if text and text not in methods:
+            methods.append(text)
+    trend_points = _p14_trend_points_from_reports(ctc_history, ctc_screening, ctc_report)
+    tests = _p14_tests_from_ocr_payload(
+        risk_assessment=risk_assessment,
+        methylation_result=methylation_result,
+        methylation_details=methylation_details,
+        ctc_screening=ctc_screening,
+        ctc_history=ctc_history,
+    )
+
+    patient_info = {
+        "name": _first_text(risk_report.get("patient_name"), methylation_report.get("patient_name"), ctc_report.get("patient_name")),
+        "gender": _first_text(risk_report.get("gender"), methylation_report.get("gender"), ctc_report.get("gender")),
+        "age": _first_text(risk_report.get("age"), methylation_report.get("age"), ctc_report.get("age")),
+        "phone": _first_text(ctc_report.get("phone"), risk_report.get("hotline")),
+        "specimen_condition": _first_text(
+            (methylation_report.get("quality_control") or {}).get("sample_status") if isinstance(methylation_report.get("quality_control"), dict) else "",
+            (methylation_report.get("quality_control") or {}).get("sample_quality") if isinstance(methylation_report.get("quality_control"), dict) else "",
+        ),
+        "specimen_types": sample_types,
+        "hospital": _first_text(methylation_report.get("laboratory"), risk_report.get("laboratory"), ctc_report.get("submitting_institution")),
+        "submitting_unit": _first_text(methylation_report.get("submitting_institution"), ctc_report.get("submitting_institution"), risk_report.get("organization")),
+        "clinical_diagnosis": _first_text(ctc_report.get("clinical_diagnosis"), methylation_report.get("disease_history")),
+    }
+    additional_info = {
+        "sample_date": _first_text(ctc_report.get("sampling_date"), methylation_report.get("receipt_date"), risk_report.get("submission_date")),
+        "receive_date": _first_text(methylation_report.get("receipt_date")),
+        "report_date": _first_text(ctc_report.get("report_date"), methylation_report.get("report_date"), risk_report.get("submission_date")),
+        "method": " / ".join(methods) if methods else P14_METHOD,
+        "source_mode": "ocr-json",
+        "trend_points": trend_points,
+    }
+    management_items = [
+        _first_text((risk_report.get("recommendations") or {}).get("behavioral") if isinstance(risk_report.get("recommendations"), dict) else ""),
+        _first_text((risk_report.get("recommendations") or {}).get("dietary") if isinstance(risk_report.get("recommendations"), dict) else ""),
+        _first_text(ctc_report.get("further_testing_advice"), methylation_report.get("advice")),
+    ]
+    management_items = [item for item in management_items if item]
+    while len(management_items) < 3:
+        management_items.append("建议结合临床资料进行人工复核")
+
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "additional_info": additional_info,
+        "tests": tests,
+        "notes": _p14_join_sentences(
+            _first_text(risk_report.get("disclaimer")),
+            _first_text(methylation_report.get("interpretation")),
+            _first_text(ctc_report.get("remarks")),
+        ),
+        "trend_points": trend_points,
+        "p14_extracted_report": {
+            "report_info": {
+                "report_title": P14_REPORT_NAME,
+                "assessment_type": P14_ASSESSMENT_TYPE,
+                "source_mode": "ocr-json",
+                "report_count": len(reports),
+                "barcode": _first_text(methylation_report.get("barcode"), ctc_report.get("barcode")),
+                "patient_id": _first_text(risk_report.get("patient_id")),
+            },
+            "normalized": {
+                "overall_risk": _first_text(risk_assessment.get("overall_risk"), risk_assessment.get("status"), "待复核"),
+                "overall_status": _first_text(risk_assessment.get("status"), "待复核"),
+                "methylation_result": _first_text(methylation_result.get("result"), "待补录"),
+                "ctc_total": _first_text(ctc_screening.get("total")),
+                "ctc_unit": _first_text(ctc_screening.get("unit"), "个/7.5mL"),
+                "ctc_epithelial": _first_text(ctc_screening.get("epithelial_ctc")),
+                "ctc_mesenchymal": _first_text(ctc_screening.get("mesenchymal_ctc")),
+                "ctc_mixed": _first_text(ctc_screening.get("mixed_ctc")),
+                "clinical_diagnosis": patient_info["clinical_diagnosis"],
+                "behavioral_advice": _first_text((risk_report.get("recommendations") or {}).get("behavioral") if isinstance(risk_report.get("recommendations"), dict) else ""),
+                "infectious_advice": _first_text((risk_report.get("recommendations") or {}).get("infectious") if isinstance(risk_report.get("recommendations"), dict) else ""),
+                "dietary_advice": _first_text((risk_report.get("recommendations") or {}).get("dietary") if isinstance(risk_report.get("recommendations"), dict) else ""),
+                "metabolic_advice": _first_text((risk_report.get("recommendations") or {}).get("metabolic") if isinstance(risk_report.get("recommendations"), dict) else ""),
+                "environmental_advice": _first_text((risk_report.get("recommendations") or {}).get("environmental") if isinstance(risk_report.get("recommendations"), dict) else ""),
+                "methylation_advice": _first_text(methylation_report.get("advice")),
+                "ctc_followup_advice": _first_text(ctc_report.get("further_testing_advice")),
+                "management_items": management_items[:3],
+                "followup_advice": _first_text(ctc_report.get("further_testing_advice"), methylation_report.get("advice"), "建议结合原始报告和临床信息安排阶段性复评。"),
+                "disclaimer": _first_text(ctc_report.get("remarks"), methylation_report.get("reminders", [""])[0] if isinstance(methylation_report.get("reminders"), list) else "", risk_report.get("disclaimer")),
+                "review_note": "P14 已基于多报告聚合 JSON 结构化识别，报告导出前仍需结合既往病史、甲基化结果和 CTC 动态进行人工复核。",
+                "trend_points": trend_points,
+            },
+            "reports": {
+                "risk_assessment": risk_report,
+                "methylation": methylation_report,
+                "ctc": ctc_report,
+            },
+            "sub_items": risk_sub_items,
+            "system_assessment": system_assessment,
+            "tests": [_p14_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def _p14_find_report(reports: list[Any], keyword: str) -> dict[str, Any]:
+    for item in reports:
+        if not isinstance(item, dict):
+            continue
+        if keyword in str(item.get("report_type") or ""):
+            return item
+    return {}
+
+
+def _p14_tests_from_ocr_payload(
+    *,
+    risk_assessment: dict[str, Any],
+    methylation_result: dict[str, Any],
+    methylation_details: list[Any],
+    ctc_screening: dict[str, Any],
+    ctc_history: list[Any],
+) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    for code, page, unit in [("cda", 3, "U/mL"), ("ptf", 3, "pg/mL"), ("ctf", 3, "ng/mL")]:
+        item = risk_assessment.get(code, {}) if isinstance(risk_assessment.get(code), dict) else {}
+        tests.append(
+            {
+                "page": page,
+                "specimen_type": P14_SAMPLE_TYPE,
+                "test_name": code.upper(),
+                "item_code": code,
+                "group": "risk_assessment",
+                "result": _p14_number_text(item.get("value")),
+                "indicator": _first_text(item.get("result")),
+                "reference_range": _first_text(item.get("reference_range")),
+                "unit": unit,
+                "method": P14_METHOD,
+            }
+        )
+    tests.append(
+        {
+            "page": 4,
+            "specimen_type": _first_text(methylation_result.get("test_item"), "全血"),
+            "test_name": _first_text(methylation_result.get("test_item"), "高发五癌游离DNA甲基化检测"),
+            "item_code": "methylation",
+            "group": "methylation",
+            "result": _first_text(methylation_result.get("result")),
+            "indicator": _first_text(methylation_result.get("result")),
+            "reference_range": "—",
+            "unit": "",
+            "method": _first_text(methylation_result.get("method"), "实时荧光PCR法"),
+        }
+    )
+    tests.append(
+        {
+            "page": 4,
+            "specimen_type": "外周血",
+            "test_name": "CTC计数",
+            "item_code": "ctc",
+            "group": "ctc",
+            "result": _p14_number_text(ctc_screening.get("total")),
+            "indicator": "需关注" if _p14_safe_number(ctc_screening.get("total")) not in (None, 0) else "未见异常",
+            "reference_range": "—",
+            "unit": "个",
+            "method": "CTC计数分型检测",
+        }
+    )
+    for key, label in [("epithelial_ctc", "CTC上皮型"), ("mesenchymal_ctc", "CTC间质型"), ("mixed_ctc", "CTC混合型")]:
+        if key in ctc_screening:
+            tests.append(
+                {
+                    "page": 6,
+                    "specimen_type": "外周血",
+                    "test_name": label,
+                    "item_code": key,
+                    "group": "ctc_subtype",
+                    "result": _p14_number_text(ctc_screening.get(key)),
+                    "indicator": "已识别",
+                    "reference_range": "—",
+                    "unit": "个",
+                    "method": "CTC计数分型检测",
+                }
+            )
+    for detail in methylation_details:
+        if not isinstance(detail, dict):
+            continue
+        gene = _first_text(detail.get("target_gene"))
+        if not gene:
+            continue
+        tests.append(
+            {
+                "page": 4,
+                "specimen_type": "全血",
+                "test_name": gene,
+                "item_code": f"methylation_{field_key_safe(gene).lower()}",
+                "group": "methylation_detail",
+                "result": _first_text(detail.get("interpretation")),
+                "indicator": _first_text(detail.get("interpretation")),
+                "reference_range": "阴性",
+                "unit": "",
+                "method": "实时荧光PCR法",
+            }
+        )
+    for index, item in enumerate(ctc_history[:3], start=1):
+        if not isinstance(item, dict):
+            continue
+        tests.append(
+            {
+                "page": 6,
+                "specimen_type": "外周血",
+                "test_name": f"CTC历史总数{index}",
+                "item_code": f"ctc_history_{index}",
+                "group": "ctc_history",
+                "result": _p14_number_text(item.get("total")),
+                "indicator": _first_text(item.get("date")),
+                "reference_range": "—",
+                "unit": "个",
+                "method": "CTC计数分型检测",
+            }
+        )
+    return tests
+
+
+def _p14_trend_points_from_reports(history: list[Any], screening: dict[str, Any], ctc_report: dict[str, Any]) -> list[dict[str, str]]:
+    points: list[dict[str, str]] = []
+    for item in history[:3]:
+        if not isinstance(item, dict):
+            continue
+        points.append({"date": _first_text(item.get("date"), "待补录"), "value": _p14_number_text(item.get("total")) or "—"})
+    points.append({"date": _first_text(ctc_report.get("report_date"), ctc_report.get("sampling_date"), "待补录"), "value": _p14_number_text(screening.get("total")) or "—"})
+    while len(points) < 4:
+        points.append({"date": "待补录", "value": "—"})
+    return points[:4]
+
+
+def _p14_number_text(value: Any) -> str:
+    if value is None or value == "":
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    if isinstance(value, int):
+        return str(value)
+    return str(value).strip()
+
+
+def _p14_safe_number(value: Any) -> float | None:
+    text = _p14_number_text(value)
+    match = re.search(r"\d+(?:\.\d+)?", text)
+    if not match:
+        return None
+    try:
+        return float(match.group(0))
+    except ValueError:
+        return None
+
+
+def _p14_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+    }
+
+
+def _p14_join_sentences(*values: Any) -> str:
+    parts = [str(value).strip() for value in values if str(value or "").strip()]
+    return " ".join(parts)
+
+
+def extract_p14_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {}) if isinstance(structured_report.get("patient_info"), dict) else {}
+    additional_info = structured_report.get("additional_info", {}) if isinstance(structured_report.get("additional_info"), dict) else {}
+    p14_report = structured_report.get("p14_extracted_report", {}) if isinstance(structured_report.get("p14_extracted_report"), dict) else {}
+    normalized = p14_report.get("normalized", {}) if isinstance(p14_report.get("normalized"), dict) else {}
+
+    sample_types = patient_info.get("specimen_types") if isinstance(patient_info.get("specimen_types"), list) else []
+    sample_type = "、".join(str(item) for item in sample_types if str(item).strip()) or P14_SAMPLE_TYPE
+    report_date = additional_info.get("report_date") or additional_info.get("sample_date")
+    method = additional_info.get("method") or P14_METHOD
+
+    add_field(fields, "report.barcode", "条形码", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.9, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.88, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        add_field(fields, "patient.age", "年龄", f"{patient_info.get('age')}岁", 0.86, find_page(page_texts, str(patient_info.get("age") or "")))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone") or "/", 0.84, find_page(page_texts, str(patient_info.get("phone") or "")))
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis") or "/", 0.8, find_page(page_texts, str(patient_info.get("clinical_diagnosis") or "")))
+    add_field(fields, "sample.type", "样本信息", sample_type, 0.92, find_page(page_texts, sample_type))
+    add_field(fields, "sample.condition", "样本状态", patient_info.get("specimen_condition") or "", 0.82, None)
+    add_field(fields, "report.assessment_type", "评估类型", P14_ASSESSMENT_TYPE, 0.92, None)
+    add_field(fields, "report.method", "评估方法", method, 0.9, find_page(page_texts, str(method)))
+    add_field(fields, "report.assessment_date", "评估日期", report_date, 0.86, find_page(page_texts, str(report_date or "")))
+
+    tests = structured_report.get("tests", []) if isinstance(structured_report.get("tests"), list) else []
+    for code in ["cda", "ptf", "ctf"]:
+        test = next((item for item in tests if str(item.get("item_code") or "") == code), {})
+        prefix = f"p14.results.{code}"
+        add_field(fields, f"{prefix}.name", f"{code.upper()}名称", test.get("test_name") or code.upper(), 0.88, 3)
+        add_field(fields, f"{prefix}.result_display", f"{code.upper()}结果", test.get("result"), 0.88, 3)
+        add_field(fields, f"{prefix}.reference_range", f"{code.upper()}参考范围", test.get("reference_range"), 0.86, 3)
+        add_field(fields, f"{prefix}.status", f"{code.upper()}状态", test.get("indicator"), 0.84, 3)
+
+    add_field(fields, "p14.summary.score", "综合评分", next((item.get("result") for item in tests if str(item.get("item_code") or "") == "cda"), ""), 0.86, 2)
+    add_field(fields, "p14.summary.risk_level", "风险分层", normalized.get("overall_risk") or normalized.get("overall_status"), 0.84, 2)
+    add_field(fields, "p14.summary.ai_diagnosis", "综合评估结论", normalized.get("overall_risk"), 0.78, 2)
+    add_field(fields, "p14.results.ai_summary", "检测结果AI摘要", normalized.get("overall_status"), 0.76, 3)
+    add_field(fields, "p14.overview.methylation.title", "甲基化项目", "五癌甲基化", 0.84, 4)
+    add_field(fields, "p14.overview.methylation.status", "甲基化结果", normalized.get("methylation_result"), 0.84, 4)
+    ctc_total = normalized.get("ctc_total")
+    ctc_unit = normalized.get("ctc_unit")
+    add_field(fields, "p14.overview.ctc.title", "CTC项目", "CTC计数", 0.84, 4)
+    add_field(fields, "p14.overview.ctc.status", "CTC结果", f"{ctc_total}{ctc_unit}".strip() if ctc_total else "", 0.84, 4)
+    add_field(fields, "p14.overview.ai_diagnosis", "结果概览提示", normalized.get("clinical_diagnosis"), 0.76, 4)
+    add_field(fields, "p14.deep_dive.ai_intro", "CDA深度解读导语", normalized.get("overall_risk"), 0.76, 5)
+    add_field(fields, "p14.deep_dive.ai_detail", "CDA深度解读正文", normalized.get("clinical_diagnosis"), 0.74, 5)
+    add_field(fields, "p14.deep_dive.ai_note", "CDA深度解读提示", normalized.get("overall_status"), 0.74, 5)
+
+    trend_points = normalized.get("trend_points", []) if isinstance(normalized.get("trend_points"), list) else []
+    for index in range(4):
+        item = trend_points[index] if index < len(trend_points) and isinstance(trend_points[index], dict) else {}
+        add_field(fields, f"p14.trend.points.point_{index + 1}.value", f"趋势值{index + 1}", item.get("value"), 0.8, 6)
+        add_field(fields, f"p14.trend.points.point_{index + 1}.date", f"趋势日期{index + 1}", item.get("date"), 0.8, 6)
+    add_field(fields, "p14.trend.alert", "趋势页提示", normalized.get("ctc_followup_advice"), 0.76, 6)
+
+    add_field(fields, "p14.risk_factors.factor_1.title", "异常原因1标题", "代谢相关风险", 0.78, 7)
+    add_field(fields, "p14.risk_factors.factor_1.body", "异常原因1正文", normalized.get("metabolic_advice"), 0.76, 7)
+    add_field(fields, "p14.risk_factors.factor_2.title", "异常原因2标题", "既往病史关注", 0.78, 7)
+    add_field(fields, "p14.risk_factors.factor_2.body", "异常原因2正文", normalized.get("clinical_diagnosis"), 0.76, 7)
+    add_field(fields, "p14.risk_factors.factor_3.title", "异常原因3标题", "环境与感染管理", 0.78, 7)
+    add_field(fields, "p14.risk_factors.factor_3.body", "异常原因3正文", _p14_join_sentences(normalized.get("environmental_advice"), normalized.get("infectious_advice")), 0.76, 7)
+    add_field(fields, "p14.risk_factors.ai_diagnosis", "异常原因AI提示", normalized.get("overall_status"), 0.76, 7)
+
+    for idx, text in enumerate(normalized.get("management_items", [])[:3], start=1):
+        add_field(fields, f"p14.management.plan_{idx}", f"管理建议{idx}", text, 0.78, 8)
+    add_field(fields, "p14.management.ai_summary", "管理页AI总结", normalized.get("followup_advice"), 0.74, 8)
+    add_field(fields, "p14.followup_advice", "后续行动", normalized.get("followup_advice"), 0.78, 11)
+    add_field(fields, "p14.disclaimer", "免责声明", normalized.get("disclaimer"), 0.78, 11)
+    add_field(fields, "p14.review_note", "审核信息", normalized.get("review_note"), 0.78, 11)
+    add_field(fields, "organization.phone", "联系电话", "400-158-1959", 0.9, None)
+    add_field(fields, "organization.email", "电子邮箱", "service@anweikang.com", 0.9, None)
+    add_field(fields, "organization.website", "官方网站", "www.anweikang.com", 0.9, None)
+    add_field(fields, "organization.address", "公司地址", "安徽省合肥市庐阳区临泉路7266号研发中心楼1、4、5、6层", 0.9, None)
+    return fields
+
+
+def build_p15_structured_report_from_ocr_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    report_info = payload.get("report_info", {}) if isinstance(payload.get("report_info"), dict) else {}
+    patient = payload.get("patient_info", {}) if isinstance(payload.get("patient_info"), dict) else {}
+    test_details = payload.get("test_details", {}) if isinstance(payload.get("test_details"), dict) else {}
+    contact = payload.get("contact_info", {}) if isinstance(payload.get("contact_info"), dict) else {}
+    report_notes = payload.get("report_notes", []) if isinstance(payload.get("report_notes"), list) else []
+    results = payload.get("results", []) if isinstance(payload.get("results"), list) else []
+
+    report_id = _first_text(report_info.get("barcode"), Path(source_file).stem)
+    sample_type = _first_text(patient.get("sample_type"), P15_SAMPLE_TYPE)
+    method = _first_text(test_details.get("methodology"), P15_METHOD)
+    tests = _p15_tests_from_ocr_payload(results, method=method, specimen_type=sample_type)
+
+    patient_info = {
+        "name": _first_text(patient.get("name"), report_info.get("patient_name")),
+        "gender": _first_text(patient.get("gender")),
+        "age": patient.get("age") if patient.get("age") not in (None, "") else "",
+        "phone": _first_text(patient.get("phone")),
+        "specimen_condition": _first_text(patient.get("sample_characteristics")),
+        "specimen_types": [sample_type] if sample_type else [],
+        "hospital": _first_text(patient.get("submitting_institution")),
+        "submitting_unit": _first_text(patient.get("submitting_institution")),
+        "patient_number": _first_text(patient.get("hospital_number"), patient.get("medical_record_number")),
+        "bed_number": "",
+        "department": _first_text(patient.get("submitting_department")),
+        "doctor": _first_text(patient.get("referring_physician")),
+        "clinical_diagnosis": _first_text(patient.get("clinical_diagnosis")),
+    }
+    additional_info = {
+        "sample_date": _first_text(patient.get("sampling_date")),
+        "receive_date": _first_text(patient.get("receipt_time")),
+        "report_date": _first_text(report_info.get("report_time")),
+        "technician": "",
+        "reviewer": "",
+        "approver": "",
+    }
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": " ".join(str(item).strip() for item in report_notes if str(item).strip()),
+        "additional_info": additional_info,
+        "p15_extracted_report": {
+            "report_info": {
+                "report_title": _first_text(report_info.get("report_title"), P15_REPORT_NAME),
+                "laboratory_name": _first_text(report_info.get("laboratory_name")),
+                "laboratory_english": _first_text(report_info.get("laboratory_english")),
+                "report_time": _first_text(report_info.get("report_time")),
+                "barcode": report_id,
+                "patient_name": patient_info["name"],
+            },
+            "patient_info": patient,
+            "test_details": test_details,
+            "results": results,
+            "report_notes": report_notes,
+            "contact_info": contact,
+            "tests": [_p15_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def _p15_tests_from_ocr_payload(results: list[Any], *, method: str, specimen_type: str) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    code_map = {
+        "己烯雌酚": "des",
+        "17α-乙炔基雌二醇": "ee2",
+        "对羟基苯甲酸甲酯": "methylparaben",
+        "对羟基苯甲酸乙酯": "ethylparaben",
+        "对羟基苯甲酸丙酯": "propylparaben",
+        "对羟基苯甲酸丁酯": "butylparaben",
+        "邻苯二甲酸单乙基酯": "mep",
+        "邻苯二甲酸单丁基酯": "mbp",
+        "邻苯二甲酸单苄基酯": "mbzp",
+        "邻苯二甲酸单乙基己酯": "mehp",
+        "双酚A": "bpa",
+        "双酚B": "bpb",
+        "壬基苯酚": "nonylphenol",
+        "辛基酚": "octylphenol",
+        "邻苯二甲酸单甲基酯": "mmp",
+    }
+    for item in results:
+        if not isinstance(item, dict):
+            continue
+        name = _first_text(item.get("parameter"))
+        tests.append(
+            {
+                "page": 1 if len(tests) < 8 else 2,
+                "specimen_type": specimen_type,
+                "test_name": name,
+                "item_code": code_map.get(name, field_key_safe(name).lower()),
+                "group": "environment_hormone",
+                "result": _p15_result_text(item.get("result")),
+                "indicator": _p15_indicator_from_flag(item.get("flag")),
+                "reference_range": _first_text(item.get("reference_value")),
+                "unit": _first_text(item.get("unit")),
+                "method": method,
+            }
+        )
+    return tests
+
+
+def _p15_result_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    if isinstance(value, int):
+        return str(value)
+    return str(value).strip()
+
+
+def _p15_indicator_from_flag(flag: Any) -> str:
+    text = str(flag or "").strip()
+    if text in {"↑", "高", "偏高"}:
+        return "升高"
+    if text in {"↓", "低", "偏低"}:
+        return "偏低"
+    return "正常"
+
+
+def _p15_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+    }
+
+
+def extract_p15_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {}) if isinstance(structured_report.get("patient_info"), dict) else {}
+    additional_info = structured_report.get("additional_info", {}) if isinstance(structured_report.get("additional_info"), dict) else {}
+    sample_types = patient_info.get("specimen_types") if isinstance(patient_info.get("specimen_types"), list) else []
+    sample_type = "、".join(str(item) for item in sample_types if str(item).strip()) or P15_SAMPLE_TYPE
+    report_date = additional_info.get("report_date") or additional_info.get("sample_date")
+    method = structured_report.get("tests", [{}])[0].get("method") if structured_report.get("tests") else P15_METHOD
+
+    add_field(fields, "report.barcode", "条形码", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.9, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.88, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        add_field(fields, "patient.age", "年龄", f"{patient_info.get('age')}岁", 0.88, find_page(page_texts, str(patient_info.get("age") or "")))
+    add_field(fields, "patient.phone", "联系电话", patient_info.get("phone") or "/", 0.84, find_page(page_texts, str(patient_info.get("phone") or "")))
+    add_field(fields, "patient.symptoms", "相关症状", patient_info.get("clinical_diagnosis") or "/", 0.76, None)
+    add_field(fields, "patient.submitting_unit", "送检单位", patient_info.get("submitting_unit") or patient_info.get("hospital"), 0.84, find_page(page_texts, str(patient_info.get("submitting_unit") or patient_info.get("hospital") or "")))
+    add_field(fields, "sample.type", "样本信息", sample_type, 0.92, find_page(page_texts, sample_type))
+    add_field(fields, "sample.condition", "标本情况", patient_info.get("specimen_condition") or "", 0.84, find_page(page_texts, str(patient_info.get("specimen_condition") or "")))
+    add_field(fields, "report.assessment_type", "评估类型", P15_ASSESSMENT_TYPE, 0.92, None)
+    add_field(fields, "report.method", "评估方法", method or P15_METHOD, 0.92, find_page(page_texts, str(method or P15_METHOD)))
+    add_field(fields, "report.assessment_date", "评估日期", report_date, 0.86, find_page(page_texts, str(report_date or "")))
+
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        prefix = f"p15.results.{code}"
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        result = str(test.get("result") or "")
+        unit = str(test.get("unit") or "")
+        indicator = str(test.get("indicator") or "")
+        reference = str(test.get("reference_range") or "")
+        add_field(fields, f"{prefix}.name", label, label, 0.9, page)
+        add_field(fields, f"{prefix}.result_display", label, f"{result} {unit}".strip(), 0.88, page)
+        add_field(fields, f"{prefix}.reference_range", label, reference, 0.86, page)
+        add_field(fields, f"{prefix}.status", label, indicator or "正常", 0.86, page)
+    return fields
+
+
+def build_p16_structured_report(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    normalized = _p16_pdf_fallback_normalized()
+    report_id = extract_report_id(full_text) or Path(source_file).stem
+    patient_name = extract_patient_name(full_text) or ""
+    patient_gender = extract_gender(full_text) or ""
+    patient_age = extract_age(full_text)
+    sample_types = extract_specimen_types(page_texts) or [P16_SAMPLE_TYPE]
+    return {
+        "report_id": report_id,
+        "patient_info": {
+            "name": patient_name,
+            "gender": patient_gender,
+            "age": patient_age or "",
+            "phone": "",
+            "clinical_diagnosis": "",
+            "specimen_types": sample_types,
+            "specimen_condition": extract_specimen_condition(full_text) or "",
+            "submitting_unit": extract_hospital(full_text) or "",
+        },
+        "additional_info": {
+            "sample_date": extract_date(page_texts, "采样日期"),
+            "receive_date": extract_date(page_texts, "接收时间") or extract_date(page_texts, "接收日期"),
+            "report_date": extract_date(page_texts, "报告时间") or extract_date(page_texts, "报告日期"),
+            "method": P16_METHOD,
+            "source_mode": "pdf-text-fallback",
+        },
+        "tests": [],
+        "notes": _p16_compact(full_text, 400),
+        "p16_extracted_report": {
+            "report_info": {
+                "report_title": P16_REPORT_NAME,
+                "assessment_type": P16_ASSESSMENT_TYPE,
+                "source_mode": "pdf-text-fallback",
+                "report_count": len(page_texts),
+            },
+            "normalized": normalized,
+            "reports": {},
+            "tests": [],
+        },
+    }
+
+
+def build_p16_structured_report_from_ocr_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    reports = payload.get("reports", []) if isinstance(payload.get("reports"), list) else []
+    primary = next((item for item in reports if isinstance(item, dict) and isinstance(item.get("patient_info"), dict)), {})
+    patient = primary.get("patient_info", {}) if isinstance(primary.get("patient_info"), dict) else {}
+    report_id = _first_text(primary.get("barcode"), Path(source_file).stem)
+    patient_name = _first_text(primary.get("patient_name"))
+    sample_type = _first_text(patient.get("sample_type"), P16_SAMPLE_TYPE)
+    method = _first_text(primary.get("test_method"), P16_METHOD)
+
+    hypertension = _p16_find_report(reports, "高血压个性化用药基因检测报告", exclude="临床意义")
+    hypertension_clinical = _p16_find_report(reports, "高血压个性化用药基因检测报告（临床意义）")
+    statin = _p16_find_report(reports, "他汀类药物用药基因检测报告", exclude="续")
+    statin_extra = _p16_find_report(reports, "他汀类药物用药基因检测报告（续）")
+    cyp2c19 = _p16_find_report(reports, "CYP2C19基因多态性检测报告")
+    aspirin = _p16_find_report(reports, "阿司匹林个体化用药基因检测报告")
+    ticagrelor = _p16_find_report(reports, "替格瑞洛个体化用药基因检测报告")
+    hyperglycemia = _p16_find_report(reports, "高血糖个体化用药基因检测报告", exclude="附表")
+    hyperglycemia_appendix = _p16_find_report(reports, "高血糖个体化用药基因检测报告（附表）")
+    thrombosis = _p16_find_report(reports, "静脉血栓个体化用药基因检测报告")
+
+    tests: list[dict[str, Any]] = []
+    tests.extend(_p16_hypertension_tests(hypertension, method, sample_type))
+    tests.extend(_p16_statin_tests(statin, method, sample_type))
+    tests.extend(_p16_cyp2c19_tests(cyp2c19, method, sample_type))
+    tests.extend(_p16_simple_result_tests(aspirin, method, sample_type, page=6, code_map={"GP1BA": "gp1ba", "LTC4S": "ltc4s"}))
+    tests.extend(_p16_simple_result_tests(ticagrelor, method, sample_type, page=7, code_map={"PEAR1": "pear1", "CYP3A4": "cyp3a4"}))
+    tests.extend(_p16_hyperglycemia_tests(hyperglycemia, method, sample_type))
+    tests.extend(_p16_thrombosis_tests(thrombosis, method, sample_type))
+
+    normalized = _p16_normalized_report(
+        hypertension=hypertension,
+        hypertension_clinical=hypertension_clinical,
+        statin=statin,
+        statin_extra=statin_extra,
+        cyp2c19=cyp2c19,
+        aspirin=aspirin,
+        ticagrelor=ticagrelor,
+        hyperglycemia=hyperglycemia,
+        hyperglycemia_appendix=hyperglycemia_appendix,
+        thrombosis=thrombosis,
+    )
+
+    return {
+        "report_id": report_id,
+        "patient_info": {
+            "name": patient_name,
+            "gender": _first_text(patient.get("gender")),
+            "age": _first_text(patient.get("age")),
+            "phone": "",
+            "clinical_diagnosis": "",
+            "specimen_types": [sample_type],
+            "specimen_condition": _first_text(patient.get("sample_characteristics")),
+            "submitting_unit": "",
+        },
+        "additional_info": {
+            "sample_date": _first_text(patient.get("sampling_date")),
+            "receive_date": _first_text(patient.get("receipt_time")),
+            "report_date": _first_text(patient.get("sampling_date")),
+            "method": method,
+            "source_mode": "ocr-json",
+        },
+        "tests": tests,
+        "notes": _p16_join_sentences(
+            _first_text(hypertension.get("notes") if isinstance(hypertension, dict) else ""),
+            _first_text(cyp2c19.get("remarks") if isinstance(cyp2c19, dict) else ""),
+            _first_text(thrombosis.get("notes") if isinstance(thrombosis, dict) else ""),
+        ),
+        "p16_extracted_report": {
+            "report_info": {
+                "report_title": P16_REPORT_NAME,
+                "assessment_type": P16_ASSESSMENT_TYPE,
+                "source_mode": "ocr-json",
+                "report_count": len(reports),
+            },
+            "normalized": normalized,
+            "reports": {
+                "hypertension": hypertension,
+                "hypertension_clinical": hypertension_clinical,
+                "statin": statin,
+                "statin_extra": statin_extra,
+                "cyp2c19": cyp2c19,
+                "aspirin": aspirin,
+                "ticagrelor": ticagrelor,
+                "hyperglycemia": hyperglycemia,
+                "hyperglycemia_appendix": hyperglycemia_appendix,
+                "thrombosis": thrombosis,
+            },
+            "tests": [_p16_test_export_item(test) for test in tests],
+        },
+    }
+
+
+def extract_p16_fields(page_texts: list[str], structured_report: dict[str, Any]) -> list[dict[str, Any]]:
+    fields: list[dict[str, Any]] = []
+    patient_info = structured_report.get("patient_info", {}) if isinstance(structured_report.get("patient_info"), dict) else {}
+    additional_info = structured_report.get("additional_info", {}) if isinstance(structured_report.get("additional_info"), dict) else {}
+    p16_report = structured_report.get("p16_extracted_report", {}) if isinstance(structured_report.get("p16_extracted_report"), dict) else {}
+    normalized = p16_report.get("normalized", {}) if isinstance(p16_report.get("normalized"), dict) else {}
+
+    sample_types = patient_info.get("specimen_types") if isinstance(patient_info.get("specimen_types"), list) else []
+    sample_type = "、".join(str(item) for item in sample_types if str(item).strip()) or P16_SAMPLE_TYPE
+    report_date = additional_info.get("report_date") or additional_info.get("sample_date")
+    method = additional_info.get("method") or P16_METHOD
+
+    add_field(fields, "report.report_id", "报告编号", structured_report.get("report_id"), 0.9, find_page(page_texts, str(structured_report.get("report_id") or "")))
+    add_field(fields, "patient.name", "姓名", patient_info.get("name"), 0.9, find_page(page_texts, str(patient_info.get("name") or "")))
+    add_field(fields, "patient.gender", "性别", patient_info.get("gender"), 0.88, find_page(page_texts, str(patient_info.get("gender") or "")))
+    if patient_info.get("age") not in (None, ""):
+        add_field(fields, "patient.age", "年龄", f"{patient_info.get('age')}岁", 0.86, find_page(page_texts, str(patient_info.get("age") or "")))
+    add_field(fields, "sample.type", "样本信息", sample_type, 0.92, find_page(page_texts, sample_type))
+    add_field(fields, "report.assessment_type", "评估类型", P16_ASSESSMENT_TYPE, 0.92, None)
+    add_field(fields, "report.method", "评估方法", method, 0.9, find_page(page_texts, str(method)))
+    add_field(fields, "report.assessment_date", "评估日期", report_date, 0.86, find_page(page_texts, str(report_date or "")))
+
+    summary_cards = normalized.get("summary_cards", {}) if isinstance(normalized.get("summary_cards"), dict) else {}
+    for code, value in summary_cards.items():
+        if not isinstance(value, dict):
+            continue
+        add_field(fields, f"p16.summary.{code}.title", f"{code}标题", value.get("title"), 0.82, None)
+        add_field(fields, f"p16.summary.{code}.status", f"{code}状态", value.get("status"), 0.82, None)
+    add_field(fields, "p16.summary.evaluation_summary", "评估总结", normalized.get("evaluation_summary"), 0.8, None)
+
+    sections = normalized.get("sections", {}) if isinstance(normalized.get("sections"), dict) else {}
+    for code, value in sections.items():
+        if not isinstance(value, dict):
+            continue
+        add_field(fields, f"p16.sections.{code}.analysis", f"{code}诊断分析", value.get("analysis"), 0.8, None)
+        add_field(fields, f"p16.sections.{code}.medication_advice", f"{code}用药建议", value.get("medication_advice"), 0.8, None)
+
+    management = normalized.get("management", {}) if isinstance(normalized.get("management"), dict) else {}
+    for index in range(1, 4):
+        bucket = management.get(f"priority_{index}", {}) if isinstance(management.get(f"priority_{index}"), dict) else {}
+        add_field(fields, f"p16.management.priority_{index}.title", f"管理建议{index}标题", bucket.get("title"), 0.78, None)
+        add_field(fields, f"p16.management.priority_{index}.body", f"管理建议{index}正文", bucket.get("body"), 0.78, None)
+    add_field(fields, "p16.management.note", "管理提示", management.get("note"), 0.78, None)
+    add_field(fields, "p16.followup_advice", "后续行动", normalized.get("followup_advice"), 0.78, None)
+    add_field(fields, "p16.disclaimer", "免责声明", normalized.get("disclaimer"), 0.78, None)
+    add_field(fields, "p16.review_note", "审核信息", normalized.get("review_note"), 0.78, None)
+
+    for test in structured_report.get("tests", []):
+        code = str(test.get("item_code") or "")
+        if not code:
+            continue
+        prefix = f"p16.tests.{code}"
+        page = int(test.get("page") or 1)
+        label = str(test.get("test_name") or code)
+        add_field(fields, f"{prefix}.result_display", label, str(test.get("result") or ""), 0.84, page)
+        add_field(fields, f"{prefix}.genotype", label, str(test.get("genotype") or ""), 0.84, page)
+        add_field(fields, f"{prefix}.gene_locus", label, str(test.get("gene_locus") or ""), 0.82, page)
+        add_field(fields, f"{prefix}.indicator", label, str(test.get("indicator") or ""), 0.8, page)
+    return fields
+
+
+def _p16_find_report(reports: list[Any], keyword: str, *, exclude: str | None = None) -> dict[str, Any]:
+    for item in reports:
+        if not isinstance(item, dict):
+            continue
+        report_type = str(item.get("report_type") or "")
+        if keyword in report_type and (not exclude or exclude not in report_type):
+            return item
+    return {}
+
+
+def _p16_make_test(
+    *,
+    page: int,
+    item_code: str,
+    test_name: str,
+    result: Any,
+    method: str,
+    specimen_type: str,
+    genotype: Any = "",
+    gene_locus: Any = "",
+    indicator: Any = "",
+    related_drugs: Any = "",
+    interpretation: Any = "",
+) -> dict[str, Any]:
+    return {
+        "page": page,
+        "group": "pharmacogenomics",
+        "item_code": item_code,
+        "test_name": test_name,
+        "result": clean_value(str(result or "")),
+        "indicator": clean_value(str(indicator or "")),
+        "reference_range": "",
+        "unit": "",
+        "method": method,
+        "specimen_type": specimen_type,
+        "genotype": clean_value(str(genotype or "")),
+        "gene_locus": clean_value(str(gene_locus or "")),
+        "related_drugs": clean_value(str(related_drugs or "")),
+        "interpretation": clean_value(str(interpretation or "")),
+    }
+
+
+def _p16_hypertension_tests(report: dict[str, Any], method: str, specimen_type: str) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    if not isinstance(report, dict):
+        return tests
+    code_map = {
+        "AGTR1": "agtr1",
+        "CYP2C9": "cyp2c9_hypertension",
+        "ADRB1": "adrb1",
+        "CYP2D6": "cyp2d6",
+        "ACEI/D": "ace",
+        "CYP3A5": "cyp3a5",
+        "NPPA": "nppa",
+    }
+    for item in report.get("results", []):
+        if not isinstance(item, dict):
+            continue
+        gene_locus = _first_text(item.get("gene_locus"))
+        code = next((mapped for key, mapped in code_map.items() if key in gene_locus), "")
+        if not code:
+            continue
+        tests.append(
+            _p16_make_test(
+                page=1,
+                item_code=code,
+                test_name=_first_text(item.get("drug_class"), gene_locus),
+                result=item.get("result"),
+                method=method,
+                specimen_type=specimen_type,
+                genotype=item.get("genotype"),
+                gene_locus=gene_locus,
+                indicator=item.get("result"),
+                related_drugs=item.get("related_drugs"),
+            )
+        )
+    return tests
+
+
+def _p16_statin_tests(report: dict[str, Any], method: str, specimen_type: str) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    if not isinstance(report, dict):
+        return tests
+    for item in report.get("results", []):
+        if not isinstance(item, dict):
+            continue
+        gene = _first_text(item.get("gene"))
+        item_code = gene.lower() if gene else ""
+        snps = item.get("snps", []) if isinstance(item.get("snps"), list) else []
+        genotype_display = "/".join(clean_value(str(snp.get("genotype") or "")) for snp in snps if isinstance(snp, dict) and str(snp.get("genotype") or "").strip())
+        diplotype = next((clean_value(str(snp.get("result") or "")) for snp in snps if isinstance(snp, dict) and str(snp.get("result") or "").strip()), "")
+        gene_locus = "；".join(clean_value(str(snp.get("locus") or "")) for snp in snps if isinstance(snp, dict) and str(snp.get("locus") or "").strip())
+        tests.append(
+            _p16_make_test(
+                page=3,
+                item_code=item_code,
+                test_name=gene,
+                result=diplotype or genotype_display,
+                method=method,
+                specimen_type=specimen_type,
+                genotype=genotype_display,
+                gene_locus=gene_locus,
+                indicator=item.get("interpretation"),
+                interpretation=item.get("interpretation"),
+            )
+        )
+    return tests
+
+
+def _p16_cyp2c19_tests(report: dict[str, Any], method: str, specimen_type: str) -> list[dict[str, Any]]:
+    if not isinstance(report, dict):
+        return []
+    results = report.get("results", {}) if isinstance(report.get("results"), dict) else {}
+    loci = results.get("loci", []) if isinstance(results.get("loci"), list) else []
+    gene_locus = "；".join(f"{_first_text(item.get('name'))}:{_first_text(item.get('result'))}" for item in loci if isinstance(item, dict))
+    return [
+        _p16_make_test(
+            page=5,
+            item_code="cyp2c19",
+            test_name="CYP2C19",
+            result=results.get("genotype"),
+            method=method,
+            specimen_type=specimen_type,
+            genotype=results.get("genotype"),
+            gene_locus=gene_locus,
+            indicator=results.get("metabolism_phenotype"),
+            interpretation=results.get("medication_advice"),
+        )
+    ]
+
+
+def _p16_simple_result_tests(report: dict[str, Any], method: str, specimen_type: str, *, page: int, code_map: dict[str, str]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    if not isinstance(report, dict):
+        return tests
+    for item in report.get("results", []):
+        if not isinstance(item, dict):
+            continue
+        gene_locus = _first_text(item.get("gene_locus"))
+        gene = _first_text(item.get("gene"), item.get("drug"))
+        code = next((mapped for key, mapped in code_map.items() if key in gene_locus or key == gene), "")
+        if not code:
+            continue
+        tests.append(
+            _p16_make_test(
+                page=page,
+                item_code=code,
+                test_name=gene or gene_locus,
+                result=item.get("result"),
+                method=method,
+                specimen_type=specimen_type,
+                genotype=item.get("genotype"),
+                gene_locus=gene_locus or _first_text(item.get("locus")),
+                indicator=item.get("result"),
+            )
+        )
+    return tests
+
+
+def _p16_hyperglycemia_tests(report: dict[str, Any], method: str, specimen_type: str) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    if not isinstance(report, dict):
+        return tests
+    for item in report.get("results", []):
+        if not isinstance(item, dict):
+            continue
+        category = _first_text(item.get("category"))
+        gene_locus = _first_text(item.get("gene_locus"))
+        code = ""
+        if "TCF7L2" in gene_locus and "风险评估" in category:
+            code = "tcf7l2_diabetes_risk"
+        elif "CDKAL1" in gene_locus and "7756992" in gene_locus:
+            code = "cdkal1_rs7756992"
+        elif "CDKAL1" in gene_locus and "7754840" in gene_locus:
+            code = "cdkal1_rs7754840"
+        elif "CYP2C9*3" in gene_locus:
+            code = "cyp2c9_sulfonylurea"
+        elif "TCF7L2" in gene_locus and "磺酰脲" in category:
+            code = "tcf7l2_sulfonylurea"
+        if not code:
+            continue
+        tests.append(
+            _p16_make_test(
+                page=8,
+                item_code=code,
+                test_name=category or gene_locus,
+                result=item.get("result"),
+                method=method,
+                specimen_type=specimen_type,
+                genotype=item.get("genotype"),
+                gene_locus=gene_locus,
+                indicator=item.get("result"),
+                related_drugs=item.get("related_drugs"),
+            )
+        )
+    return tests
+
+
+def _p16_thrombosis_tests(report: dict[str, Any], method: str, specimen_type: str) -> list[dict[str, Any]]:
+    return _p16_simple_result_tests(report, method, specimen_type, page=10, code_map={"MTHFR": "mthfr", "PAI-1": "pai1"})
+
+
+def _p16_normalized_report(
+    *,
+    hypertension: dict[str, Any],
+    hypertension_clinical: dict[str, Any],
+    statin: dict[str, Any],
+    statin_extra: dict[str, Any],
+    cyp2c19: dict[str, Any],
+    aspirin: dict[str, Any],
+    ticagrelor: dict[str, Any],
+    hyperglycemia: dict[str, Any],
+    hyperglycemia_appendix: dict[str, Any],
+    thrombosis: dict[str, Any],
+) -> dict[str, Any]:
+    hypertension_results = hypertension.get("results", []) if isinstance(hypertension.get("results"), list) else []
+    statin_results = statin.get("results", []) if isinstance(statin.get("results"), list) else []
+    cyp2c19_results = cyp2c19.get("results", {}) if isinstance(cyp2c19.get("results"), dict) else {}
+    aspirin_summary = aspirin.get("summary", {}) if isinstance(aspirin.get("summary"), dict) else {}
+    ticagrelor_summary = ticagrelor.get("summary", {}) if isinstance(ticagrelor.get("summary"), dict) else {}
+    hyper_summary = hyperglycemia.get("summary", []) if isinstance(hyperglycemia.get("summary"), list) else []
+    thrombosis_interpretation = thrombosis.get("interpretation", {}) if isinstance(thrombosis.get("interpretation"), dict) else {}
+
+    adrb1_result = _p16_result_for_locus(hypertension_results, "ADRB1")
+    cdkal1_result = _p16_result_for_category(hyperglycemia.get("results"), "DPP-4抑制剂")
+    sulfonylurea_result = _p16_result_for_locus(hyperglycemia.get("results"), "CYP2C9*3")
+    aspirin_result = _p16_result_for_locus(aspirin.get("results"), "GP1BA")
+    statin_result = _first_text(statin.get("cardiovascular_risk"))
+    thrombosis_result = _p16_join_sentences(_p16_result_for_gene(thrombosis.get("results"), "MTHFR"), _p16_result_for_gene(thrombosis.get("results"), "PAI-1"))
+
+    sections = {
+        "antihypertensive": {
+            "analysis": _p16_compact(
+                _p16_join_sentences(
+                    _p16_hypertension_analysis(hypertension_results),
+                    _p16_compact(_first_text(hypertension_clinical.get("clinical_significance", {}).get("β受体阻滞剂", {}).get("advantages")), 42)
+                    if isinstance(hypertension_clinical.get("clinical_significance"), dict)
+                    else "",
+                ),
+                88,
+            ),
+            "medication_advice": _p16_compact("建议结合沙坦类、洛尔类、普利类、地平类和利尿剂结果，由医生综合评估后个体化选药。", 56),
+        },
+        "statin": {
+            "analysis": _p16_compact(_p16_join_sentences(*[str(item.get("interpretation") or "") for item in statin_results if isinstance(item, dict)]), 88),
+            "medication_advice": _p16_compact(
+                _p16_join_sentences(
+                    f"高强度他汀：{_first_text(statin.get('medication_advice', {}).get('high_intensity_statin'))}" if isinstance(statin.get("medication_advice"), dict) else "",
+                    f"中等强度他汀：{_first_text(statin.get('medication_advice', {}).get('moderate_intensity_statin'))}" if isinstance(statin.get("medication_advice"), dict) else "",
+                ),
+                88,
+            ),
+        },
+        "cyp2c19": {
+            "analysis": _p16_compact(
+                _p16_join_sentences(
+                    f"基因型{_first_text(cyp2c19_results.get('genotype'))}" if _first_text(cyp2c19_results.get("genotype")) else "",
+                    f"代谢表型为{_first_text(cyp2c19_results.get('metabolism_phenotype'))}" if _first_text(cyp2c19_results.get("metabolism_phenotype")) else "",
+                    "氯吡格雷活化能力整体正常。" if _first_text(cyp2c19_results.get("genotype")) == "*1/*1" else "",
+                ),
+                88,
+            ),
+            "medication_advice": _p16_compact(_first_text(cyp2c19_results.get("medication_advice")), 88),
+        },
+        "aspirin": {
+            "analysis": _p16_compact(_p16_first_sentence(_first_text(aspirin_summary.get("advice"))), 88),
+            "medication_advice": _p16_compact(_p16_second_sentence(_first_text(aspirin_summary.get("advice"))) or _p16_first_sentence(_first_text(aspirin_summary.get("advice"))), 88),
+        },
+        "clopidogrel": {
+            "analysis": _p16_compact(_p16_first_sentence(_first_text(ticagrelor_summary.get("advice"))), 88),
+            "medication_advice": _p16_compact(_p16_second_sentence(_first_text(ticagrelor_summary.get("advice"))) or _p16_first_sentence(_first_text(ticagrelor_summary.get("advice"))), 88),
+        },
+        "hypoglycemic": {
+            "analysis": _p16_compact(_p16_join_sentences(_p16_summary_advice(hyper_summary, "DPP-4抑制剂"), _p16_summary_advice(hyper_summary, "磺酰脲类降糖药")), 88),
+            "medication_advice": _p16_compact(_p16_join_sentences(_p16_summary_advice(hyper_summary, "DPP-4抑制剂"), _p16_summary_advice(hyper_summary, "磺酰脲类降糖药")), 88),
+        },
+        "thrombosis": {
+            "analysis": _p16_compact("MTHFR 与 PAI-1 均提示静脉血栓风险升高。", 88),
+            "medication_advice": _p16_compact(_p16_first_sentence(_first_text(thrombosis.get("advice"))), 88),
+        },
+    }
+
+    return {
+        "evaluation_summary": _p16_compact(
+            _p16_join_sentences(
+                f"高血压用药{_p16_summary_status(adrb1_result, '敏感性高', '敏感性正常', fallback='需复核')}",
+                f"他汀类{_p16_status_from_statin_text(statin_result)}",
+                f"DPP-4抑制剂{_p16_summary_status(cdkal1_result, '疗效减弱', '疗效正常', fallback='需复核')}",
+                f"磺酰脲类{_p16_summary_status(sulfonylurea_result, '毒副作用显著', '风险正常', fallback='需复核')}",
+                f"静脉血栓{_p16_status_from_thrombosis(thrombosis_result)}",
+            ),
+            118,
+        ),
+        "summary_cards": {
+            "hypertension": {"title": "高血压用药", "status": _p16_summary_status(adrb1_result, "敏感性高", "敏感性正常", fallback="需复核")},
+            "dpp4": {"title": "降糖药（DPP-4抑制剂）", "status": _p16_summary_status(cdkal1_result, "疗效减弱", "疗效正常", fallback="需复核")},
+            "sulfonylurea": {"title": "降糖药（磺脲类）", "status": _p16_summary_status(sulfonylurea_result, "毒副作用显著", "风险正常", fallback="需复核")},
+            "antiplatelet": {"title": "阿司匹林", "status": _p16_summary_status(aspirin_result, "疗效正常", "风险正常", fallback="需复核")},
+            "ppi": {"title": "CYP2C19", "status": _first_text(cyp2c19_results.get("metabolism_phenotype"), "需复核")},
+            "statin": {"title": "他汀类药物", "status": _p16_status_from_statin_text(statin_result)},
+            "anticoagulant": {"title": "静脉血栓风险", "status": _p16_status_from_thrombosis(thrombosis_result)},
+        },
+        "sections": sections,
+        "management": {
+            "priority_1": {"title": "校准高风险用药", "body": _p16_compact(sections["antihypertensive"]["analysis"], 70)},
+            "priority_2": {"title": "优化代谢与疗效", "body": _p16_compact(_p16_join_sentences(sections["statin"]["analysis"], sections["cyp2c19"]["analysis"]), 70)},
+            "priority_3": {"title": "关注血糖与血栓", "body": _p16_compact(_p16_join_sentences(sections["hypoglycemic"]["analysis"], sections["thrombosis"]["analysis"]), 70)},
+            "note": _p16_compact("以上建议仅供健康管理与个体化用药沟通参考，正式处方需结合临床评估。", 70),
+        },
+        "followup_advice": _p16_compact("建议结合本次药物基因组学结果、既往病史和当前用药目标，由临床医生复核后确定个体化方案。", 110),
+        "disclaimer": _p16_compact("本报告仅供健康管理与临床参考，不作为单独诊断和处方依据。", 70),
+        "review_note": _p16_compact(
+            _p16_join_sentences(
+                _p16_compact(_first_text(thrombosis_interpretation.get("MTHFR")), 40),
+                _p16_compact(_first_text(thrombosis_interpretation.get("PAI-1")), 40),
+            )
+            or "请结合真实检测结果、既往病史和当前治疗目标进行人工复核。",
+            88,
+        ),
+    }
+
+
+def _p16_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "item_code": str(test.get("item_code") or ""),
+        "test_name": str(test.get("test_name") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "genotype": str(test.get("genotype") or ""),
+        "gene_locus": str(test.get("gene_locus") or ""),
+        "related_drugs": str(test.get("related_drugs") or ""),
+        "page": int(test.get("page") or 1),
+    }
+
+
+def _p16_result_for_locus(items: Any, keyword: str) -> str:
+    if not isinstance(items, list):
+        return ""
+    for item in items:
+        if isinstance(item, dict) and keyword in str(item.get("gene_locus") or ""):
+            return _first_text(item.get("result"))
+    return ""
+
+
+def _p16_result_for_gene(items: Any, keyword: str) -> str:
+    if not isinstance(items, list):
+        return ""
+    for item in items:
+        if isinstance(item, dict) and keyword == str(item.get("gene") or ""):
+            return _first_text(item.get("result"))
+    return ""
+
+
+def _p16_result_for_category(items: Any, keyword: str) -> str:
+    if not isinstance(items, list):
+        return ""
+    for item in items:
+        if isinstance(item, dict) and keyword in str(item.get("category") or ""):
+            return _first_text(item.get("result"))
+    return ""
+
+
+def _p16_hypertension_analysis(items: list[Any]) -> str:
+    parts: list[str] = []
+    adrb1 = _p16_result_for_locus(items, "ADRB1")
+    cyp3a5 = _p16_result_for_locus(items, "CYP3A5")
+    agtr1 = _p16_result_for_locus(items, "AGTR1")
+    if adrb1:
+        parts.append(f"ADRB1 提示β受体阻滞剂{_p16_summary_status(adrb1, '敏感性高', '敏感性正常', fallback='需复核')}")
+    if cyp3a5:
+        parts.append(f"CYP3A5 提示地平类{_p16_status_from_metabolism(cyp3a5)}")
+    if agtr1:
+        parts.append(f"AGTR1 提示沙坦类{_p16_summary_status(agtr1, '敏感性较好', '反应一般', fallback='需复核')}")
+    return _p16_join_sentences(*parts)
+
+
+def _p16_summary_advice(items: list[Any], keyword: str) -> str:
+    for item in items:
+        if isinstance(item, dict) and keyword in str(item.get("drug_class") or ""):
+            return _first_text(item.get("advice"))
+    return ""
+
+
+def _p16_summary_status(result: str, high_label: str, normal_label: str, *, fallback: str) -> str:
+    text = clean_value(str(result or ""))
+    if not text:
+        return fallback
+    if "↑" in text or "↓" in text or "敏感" in text:
+        return high_label
+    if "-" in text or "正常" in text:
+        return normal_label
+    return fallback
+
+
+def _p16_status_from_metabolism(result: str) -> str:
+    text = clean_value(str(result or ""))
+    if "↓↓" in text or "减慢" in text:
+        return "代谢减慢"
+    if "↑" in text:
+        return "代谢加快"
+    if "-" in text:
+        return "代谢正常"
+    return "需复核"
+
+
+def _p16_status_from_statin_text(text: str) -> str:
+    value = clean_value(str(text or ""))
+    if "较高" in value or "高风险" in value:
+        return "风险较高"
+    if "偏低" in value or "低风险" in value:
+        return "疗效正常"
+    if value:
+        return "需复核"
+    return "需复核"
+
+
+def _p16_status_from_thrombosis(text: str) -> str:
+    value = clean_value(str(text or ""))
+    if "↑" in value or "增加" in value or "升高" in value:
+        return "风险升高"
+    if value:
+        return "需复核"
+    return "需复核"
+
+
+def _p16_first_sentence(text: str) -> str:
+    clean = clean_value(str(text or ""))
+    if not clean:
+        return ""
+    parts = re.split(r"[。；]", clean)
+    return clean_value(parts[0]) if parts else clean
+
+
+def _p16_second_sentence(text: str) -> str:
+    clean = clean_value(str(text or ""))
+    if not clean:
+        return ""
+    parts = [clean_value(item) for item in re.split(r"[。；]", clean) if clean_value(item)]
+    return parts[1] if len(parts) > 1 else ""
+
+
+def _p16_join_sentences(*parts: Any) -> str:
+    values = [clean_value(str(part or "")) for part in parts if clean_value(str(part or ""))]
+    return "；".join(values)
+
+
+def _p16_compact(text: str, limit: int) -> str:
+    value = clean_value(str(text or ""))
+    if len(value) <= limit:
+        return value
+    trimmed = value[:limit].rstrip("，；、,; ")
+    return trimmed + "…"
+
+
+def _p16_pdf_fallback_normalized() -> dict[str, Any]:
+    return {
+        "evaluation_summary": "当前仅完成 PDF 文本层兜底提取，建议优先使用同目录 OCR.txt 对应的结构化 OCR 结果。",
+        "summary_cards": {
+            "hypertension": {"title": "高血压用药", "status": "待校准"},
+            "dpp4": {"title": "降糖药（DPP-4抑制剂）", "status": "待校准"},
+            "sulfonylurea": {"title": "降糖药（磺脲类）", "status": "待校准"},
+            "antiplatelet": {"title": "阿司匹林", "status": "待校准"},
+            "ppi": {"title": "CYP2C19", "status": "待校准"},
+            "statin": {"title": "他汀类药物", "status": "待校准"},
+            "anticoagulant": {"title": "静脉血栓风险", "status": "待校准"},
+        },
+        "sections": {
+            "antihypertensive": {"analysis": "", "medication_advice": ""},
+            "statin": {"analysis": "", "medication_advice": ""},
+            "cyp2c19": {"analysis": "", "medication_advice": ""},
+            "aspirin": {"analysis": "", "medication_advice": ""},
+            "clopidogrel": {"analysis": "", "medication_advice": ""},
+            "hypoglycemic": {"analysis": "", "medication_advice": ""},
+            "thrombosis": {"analysis": "", "medication_advice": ""},
+        },
+        "management": {
+            "priority_1": {"title": "导入结构化OCR", "body": "建议优先使用同目录 OCR.txt 作为 P16 结构化 OCR 输入。"},
+            "priority_2": {"title": "校准字段", "body": "需要对七类药物结果页逐项校准字段映射与状态标签。"},
+            "priority_3": {"title": "补充AI联调", "body": "完成 OCR 后再继续联调 AI 解释与管理建议。"},
+            "note": "当前结果为 PDF 文本层兜底模式。",
+        },
+        "followup_advice": "建议优先使用同目录 OCR.txt 做 P16 结构化识别，并据此继续联调 PDF 导出结果。",
+        "disclaimer": "当前结果为研发联调用途，正式导出前需人工审核。",
+        "review_note": "若缺少 OCR.txt 或结构化 JSON，当前 PDF 文本层仅作为兜底参考。",
+    }
+
+
+def _p13_payload_from_text(source_file: str, full_text: str, page_texts: list[str]) -> dict[str, Any]:
+    text = normalize_text(full_text)
+    report_id = extract_report_id(text) or Path(source_file).stem
+    report_date = extract_date(page_texts, "报告日期")
+    submission_date = extract_date(page_texts, "送检日期")
+    receipt_date = extract_date(page_texts, "收样日期")
+    patient_name = extract_patient_name(text)
+    sample_type = _p13_extract_label_value(text, "样本类型", ["检测技术", "送检日期", "收样日期"]) or P13_SAMPLE_TYPE
+    method = _p13_normalize_method(_p13_extract_label_value(text, "检测技术", ["送检日期", "收样日期", "本检测结果"]) or P13_METHOD)
+    assessment = _p13_extract_assessment_text(text)
+    percentile_description = _p13_extract_percentile_description(text)
+    return {
+        "report_info": {
+            "report_title": "端粒长度基因检测报告" if "端粒长度基因检测报告" in text else P13_REPORT_NAME,
+            "report_date": report_date or submission_date,
+            "barcode": report_id,
+            "patient_name": patient_name,
+        },
+        "patient_info": {
+            "name": patient_name,
+            "gender": extract_gender(text),
+            "age": extract_age(text),
+            "sample_type": sample_type,
+            "test_technology": method,
+            "submission_date": submission_date,
+            "receipt_date": receipt_date,
+            "submitting_institution": _p13_extract_label_value(text, "送检单位", ["条形码", "姓", "姓名"]) or extract_hospital(text),
+        },
+        "test_results": {
+            "telomere_age_assessment": {
+                "assessment": assessment,
+                "interpretation": _p13_extract_between(text, "如果您的端粒年龄比实际年龄越小", "端粒长度及变化趋势", include_start=True),
+            },
+            "telomere_length_and_trend": {
+                "telomere_ct_value": _p13_extract_number_after(text, "端粒Ct值"),
+                "internal_reference_ct_value": _p13_extract_number_after(text, "内参Ct值"),
+                "relative_telomere_length": _p13_extract_number_after(text, "端粒相对长度"),
+                "note": _p13_extract_between(text, "注：端粒相对长度", "端粒长度的人群位置", include_start=True),
+            },
+            "population_percentile": {
+                "description": percentile_description,
+            },
+        },
+        "recommendations": _p13_recommendations_from_text(text),
+        "educational_content": _p13_education_from_text(text),
+        "references": [],
+        "disclaimer": _p13_disclaimer_from_text(text),
+        "signature": {
+            "primary_reviewer": extract_staff(text, ["主检人", "主 检 人"]),
+            "approver": extract_staff(text, ["审核人", "审 核 人"]),
+            "laboratory": _p13_extract_label_value(text, "主检实验室", ["报告日期"]) or "合肥安为康医学检验实验室",
+        },
+    }
+
+
+def _p13_tests_from_payload(
+    *,
+    patient: dict[str, Any],
+    trend: dict[str, Any],
+    actual_age: str,
+    telomere_age: str,
+    percentile_value: float | None,
+    percentile_description: str,
+    method: str,
+    sample_type: str,
+) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    tests.append(_p13_make_test(2, "actual_age", "实际年龄", actual_age, "岁", method, sample_type))
+    tests.append(_p13_make_test(2, "telomere_age", "端粒年龄", telomere_age, "岁", method, sample_type))
+    tests.append(_p13_make_test(3, "telomere_relative_length", "端粒相对长度", trend.get("relative_telomere_length"), "", method, sample_type, interpretation=_first_text(trend.get("note"))))
+    tests.append(_p13_make_test(3, "telomere_ct", "端粒Ct值", trend.get("telomere_ct_value"), "", method, sample_type))
+    tests.append(_p13_make_test(3, "reference_ct", "内参Ct值", trend.get("internal_reference_ct_value"), "", method, sample_type))
+    tests.append(_p13_make_test(4, "percentile", "同龄人群百分位", percentile_value, "%", method, sample_type, interpretation=percentile_description))
+    return [test for test in tests if str(test.get("result") or "").strip()]
+
+
+def _p13_make_test(
+    page: int,
+    item_code: str,
+    test_name: str,
+    result: Any,
+    unit: str,
+    method: str,
+    specimen_type: str,
+    *,
+    interpretation: str = "",
+) -> dict[str, Any]:
+    return {
+        "page": page,
+        "specimen_type": specimen_type,
+        "test_name": test_name,
+        "item_code": item_code,
+        "group": "telomere",
+        "result": _p13_result_text(result),
+        "indicator": "",
+        "reference_range": "",
+        "unit": unit,
+        "method": method,
+        "interpretation": interpretation,
+    }
+
+
+def _p13_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+        "interpretation": str(test.get("interpretation") or ""),
+    }
+
+
+def _p13_dict(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _p13_result_text(value: Any) -> str:
+    if value in (None, ""):
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    return str(value).strip()
+
+
+def _p13_normalize_method(value: str) -> str:
+    text = normalize_text(value).replace(" ", "")
+    return text or P13_METHOD
+
+
+def _p13_age_display(value: Any) -> str:
+    text = _p13_result_text(value)
+    if not text:
+        return ""
+    return text if "岁" in text else f"{text}岁"
+
+
+def _p13_age_gap(assessment_text: str) -> float | None:
+    text = normalize_text(assessment_text)
+    match = re.search(r"(大|小|高|低|多|少)\s*([0-9]+(?:\.[0-9]+)?)\s*岁", text)
+    if not match:
+        return None
+    value = float(match.group(2))
+    return value if match.group(1) in {"大", "高", "多"} else -value
+
+
+def _p13_telomere_age(actual_age: Any, assessment_text: str) -> str:
+    actual = _safe_number(actual_age)
+    gap = _p13_age_gap(assessment_text)
+    if actual is None or gap is None:
+        return ""
+    value = actual + gap
+    if value.is_integer():
+        return str(int(value))
+    return f"{value:.1f}".rstrip("0").rstrip(".")
+
+
+def _p13_percentile_value(description: str) -> float | None:
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*%", normalize_text(description))
+    if not match:
+        return None
+    return float(match.group(1))
+
+
+def _p13_percentile_display(value: float | None, description: str) -> str:
+    if value is None:
+        return description
+    text = f"{int(value)}" if value.is_integer() else f"{value:.1f}".rstrip("0").rstrip(".")
+    return f"超过 {text}% 同龄人"
+
+
+def _p13_overall_summary(telomere_age: str, actual_age: str, assessment_text: str) -> str:
+    gap = _p13_age_gap(assessment_text)
+    if telomere_age and actual_age and gap is not None:
+        direction = "大" if gap >= 0 else "小"
+        gap_text = f"{int(abs(gap))}" if float(abs(gap)).is_integer() else f"{abs(gap):.1f}".rstrip("0").rstrip(".")
+        if gap >= 0:
+            return f"检测显示您的端粒年龄约为{telomere_age}岁，比实际年龄{actual_age}岁{direction}{gap_text}岁，提示细胞更新潜力需要重点维护，建议尽早开展抗衰生活方式干预。"
+        return f"检测显示您的端粒年龄约为{telomere_age}岁，比实际年龄{actual_age}岁{direction}{gap_text}岁，提示当前细胞更新潜力相对较好，建议继续保持规律饮食、运动和睡眠管理。"
+    return assessment_text
+
+
+def _p13_percentile_summary(value: float | None, description: str) -> str:
+    if value is None:
+        return description
+    text = f"{int(value)}" if value.is_integer() else f"{value:.1f}".rstrip("0").rstrip(".")
+    lower_than = max(0.0, 100.0 - value)
+    lower_text = f"{int(lower_than)}" if lower_than.is_integer() else f"{lower_than:.1f}".rstrip("0").rstrip(".")
+    return f"您的端粒长度超过{text}%的同年龄段人群，约低于{lower_text}%同龄人；建议结合生活方式干预和阶段复评持续观察变化趋势。"
+
+
+def _p13_followup_advice(recommendations: dict[str, Any]) -> str:
+    diet = _p13_dict(recommendations.get("diet"))
+    exercise = _p13_dict(recommendations.get("exercise"))
+    lifestyle = _p13_dict(recommendations.get("lifestyle"))
+    stress = _p13_dict(recommendations.get("stress_management"))
+    patterns = diet.get("dietary_patterns") if isinstance(diet.get("dietary_patterns"), list) else []
+    exercises = exercise.get("recommended_exercises") if isinstance(exercise.get("recommended_exercises"), list) else []
+    parts: list[str] = []
+    if patterns:
+        parts.append("饮食上优先参考" + "、".join(str(item) for item in patterns[:2] if str(item).strip()))
+    if exercises:
+        parts.append("运动上坚持" + "、".join(str(item) for item in exercises[:4] if str(item).strip()) + "等有氧活动")
+    if lifestyle:
+        parts.append("同步管理戒烟限酒与约7小时规律睡眠")
+    if stress:
+        parts.append("保持压力觉察并及时进行情绪减压")
+    if not parts:
+        return "建议围绕饮食、运动、睡眠、压力和阶段复评建立12周健康管理计划，并由健康管理师结合症状和生活方式记录人工复核。"
+    return "；".join(parts) + "。建议3-6个月或按健康管理师意见复评端粒长度变化。"
+
+
+def _p13_disclaimer_text(value: Any) -> str:
+    if isinstance(value, dict):
+        return _first_text(value.get("2"), value.get("1"), value.get("3"))
+    return _first_text(value, "本报告仅供健康管理参考，不作为临床诊断依据。")
+
+
+def _p13_review_note(signature: dict[str, Any], report_info: dict[str, Any]) -> str:
+    parts: list[str] = []
+    if signature.get("primary_reviewer"):
+        parts.append(f"主检人：{signature['primary_reviewer']}")
+    if signature.get("approver"):
+        parts.append(f"审核人：{signature['approver']}")
+    if signature.get("laboratory"):
+        parts.append(f"主检实验室：{signature['laboratory']}")
+    if report_info.get("report_date"):
+        parts.append(f"报告日期：{report_info['report_date']}")
+    return "；".join(parts) or "报告导出前请由健康管理专家结合原始检测报告进行人工复核。"
+
+
+def _p13_extract_label_value(text: str, label: str, stop_labels: list[str]) -> str:
+    stop = "|".join(label_pattern(item) for item in stop_labels)
+    pattern = rf"{label_pattern(label)}[:：]?\s*(.*?)(?=\s*(?:{stop})[:：]?|$)" if stop else rf"{label_pattern(label)}[:：]?\s*([^\s:：]+)"
+    match = re.search(pattern, normalize_text(text))
+    if not match:
+        return ""
+    return clean_value(match.group(1))
+
+
+def _p13_extract_number_after(text: str, label: str) -> str:
+    pattern = rf"{label_pattern(label)}\s*([0-9]+(?:\.[0-9]+)?)"
+    match = re.search(pattern, normalize_text(text), flags=re.IGNORECASE)
+    return match.group(1) if match else ""
+
+
+def _p13_extract_assessment_text(text: str) -> str:
+    match = re.search(r"(根据您的端粒长度检测结果，评估出您的端粒年龄要比实际年龄[:：]?\s*[大小高低多少]\s*[0-9]+(?:\.[0-9]+)?\s*岁)", normalize_text(text))
+    return clean_value(match.group(1)) if match else ""
+
+
+def _p13_extract_percentile_description(text: str) -> str:
+    normalized = normalize_text(text)
+    match = re.search(r"(根据您提供的实际年龄信息.*?您的端粒长度超过了\s*[0-9]+(?:\.[0-9]+)?\s*%\s*的同年龄段人群。)", normalized)
+    if match:
+        return clean_value(match.group(1))
+    match = re.search(r"(您的端粒长度超过了\s*[0-9]+(?:\.[0-9]+)?\s*%\s*的同年龄段人群。)", normalized)
+    return clean_value(match.group(1)) if match else ""
+
+
+def _p13_extract_between(text: str, start: str, end: str, *, include_start: bool = False) -> str:
+    normalized = normalize_text(text)
+    start_index = normalized.find(start)
+    if start_index < 0:
+        return ""
+    end_index = normalized.find(end, start_index + len(start))
+    if end_index < 0:
+        end_index = min(len(normalized), start_index + 420)
+    value = normalized[start_index:end_index] if include_start else normalized[start_index + len(start):end_index]
+    return clean_value(value)
+
+
+def _p13_recommendations_from_text(text: str) -> dict[str, Any]:
+    normalized = normalize_text(text)
+    if "抗衰措施" not in normalized:
+        return {}
+    return {
+        "diet": {
+            "nutrients": ["维生素A", "维生素D", "维生素C", "叶酸", "锌", "多酚类物质", "Omega-3脂肪酸"],
+            "positive_foods": ["豆类", "坚果", "海藻", "水果", "100%果汁", "乳制品", "膳食纤维", "咖啡"],
+            "negative_foods": ["红肉或加工肉类", "含糖饮料"],
+            "dietary_patterns": ["地中海膳食模式（MD）", "能量限制模式（CR）"],
+        },
+        "lifestyle": {
+            "smoking": _p13_extract_between(normalized, "戒烟：", "限酒：", include_start=True),
+            "alcohol": _p13_extract_between(normalized, "限酒：", "睡眠：", include_start=True),
+            "sleep": _p13_extract_between(normalized, "睡眠：", "加强运动", include_start=True),
+        },
+        "exercise": {
+            "benefits": _p13_extract_between(normalized, "加强运动", "不要长期久坐"),
+            "recommended_exercises": ["散步", "慢跑", "游泳", "跳绳"],
+            "high_intensity_interval_training": _p13_extract_between(normalized, "新型的运动模式", "情绪减压", include_start=True),
+        },
+        "stress_management": {
+            "description": _p13_extract_between(normalized, "情绪减压", "不要长期处于高压状态"),
+            "advice": _p13_extract_between(normalized, "不要长期处于高压状态", "端粒", include_start=True),
+        },
+    }
+
+
+def _p13_education_from_text(text: str) -> dict[str, Any]:
+    normalized = normalize_text(text)
+    return {
+        "telomere_definition": _p13_extract_between(normalized, "端粒（telomere）", "端粒示意图", include_start=True),
+        "telomere_analogy": _p13_extract_between(normalized, "端粒可类比为鞋带", "染色体与末端端粒结果示意图", include_start=True),
+        "nobel_prize": _p13_extract_between(normalized, "2009 年的诺贝尔", "2009 年诺贝尔", include_start=True),
+    }
+
+
+def _p13_disclaimer_from_text(text: str) -> dict[str, str]:
+    normalized = normalize_text(text)
+    disclaimer: dict[str, str] = {}
+    start = normalized.find("免责声明")
+    if start < 0:
+        return disclaimer
+    section = normalized[start:]
+    for index in range(1, 6):
+        next_index = index + 1
+        pattern = rf"{index}\.\s*(.*?)(?=\s*{next_index}\.|审\s*核\s*人|主\s*检\s*人|主检实验室|$)"
+        match = re.search(pattern, section)
+        if match:
+            disclaimer[str(index)] = clean_value(match.group(1))
+    return disclaimer
+
+
+def _p12_parse_test_after_name(
+    text: str,
+    aliases: tuple[str, ...],
+    *,
+    default_unit: str,
+    default_reference: str,
+    default_method: str,
+) -> dict[str, str] | None:
+    normalized = _p12_normalize_ocr_text(text)
+    for alias in sorted(aliases, key=len, reverse=True):
+        for match in re.finditer(rf"{name_pattern(alias)}", normalized, flags=re.IGNORECASE):
+            window = normalize_text(normalized[max(0, match.start() - 80) : min(len(normalized), match.end() + 240)])
+            after_alias = normalize_text(normalized[match.end() : min(len(normalized), match.end() + 240)])
+            value_match = re.search(
+                rf"(?<![A-Za-z])(?P<result>[0-9]+(?:\.[0-9]+)?)(?![A-Za-z])\s*(?P<indicator>[↑↓])?\s*(?P<reference>[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)?",
+                after_alias,
+            )
+            if not value_match:
+                continue
+            unit_match = re.search(P12_UNIT_PATTERN, window, flags=re.IGNORECASE)
+            method_match = re.search(P12_METHOD_PATTERN, window, flags=re.IGNORECASE)
+            table_match = re.search(
+                rf"(?P<result>[0-9]+(?:\.[0-9]+)?)\s+(?P<method>{P12_METHOD_PATTERN})\s+"
+                rf"(?P<reference>[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～)\s*[0-9]+(?:\.[0-9]+)?)\s+"
+                rf"(?P<unit>{P12_UNIT_PATTERN})\s*(?P<indicator>[↑↓])?",
+                after_alias,
+                flags=re.IGNORECASE,
+            )
+            if table_match:
+                return {
+                    "result": table_match.group("result"),
+                    "indicator": table_match.group("indicator") or "",
+                    "reference_range": _p12_normalize_reference(table_match.group("reference")),
+                    "unit": _p12_normalize_unit(table_match.group("unit")),
+                    "method": table_match.group("method"),
+                }
+            reference = (value_match.group("reference") or _p12_reference_after_result(window, value_match.end()) or default_reference).replace(" ", "")
+            return {
+                "result": value_match.group("result"),
+                "indicator": value_match.group("indicator") or "",
+                "reference_range": _p12_normalize_reference(reference),
+                "unit": _p12_normalize_unit(unit_match.group(0) if unit_match else default_unit),
+                "method": method_match.group(0) if method_match else default_method,
+            }
+    return None
+
+
+def _p12_parse_nad_result(text: str) -> dict[str, str] | None:
+    normalized = _p12_normalize_ocr_text(text)
+    if not re.search(r"N(?:A|O)D\s*[+＋]|烟酰胺腺嘌呤二核苷酸", normalized, flags=re.IGNORECASE):
+        return None
+    status_match = re.search(r"(严重不足|中度耗竭|轻度失衡|平衡状态|理想峰值|不足|偏低|正常|良好|异常)", normalized)
+    result = ""
+    result_patterns = [
+        r"本次N(?:A|O)D\s*[+＋].{0,20}?结果.{0,20}?(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?:µmol/L|μmol/L|umol/L)?",
+        r"您的检测结果\s*(?P<result>[0-9]+(?:\.[0-9]+)?)\s*(?:µmol/L|μmol/L|umol/L)?",
+        r"(?P<result>[0-9]+(?:\.[0-9]+)?)\s*[.。]?\s*您当前处于.{0,20}严重不足",
+    ]
+    for pattern in result_patterns:
+        match = re.search(pattern, normalized, flags=re.IGNORECASE)
+        if match:
+            result = match.group("result")
+            break
+    if not result and status_match:
+        before_status = normalized[max(0, status_match.start() - 80) : status_match.start()]
+        candidates = [match.group(0) for match in re.finditer(r"(?<![0-9])[0-9]{1,3}(?:\.[0-9]+)?(?![0-9])", before_status)]
+        for candidate in reversed(candidates):
+            value = _safe_number(candidate)
+            if value is not None and 0 < value <= 120:
+                result = candidate
+                break
+    if not result and not status_match:
+        return None
+    status = status_match.group(1) if status_match else ""
+    return {
+        "result": result,
+        "indicator": status or _p12_nad_indicator_from_value(result),
+        "reference_range": "",
+        "unit": "µmol/L",
+        "method": "NAD+细胞活力营养评估",
+    }
+
+
+def _p12_extract_antioxidant_tests(text: str, page_number: int) -> list[dict[str, Any]]:
+    if "抗氧化能力评估" not in text and "抗氧化总容量" not in text:
+        return []
+    tests: list[dict[str, Any]] = []
+    for item_code, aliases in P12_ANTIOXIDANT_ALIASES.items():
+        parsed = _p12_parse_antioxidant_test(text, aliases, item_code)
+        if not parsed:
+            continue
+        interpretation = _p12_extract_antioxidant_interpretation(text, aliases)
+        display_name = next((alias for alias in aliases if "(" in alias or "（" in alias), aliases[0])
+        tests.append(
+            {
+                "page": page_number,
+                "specimen_type": "肝素钠抗凝全血",
+                "test_name": display_name,
+                "item_code": item_code,
+                "group": "antioxidant",
+                "result": parsed["result"],
+                "indicator": parsed["indicator"],
+                "reference_range": parsed["reference_range"],
+                "unit": parsed["unit"],
+                "method": "抗氧化能力评估",
+                "interpretation": interpretation,
+            }
+        )
+    return tests
+
+
+def _p12_parse_antioxidant_test(text: str, aliases: tuple[str, ...], item_code: str) -> dict[str, str] | None:
+    normalized = _p12_normalize_ocr_text(text)
+    default_unit, default_reference = P12_ANTIOXIDANT_DEFAULTS[item_code]
+    for alias in sorted(aliases, key=len, reverse=True):
+        alias_pattern = rf"{name_pattern(alias)}"
+        match = re.search(alias_pattern, normalized, flags=re.IGNORECASE)
+        if not match:
+            continue
+        after_alias = normalize_text(normalized[match.end() : min(len(normalized), match.end() + 120)])
+        row_match = re.search(
+            rf"(?P<result>[0-9]+(?:\.[0-9]+)?)\s+"
+            rf"(?P<reference>(?:≥|≤|>|<|＞|＜)?\s*[0-9]+(?:\.[0-9]+)?(?:\s*(?:--|-|~|～|—|–)\s*[0-9]+(?:\.[0-9]+)?)?)"
+            rf"\s*(?P<indicator>[↑↓])?\s+"
+            rf"(?P<unit>{P12_UNIT_PATTERN})",
+            after_alias,
+            flags=re.IGNORECASE,
+        )
+        if not row_match:
+            compact = normalize_text(normalized[max(0, match.start() - 20) : min(len(normalized), match.end() + 180)])
+            row_match = re.search(
+                rf"{alias_pattern}\s+"
+                rf"(?P<result>[0-9]+(?:\.[0-9]+)?)\s+"
+                rf"(?P<reference>(?:≥|≤|>|<|＞|＜)?\s*[0-9]+(?:\.[0-9]+)?(?:\s*(?:--|-|~|～|—|–)\s*[0-9]+(?:\.[0-9]+)?)?)"
+                rf"\s*(?P<indicator>[↑↓])?\s+"
+                rf"(?P<unit>{P12_UNIT_PATTERN})",
+                compact,
+                flags=re.IGNORECASE,
+            )
+        if not row_match:
+            continue
+        return {
+            "result": clean_value(row_match.group("result")),
+            "indicator": clean_value(row_match.group("indicator") or ""),
+            "reference_range": normalize_reference(row_match.group("reference") or default_reference),
+            "unit": normalize_unit(row_match.group("unit") or default_unit),
+        }
+    return None
+
+
+def _p12_extract_antioxidant_interpretation(text: str, aliases: tuple[str, ...]) -> str:
+    normalized = normalize_text(text)
+    for alias in sorted(aliases, key=len, reverse=True):
+        short_alias = re.sub(r"[()（）]", "", alias)
+        pattern = re.compile(
+            rf"{name_pattern(alias)}[:：]?\s*(?P<body>.*?)(?=(?:{'|'.join(re.escape(candidate) for candidate in aliases if candidate != alias)}|结果提示|检测项目说明|抗氧化总容量|谷胱甘肽过氧化物酶|超氧化物歧化酶|过氧化脂类|谷胱甘肽|$))",
+            flags=re.IGNORECASE,
+        )
+        match = pattern.search(normalized)
+        if match:
+            value = clean_value(match.group("body"))
+            if value and short_alias not in value[: min(len(value), 8)]:
+                return value
+    return ""
+
+
+def _p12_make_test(
+    page_number: int,
+    group: str,
+    item_code: str,
+    test_name: str,
+    result: str,
+    reference_range: str,
+    unit: str,
+    method: str,
+    *,
+    indicator: str = "",
+) -> dict[str, Any]:
+    return {
+        "page": page_number,
+        "specimen_type": "全血" if item_code == "nad" else "血清",
+        "test_name": test_name,
+        "item_code": item_code,
+        "group": group,
+        "result": str(result or "").strip(),
+        "indicator": indicator,
+        "reference_range": str(reference_range or "").strip(),
+        "unit": _p12_normalize_unit(unit),
+        "method": method,
+    }
+
+
+def _p12_status_from_test(test: dict[str, Any]) -> str:
+    indicator = str(test.get("indicator") or "").strip()
+    if indicator:
+        if indicator in {"↑", "升高", "偏高"}:
+            return "偏高"
+        if indicator in {"↓", "降低", "偏低"}:
+            return "偏低"
+        if "严重不足" in indicator:
+            return "严重不足"
+        if "耗竭" in indicator:
+            return "中度耗竭"
+        if "失衡" in indicator:
+            return "轻度失衡"
+        if any(word in indicator for word in ("正常", "良好", "平衡", "理想")):
+            return "正常"
+        return indicator
+    result = _safe_number(test.get("result"))
+    if result is None:
+        return "待复核"
+    if str(test.get("item_code") or "") == "nad":
+        return _p12_nad_indicator_from_value(str(test.get("result") or "")) or "待复核"
+    bounds = _p07_reference_bounds(str(test.get("reference_range") or ""))
+    if not bounds:
+        return "待复核"
+    for lower, upper in bounds:
+        if lower is not None and upper is not None and lower <= result <= upper:
+            return "正常"
+        if lower is None and upper is not None and result <= upper:
+            return "正常"
+        if upper is None and lower is not None and result >= lower:
+            return "正常"
+    lows = [lower for lower, _upper in bounds if lower is not None]
+    uppers = [upper for _lower, upper in bounds if upper is not None]
+    if lows and result < min(lows):
+        return "偏低"
+    if uppers and result > max(uppers):
+        return "偏高"
+    return "待复核"
+
+
+def _p12_nad_indicator_from_value(value: str) -> str:
+    number = _safe_number(value)
+    if number is None:
+        return ""
+    if number < 29:
+        return "严重不足"
+    if number < 38:
+        return "中度耗竭"
+    if number < 44:
+        return "轻度失衡"
+    if number < 48:
+        return "平衡状态"
+    return "理想峰值"
+
+
+def _p12_status_display(status: str) -> str:
+    text = str(status or "").strip()
+    if any(word in text for word in ("严重不足", "中度耗竭", "偏低", "异常", "不足")):
+        return "! 需重点关注"
+    if "轻度失衡" in text:
+        return "! 建议干预"
+    if any(word in text for word in ("正常", "良好", "平衡", "理想")):
+        return "✓ 水平良好"
+    return "待复核"
+
+
+def _p12_value_with_unit(value: str, unit: str) -> str:
+    text = str(value or "").strip()
+    unit_text = str(unit or "").strip()
+    if not text:
+        return "未识别"
+    if not unit_text or unit_text in text:
+        return text
+    return f"{text} {unit_text}"
+
+
+def _p12_name_display(name: str, unit: str) -> str:
+    unit_text = str(unit or "").strip()
+    return f"{name} ({unit_text})" if unit_text else name
+
+
+def _p12_normalize_unit(unit: str) -> str:
+    text = str(unit or "").strip()
+    lower = text.lower().replace("μ", "µ")
+    if lower in {"ug/ml", "µg/ml"}:
+        return "ug/mL"
+    if lower in {"umol/l", "µmol/l"}:
+        return "µmol/L"
+    if lower == "ng/ml":
+        return "ng/mL"
+    if lower == "pg/ml":
+        return "pg/mL"
+    return text
+
+
+def _p12_normalize_reference(reference: str) -> str:
+    return (
+        str(reference or "")
+        .strip()
+        .replace("--", "-")
+        .replace("～", "-")
+        .replace("~", "-")
+        .replace("—", "-")
+        .replace("–", "-")
+    )
+
+
+def _p12_reference_after_result(window: str, start: int) -> str:
+    tail = window[start : start + 120]
+    match = re.search(r"[0-9]+(?:\.[0-9]+)?\s*(?:--|-|~|～|—|–)\s*[0-9]+(?:\.[0-9]+)?", tail)
+    return match.group(0) if match else ""
+
+
+def _p12_normalize_ocr_text(text: str) -> str:
+    return (
+        normalize_text(text)
+        .replace("Ｎ", "N")
+        .replace("Ａ", "A")
+        .replace("Ｄ", "D")
+        .replace("＋", "+")
+        .replace("NAO", "NAD")
+        .replace("Nao", "NAD")
+    )
+
+
+def _p12_specimen_types(values: list[str], tests: list[dict[str, Any]]) -> list[str]:
+    result: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in result:
+            result.append(text)
+    for test in tests:
+        text = str(test.get("specimen_type") or "").strip()
+        if text and text not in result:
+            result.append(text)
+    if not result and tests:
+        result.append("能量代谢相关样本")
+    return result
+
+
+def _p12_extract_date(page_texts: list[str], label: str) -> str:
+    value = extract_date(page_texts, label)
+    if value:
+        return value
+    normalized_label = label.replace("报告时间", "报告日期")
+    pattern = re.compile(rf"{label_pattern(normalized_label)}[:：]?\s*([0-9]{{4}}\s*[-/]\s*[0-9]{{1,2}}\s*[-/]\s*[0-9]{{1,2}})")
+    values: list[str] = []
+    for text in page_texts:
+        values.extend(re.sub(r"\s+", "", match.group(1)) for match in pattern.finditer(text))
+    return values[-1] if values else ""
+
+
+def _p12_extract_first_person_name(page_texts: list[str]) -> str:
+    for text in page_texts:
+        compact = normalize_text(text)
+        match = re.search(r"^([\u4e00-\u9fff]{2,4})\s+[0-9]{10,}", compact)
+        if match:
+            return match.group(1)
+    return ""
+
+
+def _p12_extract_patient_name(page_texts: list[str], full_text: str) -> str:
+    patterns = [
+        r"送检单位[:：]?\s*[^\n\r]*?\s+([\u4e00-\u9fff]{2,4})\s+性\s*别",
+        r"姓\s*名[:：]?\s*([\u4e00-\u9fff]{2,4})\s+性\s*别",
+        r"姓\s*名[:：]?\s*([\u4e00-\u9fff]{2,4})\s+病\s*员\s*号",
+        r"姓名\s+丁艳平|姓名\s+([\u4e00-\u9fff]{2,4})",
+        r"个人信息\s+([\u4e00-\u9fff]{2,4})\s+性别",
+    ]
+    for text in page_texts[:3]:
+        normalized = normalize_text(text)
+        for pattern in patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                value = clean_value(match.group(1) if match.lastindex else match.group(0).replace("姓名", "").strip())
+                if value and value not in {"个人信息", "姓名"} and not looks_like_label(value):
+                    return value
+    value = extract_patient_name(full_text)
+    if value in {"个人信息", "姓名"}:
+        return ""
+    return value
+
+
+def _p12_extract_specimen_condition(page_texts: list[str], full_text: str) -> str:
+    for text in page_texts:
+        normalized = normalize_text(text)
+        match = re.search(r"标本情况[:：]?\s*(未见异常|正常|异常|溶血|脂血)", normalized)
+        if match:
+            return match.group(1)
+        match = re.search(r"(未见异常|正常|异常|溶血|脂血)\s*标本情况", normalized)
+        if match:
+            return match.group(1)
+    return extract_specimen_condition(full_text)
+
+
+def _p12_extract_submitting_unit(page_texts: list[str], full_text: str) -> str:
+    for text in page_texts[:3]:
+        normalized = normalize_text(text)
+        match = re.search(r"送检单位[:：]?\s*([^\s:：]+(?:员工|医院|中心|门诊部|有限公司)?)", normalized)
+        if match:
+            value = clean_value(match.group(1))
+            if value and not looks_like_label(value):
+                return value
+        if "安为康内部员工" in normalized:
+            return "安为康内部员工"
+    return extract_hospital(full_text)
+
+
+def _p12_extract_clinical_diagnosis(full_text: str, page_texts: list[str] | None = None) -> str:
+    page_texts = page_texts or []
+    for text in page_texts[:2]:
+        normalized = normalize_text(text)
+        match = re.search(r"临床诊断[:：]?\s*(.*?)\s*(?:送检科室|年\s*龄|标本类型|检验目的|$)", normalized, flags=re.IGNORECASE)
+        if match:
+            value = clean_value(match.group(1))
+            if value and not looks_like_label(value) and "送检科室" not in value and "标本类型" not in value:
+                return value
+    match = re.search(rf"{label_pattern('临床诊断')}[:：]?\s*(.*?)(?:辅酶Q10|CoQ10|本检测|审核者|采样日期|报告时间|$)", full_text, flags=re.IGNORECASE)
+    if not match:
+        return _p09_extract_after_label(full_text, "临床诊断")
+    value = clean_value(match.group(1))
+    value = re.sub(r"^(?:血清|全血|EDTA抗凝全血|正常|未见异常)\s*", "", value)
+    value = re.sub(r"\b(?:ug/ml|ug/mL|µg/mL|μg/mL|LC-MS/MS)\b.*$", "", value, flags=re.IGNORECASE).strip()
+    if value in {"血清", "全血", "EDTA抗凝全血", "正常", "未见异常"}:
+        return ""
+    if any(marker in value for marker in ("送检科室", "标本类型", "检验目的", "年 龄", "年龄")):
+        return ""
+    return "" if looks_like_label(value) else value
+
+
+def _p12_collect_notes(full_text: str) -> str:
+    notes: list[str] = []
+    disclaimer = extract_disclaimer(full_text)
+    if disclaimer:
+        notes.append(disclaimer)
+    match = re.search(r"备\s*注[:：]?\s*([^\s]+)", full_text)
+    if match:
+        value = clean_value(match.group(1))
+        if value and value not in notes:
+            notes.append(value)
+    return " ".join(notes)
+
+
+def _p12_export_text_pages(page_texts: list[str], tests: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    exported: list[dict[str, Any]] = []
+    for page_number, _text in enumerate(page_texts, start=1):
+        page_tests = [test for test in tests if int(test.get("page") or 0) == page_number]
+        if not page_tests:
+            continue
+        exported.append(
+            {
+                "page_number": page_number,
+                "specimen_type": page_tests[0].get("specimen_type") or "",
+                "test_items": [_p12_test_export_item(test) for test in page_tests],
+                "sample_date": _p12_extract_date(page_texts, "采样日期"),
+                "receive_date": _p12_extract_date(page_texts, "接收时间") or _p12_extract_date(page_texts, "接收日期"),
+                "report_date": _p12_extract_date(page_texts, "报告时间") or _p12_extract_date(page_texts, "报告日期"),
+            }
+        )
+    return exported
+
+
+def _p12_test_export_item(test: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "test_name": str(test.get("test_name") or ""),
+        "item_code": str(test.get("item_code") or ""),
+        "result": str(test.get("result") or ""),
+        "indicator": str(test.get("indicator") or ""),
+        "reference_range": str(test.get("reference_range") or ""),
+        "unit": str(test.get("unit") or ""),
+        "method": str(test.get("method") or ""),
+    }
+
+
+def build_p12_structured_report_from_ocr_json(source_file: str, payload: dict[str, Any]) -> dict[str, Any]:
+    overview = payload.get("report_overview", {}) if isinstance(payload.get("report_overview"), dict) else {}
+    patient = overview.get("patient", {}) if isinstance(overview.get("patient"), dict) else {}
+    specimen = overview.get("specimen", {}) if isinstance(overview.get("specimen"), dict) else {}
+    dates = overview.get("dates", {}) if isinstance(overview.get("dates"), dict) else {}
+    personnel = overview.get("personnel", {}) if isinstance(overview.get("personnel"), dict) else {}
+    contact = overview.get("contact", {}) if isinstance(overview.get("contact"), dict) else {}
+    tests = _p12_tests_from_ocr_payload(payload)
+    sample_types = _p12_specimen_types([_first_text(specimen.get("type"))], tests)
+    report_id = _first_text(overview.get("barcode")) or Path(source_file).stem
+    patient_info = {
+        "name": _first_text(patient.get("name")),
+        "gender": _first_text(patient.get("gender")),
+        "age": _first_text(patient.get("age")),
+        "phone": "",
+        "specimen_condition": _first_text(specimen.get("condition")),
+        "specimen_types": sample_types,
+        "hospital": _first_text(overview.get("submitting_unit")),
+        "submitting_unit": _first_text(overview.get("submitting_unit")),
+        "patient_number": "",
+        "bed_number": "",
+        "department": "",
+        "doctor": "",
+        "clinical_diagnosis": "",
+    }
+    additional_info = {
+        "sample_date": _first_text(dates.get("sampling")),
+        "receive_date": _first_text(dates.get("receiving")),
+        "report_date": _first_text(dates.get("reporting")),
+        "technician": _first_text(personnel.get("tester")),
+        "reviewer": _first_text(personnel.get("reviewer")),
+        "approver": _first_text(personnel.get("approver")),
+    }
+    return {
+        "report_id": report_id,
+        "patient_info": patient_info,
+        "tests": tests,
+        "notes": _first_text(payload.get("antioxidant_assessment", {}).get("overall_conclusion") if isinstance(payload.get("antioxidant_assessment"), dict) else ""),
+        "additional_info": additional_info,
+        "p12_extracted_report": {
+            "report_info": {
+                "laboratory": _first_text(overview.get("laboratory")),
+                "barcode": report_id,
+                "submitting_unit": patient_info["submitting_unit"],
+                "patient_name": patient_info["name"],
+                "gender": patient_info["gender"],
+                "age": patient_info["age"],
+                "specimen_status": patient_info["specimen_condition"],
+                "specimen_type": "、".join(sample_types),
+                "contact": contact,
+            },
+            "tests": [_p12_test_export_item(test) for test in tests],
+            "antioxidant_assessment": payload.get("antioxidant_assessment") if isinstance(payload.get("antioxidant_assessment"), dict) else {},
+            "nad_assessment": payload.get("nad_assessment") if isinstance(payload.get("nad_assessment"), dict) else {},
+        },
+    }
+
+
+def _p12_tests_from_ocr_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    tests: list[dict[str, Any]] = []
+    for item in payload.get("test_items", []):
+        if not isinstance(item, dict):
+            continue
+        test_name = _first_text(item.get("item"))
+        code = _p12_code_for_json_item(test_name)
+        if not code:
+            code = field_key_safe(test_name).lower()
+        tests.append(
+            _p12_make_json_test(
+                page_number=1,
+                group="energy_metabolism",
+                item_code=code,
+                test_name=test_name,
+                result=item.get("result"),
+                indicator=_first_text(item.get("flag"), item.get("status")),
+                reference_range=_first_text(item.get("reference_range")),
+                unit=_first_text(item.get("unit")),
+                method=_first_text(item.get("method")),
+                specimen_type="血清",
+            )
+        )
+    antioxidant = payload.get("antioxidant_assessment", {}) if isinstance(payload.get("antioxidant_assessment"), dict) else {}
+    for item in antioxidant.get("items", []):
+        if not isinstance(item, dict):
+            continue
+        test_name = _first_text(item.get("item"))
+        tests.append(
+            _p12_make_json_test(
+                page_number=1,
+                group="antioxidant",
+                item_code=_p12_antioxidant_code_for_name(test_name),
+                test_name=test_name,
+                result=item.get("result"),
+                indicator=_first_text(item.get("flag"), item.get("status")),
+                reference_range=_first_text(item.get("reference_range")),
+                unit=_first_text(item.get("unit")),
+                method="抗氧化能力评估",
+                specimen_type="肝素钠抗凝全血",
+                interpretation=_first_text(item.get("interpretation")),
+            )
+        )
+    nad_assessment = payload.get("nad_assessment", {}) if isinstance(payload.get("nad_assessment"), dict) else {}
+    nad_result = nad_assessment.get("result", {}) if isinstance(nad_assessment.get("result"), dict) else {}
+    if nad_result:
+        tests.append(
+            _p12_make_json_test(
+                page_number=2,
+                group="energy_metabolism",
+                item_code="nad",
+                test_name="NAD+",
+                result=nad_result.get("value"),
+                indicator=_first_text(nad_result.get("status")),
+                reference_range="",
+                unit=_first_text(nad_result.get("unit")) or "µmol/L",
+                method="NAD+细胞活力营养评估",
+                specimen_type="全血",
+                interpretation=_first_text(nad_result.get("status_description")),
+            )
+        )
+    return tests
+
+
+def _p12_make_json_test(
+    *,
+    page_number: int,
+    group: str,
+    item_code: str,
+    test_name: str,
+    result: Any,
+    indicator: str,
+    reference_range: str,
+    unit: str,
+    method: str,
+    specimen_type: str,
+    interpretation: str = "",
+) -> dict[str, Any]:
+    return {
+        "page": page_number,
+        "specimen_type": specimen_type,
+        "test_name": test_name,
+        "item_code": item_code,
+        "group": group,
+        "result": _p12_result_text(result),
+        "indicator": indicator,
+        "reference_range": reference_range,
+        "unit": _p12_normalize_unit(unit),
+        "method": method,
+        "interpretation": interpretation,
+    }
+
+
+def _p12_code_for_json_item(name: str) -> str:
+    compact = re.sub(r"\s+", "", str(name or "")).lower()
+    if "辅酶q10" in compact or "coq10" in compact or "coenzymeq10" in compact:
+        return "coq10"
+    if "nad" in compact or "nao" in compact or "烟酰胺腺嘌呤二核苷酸" in compact:
+        return "nad"
+    return ""
+
+
+def _p12_antioxidant_code_for_name(name: str) -> str:
+    compact = re.sub(r"[\s（）()]+", "", str(name or "")).lower()
+    for code, aliases in P12_ANTIOXIDANT_ALIASES.items():
+        for alias in aliases:
+            if re.sub(r"[\s（）()]+", "", alias).lower() in compact:
+                return code
+    return field_key_safe(name).lower()
+
+
+def _p12_result_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    return str(value).strip()
+
+
 def _p07_extract_fibrosis_stacked_layout(text: str, page_number: int) -> list[dict[str, Any]]:
     if "Ⅲ型前胶原" not in text and "III型前胶原" not in text and "PC-III" not in text:
         return []
@@ -7533,6 +10312,67 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
         for code, output_name, *_ in P09_TEST_DEFINITIONS:
             if code in {"e2", "lh", "fsh", "progesterone", "testosterone", "shbg", "amh", "prolactin", "total_ige"}:
                 required[f"p09.indicators.{code}.result_display"] = output_name
+    elif package_code == "P12":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "patient.age": "年龄",
+            "p12.indicators.coq10.result_display": "辅酶Q10",
+            "p12.indicators.nad.status": "NAD+状态",
+        }
+    elif package_code == "P13":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "patient.age": "年龄",
+            "sample.type": "样本信息",
+            "report.method": "检测技术",
+            "p13.telomere_age": "端粒年龄",
+            "p13.actual_age": "实际年龄",
+            "p13.telomere.relative_length": "端粒相对长度",
+            "p13.percentile.display": "人群百分位",
+            "p13.telomere.ct_value": "端粒Ct值",
+            "p13.reference.ct_value": "内参Ct值",
+        }
+    elif package_code == "P14":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "patient.age": "年龄",
+            "report.method": "评估方法",
+            "p14.summary.score": "CDA综合评分",
+            "p14.summary.risk_level": "综合风险等级",
+            "p14.results.cda.result_display": "CDA",
+            "p14.results.ptf.result_display": "PTF",
+            "p14.results.ctf.result_display": "CTF",
+            "p14.overview.methylation.status": "五癌甲基化",
+            "p14.overview.ctc.status": "CTC计数",
+        }
+    elif package_code == "P15":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "patient.age": "年龄",
+            "report.method": "评估方法",
+            "p15.results.ee2.result_display": "17α-乙炔基雌二醇",
+            "p15.results.bpa.result_display": "双酚A",
+            "p15.results.mep.result_display": "邻苯二甲酸单乙基酯",
+        }
+    elif package_code == "P16":
+        required = {
+            "patient.name": "姓名",
+            "patient.gender": "性别",
+            "sample.type": "样本信息",
+            "report.method": "评估方法",
+            "p16.summary.evaluation_summary": "评估总结",
+            "p16.tests.adrb1.result_display": "ADRB1",
+            "p16.tests.slco1b1.result_display": "SLCO1B1",
+            "p16.tests.cyp2c19.result_display": "CYP2C19",
+            "p16.tests.gp1ba.result_display": "GP1BA",
+            "p16.tests.pear1.result_display": "PEAR1",
+            "p16.tests.cdkal1_rs7756992.result_display": "CDKAL1",
+            "p16.tests.mthfr.result_display": "MTHFR",
+        }
     elif package_code == "P10":
         required = {
             "patient.name": "姓名",
@@ -7642,6 +10482,72 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
             if missing_optional:
                 warnings.append(f"P09 当前未识别到可选项目：{', '.join(missing_optional)}；如原始报告包含这些项目，请人工复核。")
         test_names = []
+    if package_code == "P12":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"coq10", "nad"}
+        if not test_names:
+            warnings.append("P12 未识别到辅酶Q10或NAD+结果，请核对文本层、补充样例或切换云OCR。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P12 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
+    if package_code == "P13":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"actual_age", "telomere_age", "telomere_relative_length", "percentile", "telomere_ct", "reference_ct"}
+        if not test_names:
+            warnings.append("P13 未识别到端粒年龄、端粒相对长度、百分位或Ct值，请核对PDF文本层、OCR JSON或切换云OCR。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P13 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
+    if package_code == "P14":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"cda", "ptf", "ctf", "methylation", "ctc"}
+        if not test_names:
+            warnings.append("P14 当前未识别到疾病风险评估、五癌甲基化或 CTC 核心项目，请优先补充结构化 JSON OCR 结果或人工复核。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P14 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        trend_points = structured_report.get("trend_points", [])
+        if isinstance(trend_points, list):
+            populated = [item for item in trend_points if isinstance(item, dict) and str(item.get("value") or "").strip() not in {"", "—"}]
+            if len(populated) < 4:
+                warnings.append("P14 当前连续复测趋势数据未完整覆盖 4 个节点，趋势图请结合原始 CTC 历史结果人工复核。")
+        test_names = []
+    if package_code == "P15":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {"ee2", "des", "methylparaben", "ethylparaben", "propylparaben", "butylparaben", "mep", "mbp", "mbzp", "mehp", "bpa", "bpb", "nonylphenol", "octylphenol", "mmp"}
+        if not test_names:
+            warnings.append("P15 当前尚未识别到环境荷尔蒙项目明细，请核对PDF文本层、补充真实样例或切换云OCR。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P15 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
+    if package_code == "P16":
+        recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
+        expected_codes = {
+            "adrb1",
+            "slco1b1",
+            "apoe",
+            "cyp2c19",
+            "gp1ba",
+            "pear1",
+            "cdkal1_rs7756992",
+            "cyp2c9_sulfonylurea",
+            "mthfr",
+            "pai1",
+        }
+        if not test_names:
+            warnings.append("P16 当前未识别到药物基因组学核心项目，请优先使用同目录 OCR.txt 或补充结构化 JSON 结果。")
+        else:
+            missing_codes = sorted(expected_codes - recognized_codes)
+            if missing_codes:
+                warnings.append(f"P16 当前缺少核心项目：{', '.join(missing_codes)}，建议人工复核或补录。")
+        test_names = []
     if package_code == "P10":
         recognized_codes = {str(test.get("item_code") or "") for test in structured_report.get("tests", [])}
         expected_codes = {"psa", "psa_free", "psa_ratio", "cyp1a1", "aldh2", "lct", "cyp1a2", "dhea", "inhibin_b"}
@@ -7664,7 +10570,7 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
 
     allergen_count = sum(1 for name in test_names if "钙卫蛋白" not in name and "IgE" not in name)
     if not test_names:
-        if package_code not in {"P01", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11"}:
+        if package_code not in {"P01", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12", "P13", "P14", "P16"}:
             warnings.append("未识别到检验项目明细。")
     elif package_code == "P02" and allergen_count and allergen_count < 10:
         warnings.append(f"P02 过敏原项目仅识别到 {allergen_count} 项，建议人工复核。")
@@ -7676,7 +10582,7 @@ def build_warnings(fields: list[dict[str, Any]], pages: list[dict[str, Any]], st
         missing_staff = not any([additional_info.get("technician"), additional_info.get("reviewer"), additional_info.get("approver")])
     elif package_code in {"P04", "P06"}:
         missing_staff = not additional_info.get("reviewer")
-    elif package_code in {"P07", "P08", "P09", "P10", "P11", "P17"}:
+    elif package_code in {"P07", "P08", "P09", "P10", "P11", "P12", "P13", "P14", "P15", "P16", "P17"}:
         missing_staff = False
     elif package_code == "P01":
         missing_staff = not additional_info.get("technician") or not additional_info.get("reviewer")

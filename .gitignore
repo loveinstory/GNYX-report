@@ -14,6 +14,7 @@ storage/imports/*
 storage/backups/*
 storage/logs/*
 storage/layout-checks/*
+storage/tmp/*
 storage/*.json
 storage/*.png
 packages/**/templates/html/assets/images/source-page-*.png
